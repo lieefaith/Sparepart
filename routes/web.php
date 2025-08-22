@@ -4,11 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\PermintaanController;
-
-Route::get('/permintaan', [PermintaanController::class, 'index'])->name('permintaan.index');
-Route::post('/permintaan', [PermintaanController::class, 'store'])->name('permintaan.store');
-
 
 Route::get('/', function () {
     if (Auth::check()) {
