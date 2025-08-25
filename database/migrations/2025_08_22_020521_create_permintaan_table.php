@@ -4,30 +4,23 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreatePermintaanTable extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
         Schema::create('permintaan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('tiket')->unique()->notNullable();
+            $table->unsignedBigInteger('user_id');
             $table->date('tanggal_permintaan');
-            $table->string('nama_item', 50);
-            $table->string('deskripsi', 255);
-            $table->integer('jumlah');
-            $table->string('keterangan')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('permintaan');
     }
-};
+}

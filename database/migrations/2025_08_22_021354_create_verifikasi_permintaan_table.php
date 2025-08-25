@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('verifikasi_permintaan', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('region_id')->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('file_path');
             $table->enum('status', ['pending', 'diterima', 'ditolak'])->default('pending');
             $table->longText('signature')->nullable();
             $table->unsignedBigInteger('signed_by')->nullable();
             $table->text('catatan')->nullable();
-            $table->timestamps();
 
             $table->foreign('signed_by')->references('id')->on('users')->onDelete('set null');
         });

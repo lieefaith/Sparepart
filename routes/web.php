@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\PermintaanController;
+use App\Http\Controllers\HistoriPermintaanController;
 
 // Default route → arahkan ke home kalau login, kalau belum ke login
 Route::get('/', function () {
@@ -30,7 +32,7 @@ Route::middleware(['auth'])->group(function () {
         return view('jenisbarang');
     })->name('jenis.barang');
 
-    Route::get('/requestbarang', function () {
-        return view('requestbarang');
-    })->name('request.barang');
+    Route::get('requestbarang', [PermintaanController::class, 'index'])->name('request.barang');
+    Route::get('requestbarang/{tiket}', [PermintaanController::class, 'getDetail']);
+    Route::post('/requestbarang', [PermintaanController::class, 'store'])->name('request.store');
 });

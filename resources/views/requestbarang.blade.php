@@ -66,6 +66,13 @@
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
+
+        .loading-spinner {
+            display: none;
+            width: 3rem;
+            height: 3rem;
+            margin: 20px auto;
+        }
     </style>
 </head>
 
@@ -78,10 +85,19 @@
             </a>
         </div>
 
+        <!-- Notifikasi -->
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <!-- History Request -->
         <div id="history-section">
             <div class="card p-4 mb-4">
                 <h4 class="fw-bold mb-3"><i class="fas fa-history me-2"></i>History Request</h4>
+
                 <div class="table-responsive">
                     <table class="table table-bordered align-middle" id="history-table">
                         <thead>
@@ -94,7 +110,27 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Data otomatis masuk sini -->
+                            @forelse($permintaans as $index => $p)
+                                <tr class="ticket-row">
+                                    <td>{{ $index + 1 }}</td>
+                                    <td class="fw-bold text-primary">{{ $p->tiket }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($p->tanggal_permintaan)->translatedFormat('l, d F Y') }}
+                                    </td>
+                                    <td>{{ $p->histori->status ?? '-' }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" onclick="showDetail('{{ $p->tiket }}')">
+                                            <i class="fas fa-eye me-1"></i>Detail
+                                        </button>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">Belum ada history request</p>
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -109,7 +145,8 @@
         <!-- Form Request -->
         <div id="form-section" class="card p-4 d-none">
             <h4 class="fw-bold mb-3"><i class="fas fa-file-alt me-2"></i>Form Request Barang</h4>
-            <form id="request-form">
+            <form id="request-form" action="{{ route('request.store') }}" method="POST">
+                @csrf
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead class="table-success">
@@ -125,11 +162,12 @@
                         <tbody id="request-table-body">
                             <tr>
                                 <td>1</td>
-                                <td><input type="text" class="form-control" name="itemName[]" required></td>
-                                <td><input type="text" class="form-control" name="itemDesc[]" required></td>
-                                <td><input type="number" class="form-control" name="itemQty[]" min="1" value="1"
-                                        required></td>
-                                <td><input type="text" class="form-control" name="itemNote[]" required></td>
+                                <td><input type="text" class="form-control" name="items[0][nama]" required></td>
+                                <td><input type="text" class="form-control" name="items[0][deskripsi]" required></td>
+                                <td><input type="number" class="form-control" name="items[0][jumlah]" min="1"
+                                        value="1" required></td>
+                                <td><input type="text" class="form-control" name="items[0][keterangan]" required>
+                                </td>
                                 <td><button type="button" class="btn btn-sm btn-danger" disabled><i
                                             class="fas fa-trash"></i></button></td>
                             </tr>
@@ -162,45 +200,49 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <strong>Nama Tiket:</strong> <span id="modal-ticket-name"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Tanggal:</strong> <span id="modal-ticket-date"></span>
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" id="modal-spinner" role="status">
+                            <span class="visually-hidden">Loading...</span>
                         </div>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <strong>Status:</strong> <span id="modal-ticket-status"></span>
+                    <div id="modal-content" style="display: none;">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Nama Tiket:</strong> <span id="modal-ticket-name"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Tanggal:</strong> <span id="modal-ticket-date"></span>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <strong>Dibuat oleh:</strong> <span id="modal-ticket-author">User</span>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>User:</strong> <span id="modal-ticket-user"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Jumlah Item:</strong> <span id="modal-ticket-count"></span>
+                            </div>
                         </div>
-                    </div>
-                    <h6 class="mt-4 mb-3">Daftar Barang:</h6>
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nama Item</th>
-                                    <th>Deskripsi</th>
-                                    <th>Jumlah</th>
-                                    <th>Keterangan</th>
-                                </tr>
-                            </thead>
-                            <tbody id="modal-items-list">
-                                <!-- Items will be inserted here -->
-                            </tbody>
-                        </table>
+                        <h6 class="mt-4 mb-3">Daftar Barang:</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Nama Item</th>
+                                        <th>Deskripsi</th>
+                                        <th>Jumlah</th>
+                                        <th>Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modal-items-list">
+                                    <!-- Items will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-primary" onclick="printTicket()">
-                        <i class="fas fa-print me-2"></i>Cetak
-                    </button>
                 </div>
             </div>
         </div>
@@ -208,13 +250,30 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let ticketCounter = 0;
         let noRow = 1;
         let detailModal = null;
-        let allTickets = {};
 
-        document.addEventListener('DOMContentLoaded', function () {
-            // Inisialisasi modal setelah DOM selesai dimuat
+        const allTickets = {!! json_encode(
+            $permintaans->map(function ($p) {
+                    return [
+                        'id' => $p->id,
+                        'name' => $p->tiket,
+                        'date' => $p->tanggal_permintaan,
+                        'status' => $p->histori ? $p->histori->status : 'pending',
+                        'author' => $p->user ? $p->user->name : '-',
+                        'items' => $p->details->map(function ($d) {
+                                return [
+                                    'nama' => $d->nama_item,
+                                    'desc' => $d->deskripsi ?? '-',
+                                    'qty' => $d->jumlah,
+                                    'note' => $d->keterangan ?? '-',
+                                ];
+                            })->toArray(),
+                    ];
+                })->toArray(),
+        ) !!};
+
+        document.addEventListener('DOMContentLoaded', function() {
             detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
         });
 
@@ -230,10 +289,10 @@
             document.getElementById('request-table-body').innerHTML = `
         <tr>
           <td>1</td>
-          <td><input type="text" class="form-control" name="itemName[]" required></td>
-          <td><input type="text" class="form-control" name="itemDesc[]" required></td>
-          <td><input type="number" class="form-control" name="itemQty[]" min="1" value="1" required></td>
-          <td><input type="text" class="form-control" name="itemNote[]" required></td>
+          <td><input type="text" class="form-control" name="items[0][nama]" required></td>
+          <td><input type="text" class="form-control" name="items[0][deskripsi]" required></td>
+          <td><input type="number" class="form-control" name="items[0][jumlah]" min="1" value="1" required></td>
+          <td><input type="text" class="form-control" name="items[0][keterangan]" required></td>
           <td><button type="button" class="btn btn-sm btn-danger" disabled><i class="fas fa-trash"></i></button></td>
         </tr>`;
             noRow = 1;
@@ -243,12 +302,13 @@
             noRow++;
             const tbody = document.getElementById('request-table-body');
             const row = document.createElement('tr');
-            row.innerHTML = `
+            row.innerHTML =
+                `
         <td>${noRow}</td>
-        <td><input type="text" class="form-control" name="itemName[]" required></td>
-        <td><input type="text" class="form-control" name="itemDesc[]" required></td>
-        <td><input type="number" class="form-control" name="itemQty[]" min="1" value="1" required></td>
-        <td><input type="text" class="form-control" name="itemNote[]" required></td>
+        <td><input type="text" class="form-control" name="items[${noRow-1}][nama]" required></td>
+        <td><input type="text" class="form-control" name="items[${noRow-1}][deskripsi]" required></td>
+        <td><input type="number" class="form-control" name="items[${noRow-1}][jumlah]" min="1" value="1" required></td>
+        <td><input type="text" class="form-control" name="items[${noRow-1}][keterangan]" required></td>
         <td><button type="button" class="btn btn-sm btn-danger" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>`;
             tbody.appendChild(row);
         }
@@ -256,108 +316,57 @@
         function removeRow(btn) {
             const row = btn.closest('tr');
             row.remove();
-        }
-
-        function showDetail(ticketId) {
-            const ticket = allTickets[ticketId];
-            if (!ticket) return;
-
-            // Set modal content
-            document.getElementById('modal-ticket-name').textContent = ticket.name;
-            document.getElementById('modal-ticket-date').textContent = ticket.date;
-            document.getElementById('modal-ticket-status').innerHTML = getStatusBadge(ticket.status);
-
-            // Clear previous items
-            const itemsList = document.getElementById('modal-items-list');
-            itemsList.innerHTML = '';
-
-            // Add items to modal
-            ticket.items.forEach((item, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${item.nama}</td>
-          <td>${item.desc}</td>
-          <td>${item.qty}</td>
-          <td>${item.note}</td>
-        `;
-                itemsList.appendChild(row);
-            });
-
-            // Show modal
-            detailModal.show();
-        }
-
-        function printTicket() {
-            alert('Fungsi cetak akan diimplementasikan di sini');
-            // Di sini bisa ditambahkan logika untuk mencetak tiket
-        }
-
-        function getStatusBadge(status) {
-            const statuses = {
-                'pending': '<span class="badge bg-warning badge-status">Menunggu</span>',
-                'approved': '<span class="badge bg-success badge-status">Disetujui</span>',
-                'rejected': '<span class="badge bg-danger badge-status">Ditolak</span>',
-                'processed': '<span class="badge bg-info badge-status">Diproses</span>'
-            };
-            return statuses[status] || statuses['pending'];
-        }
-
-        document.getElementById('request-form').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            // ambil data barang
-            const items = [];
             const rows = document.querySelectorAll('#request-table-body tr');
-            rows.forEach(r => {
-                items.push({
-                    nama: r.querySelector('input[name="itemName[]"]').value,
-                    desc: r.querySelector('input[name="itemDesc[]"]').value,
-                    qty: r.querySelector('input[name="itemQty[]"]').value,
-                    note: r.querySelector('input[name="itemNote[]"]').value
+            rows.forEach((row, index) => {
+                row.cells[0].textContent = index + 1;
+            });
+            noRow = rows.length;
+        }
+
+        function showDetail(tiket) {
+            document.getElementById('modal-spinner').style.display = 'block';
+            document.getElementById('modal-content').style.display = 'none';
+
+            fetch(`/requestbarang/${tiket}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('modal-ticket-name').textContent = data.tiket;
+                    document.getElementById('modal-ticket-date').textContent = new Date(data.tanggal_permintaan)
+                        .toLocaleDateString('id-ID', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                    document.getElementById('modal-ticket-user').textContent = data ? data.name : '-';
+                    document.getElementById('modal-ticket-count').textContent = data.details.length;
+
+                    // Isi daftar barang
+                    const itemsList = document.getElementById('modal-items-list');
+                    itemsList.innerHTML = '';
+
+                    data.details.forEach((item, index) => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+              <td>${index + 1}</td>
+              <td>${item.nama}</td>
+              <td>${item.deskripsi || '-'}</td>
+              <td>${item.jumlah}</td>
+              <td>${item.keterangan || '-'}</td>
+            `;
+                        itemsList.appendChild(row);
+                    });
+
+                    document.getElementById('modal-spinner').style.display = 'none';
+                    document.getElementById('modal-content').style.display = 'block';
+
+                    detailModal.show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Gagal memuat detail permintaan');
                 });
-            });
-
-            // buat tiket baru
-            ticketCounter++;
-            const ticketName = `Tiket-${ticketCounter.toString().padStart(3, '0')}`;
-            const date = new Date().toLocaleDateString('id-ID', {
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-            });
-
-            // Random status untuk simulasi
-            const statuses = ['pending', 'approved', 'rejected', 'processed'];
-            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-
-            // Simpan data tiket
-            allTickets[ticketCounter] = {
-                id: ticketCounter,
-                name: ticketName,
-                date: date,
-                status: randomStatus,
-                items: items
-            };
-
-            const tbody = document.querySelector('#history-table tbody');
-            const tr = document.createElement('tr');
-            tr.classList.add('ticket-row');
-            tr.innerHTML = `
-        <td>${ticketCounter}</td>
-        <td class="fw-bold text-primary">${ticketName}</td>
-        <td>${date}</td>
-        <td>${getStatusBadge(randomStatus)}</td>
-        <td>
-          <button class="btn btn-sm btn-info" onclick="showDetail(${ticketCounter})">
-            <i class="fas fa-eye me-1"></i>Detail
-          </button>
-        </td>`;
-            tbody.appendChild(tr);
-
-            cancelForm();
-
-            // Tampilkan notifikasi sukses
-            alert(`Request ${ticketName} berhasil dibuat!`);
-        });
+        }
     </script>
 </body>
 

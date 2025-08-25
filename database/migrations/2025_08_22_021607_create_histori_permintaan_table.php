@@ -13,14 +13,16 @@ return new class extends Migration
     {
         Schema::create('histori_permintaan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('permintaan_id')->constrained('permintaan')->onDelete('cascade');
-            $table->string('status', 50);
+            $table->string('tiket');
+            $table->enum('status', ['pending', 'diterima', 'ditolak'])->default('pending');
             $table->date('tanggal_transaksi');
             $table->string('nama_item', 50);
             $table->string('deskripsi', 255);
             $table->integer('jumlah');
             $table->string('keterangan')->nullable();
             $table->timestamp('tanggal_perubahan')->useCurrent();
+
+            $table->foreign('tiket')->references('tiket')->on('permintaan')->onDelete('cascade');
         });
     }
 
