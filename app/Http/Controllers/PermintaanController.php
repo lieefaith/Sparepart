@@ -14,7 +14,7 @@ class PermintaanController extends Controller
     public function index()
     {
         $permintaans = Permintaan::with(['user', 'details', 'histori'])->latest()->get();
-        return view('requestbarang', compact('permintaans'));
+        return view('request.requestbarang', compact('permintaans'));
     }
 
     /**

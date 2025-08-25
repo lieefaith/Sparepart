@@ -18,16 +18,27 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->intended('/home');
+        // Redirect berdasarkan role
+        switch ($user->role) {
+            case 1:
+                return redirect()->route('superadmin.dashboard');
+            case 2:
+                return redirect()->route('kepalaro.dashboard');
+            case 3:
+                return redirect()->route('kepalagudang.dashboard');
+            default: // user biasa
+                return redirect()->route('home');
         }
-
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
     }
+
+    return back()->withErrors([
+        'email' => 'Email atau password salah.',
+    ]);
+}
+
 
     public function logout(Request $request)
     {
