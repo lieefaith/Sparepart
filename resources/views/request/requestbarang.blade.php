@@ -116,7 +116,7 @@
                                     <td class="fw-bold text-primary">{{ $p->tiket }}</td>
                                     <td>{{ \Carbon\Carbon::parse($p->tanggal_permintaan)->translatedFormat('l, d F Y') }}
                                     </td>
-                                    <td>{{ $p->histori->status ?? '-' }}</td>
+                                    <td>{{ $p->status ?? '-' }}</td>
                                     <td>
                                         <button class="btn btn-sm btn-info" onclick="showDetail('{{ $p->tiket }}')">
                                             <i class="fas fa-eye me-1"></i>Detail
@@ -259,7 +259,7 @@
                         'id' => $p->id,
                         'name' => $p->tiket,
                         'date' => $p->tanggal_permintaan,
-                        'status' => $p->histori ? $p->histori->status : 'pending',
+                        'status' => $p->status,
                         'author' => $p->user ? $p->user->name : '-',
                         'items' => $p->details->map(function ($d) {
                                 return [

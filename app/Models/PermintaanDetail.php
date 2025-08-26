@@ -16,7 +16,7 @@ class PermintaanDetail extends Model
         'keterangan',
     ];
 
-    public $timestamps = true;
+    public $timestamps = false;
 
     public function permintaan()
     {

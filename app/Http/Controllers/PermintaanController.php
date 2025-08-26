@@ -13,7 +13,7 @@ class PermintaanController extends Controller
      */
     public function index()
     {
-        $permintaans = Permintaan::with(['user', 'details', 'histori'])->latest()->get();
+        $permintaans = Permintaan::with(['user', 'details'])->orderBy('id', 'desc')->get();
         return view('request.requestbarang', compact('permintaans'));
     }
 

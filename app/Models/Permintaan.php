@@ -12,11 +12,11 @@ class Permintaan extends Model
     protected $fillable = [
         'user_id',
         'tanggal_permintaan',
-        'keterangan',
+        'status',
     ];
 
 
-    public $timestamps = true;
+    public $timestamps = false;
 
     protected static function boot()
     {
