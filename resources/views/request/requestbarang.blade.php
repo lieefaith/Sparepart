@@ -272,7 +272,6 @@
                     ];
                 })->toArray(),
         ) !!};
-
         document.addEventListener('DOMContentLoaded', function() {
             detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
         });
