@@ -17,8 +17,6 @@ return new class extends Migration
             $table->string('nama_region', 50);
             $table->string('email')->nullable();
             $table->text('alamat')->nullable();
-            $table->string('koordinat')->nullable();
-            $table->timestamps();
         });
     }
 

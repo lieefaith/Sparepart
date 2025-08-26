@@ -15,7 +15,6 @@ class CreatePermintaanDetailTable extends Migration
             $table->string('deskripsi', 255);
             $table->integer('jumlah');
             $table->string('keterangan')->nullable();
-            $table->timestamps();
 
             $table->foreign('tiket')->references('tiket')->on('permintaan')->onDelete('cascade');
             $table->index('tiket');

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->text('catatan')->nullable();
 
             $table->foreign('signed_by')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('region_id')->references('id')->on('region')->onDelete('cascade');
         });
     }
 

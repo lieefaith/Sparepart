@@ -29,7 +29,6 @@ return new class extends Migration
             $table->string('department');
             $table->text('keterangan');
             $table->string('status', 50)->nullable();
-            $table->timestamps();
 
             $table->foreign('jenis_id')->references('id')->on('jenis_barang')->onDelete('cascade');
             $table->foreign('kode_region')->references('kode_region')->on('region')->onDelete('cascade');

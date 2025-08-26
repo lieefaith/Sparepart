@@ -10,12 +10,13 @@ class CreatePermintaanTable extends Migration
     {
         Schema::create('permintaan', function (Blueprint $table) {
             $table->id();
-            $table->string('tiket')->unique()->notNullable();
+            $table->string('tiket')->unique();
             $table->unsignedBigInteger('user_id');
-            $table->date('tanggal_permintaan');
-            $table->timestamps();
+            $table->date('tanggal_permintaan')->useCurrent();
+            $table->enum('status', ['pending', 'diterima', 'ditolak'])->default('pending');
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->index('tiket');
         });
     }
 
