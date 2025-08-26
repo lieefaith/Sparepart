@@ -3,7 +3,9 @@
 // app/Http/Controllers/SuperadminController.php
 namespace App\Http\Controllers;
 
-class SuperadminController extends Controller
+use Illuminate\Http\Request;
+
+class SuperAdminController extends Controller
 {
     public function dashboard()
     {

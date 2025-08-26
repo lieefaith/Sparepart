@@ -23,31 +23,28 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// SUPERADMIN
-Route::prefix('superadmin')->name('superadmin.')->middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('superadmin.dashboard');
-    })->name('dashboard');
-});
-
 // KEPALA RO
-Route::prefix('kepalaro')->name('kepalaro.')->middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('kepalaro.dashboard');
-    })->name('dashboard');
-});
+Route::middleware(['auth', 'role:2'])
+    ->name('kepalaro.')
+    ->group(function () {
+        Route::get('/dashboard', fn() => view('kepalaro.dashboard'))
+            ->name('dashboard');
+    });
 
 // KEPALA GUDANG
-Route::prefix('kepalagudang')->name('kepalagudang.')->middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('kepalagudang.dashboard');
-    })->name('dashboard');
-});
+Route::middleware(['auth', 'role:3'])
+    ->name('kepalagudang.')
+    ->group(function () {
+        Route::get('/dashboard', fn() => view('kepalagudang.dashboard'))
+            ->name('dashboard');
+    });
 
 // USER
-Route::middleware(['auth'])->group(function () {
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
-});
+Route::middleware(['auth', 'role:4'])
+    ->group(function () {
+        Route::get('/home', [HomeController::class, 'index'])
+            ->name('home');
+    });
 
 
 // ================= LOGIN ================= //
@@ -64,7 +61,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Menu lain
     Route::get('/jenisbarang', function () {
-        return view('request.jenisbarang');
+        return view('user.jenisbarang');
     })->name('jenis.barang');
 
     Route::get('requestbarang', [PermintaanController::class, 'index'])->name('request.barang');
