@@ -271,7 +271,7 @@
                                     <i class="bi bi-clock-history text-primary fs-4"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-0">Menunggu</h6>
+                                    <h6 class="mb-0">Pending</h6>
                                     <h4 class="mb-0 fw-bold text-primary">5</h4>
                                 </div>
                             </div>
