@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PermintaanController;
 use App\Http\Controllers\SuperadminController;
 
+require __DIR__.'/auth.php';
 
 // =====================
 // DEFAULT ROUTE

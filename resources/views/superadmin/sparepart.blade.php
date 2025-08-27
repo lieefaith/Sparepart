@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,18 +18,18 @@
             --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
         }
-        
+
         body {
             background-color: #f5f7fb;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #343a40;
         }
-        
+
         .navbar {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         .sidebar {
             background-color: white;
             border-right: 1px solid #e9ecef;
@@ -37,37 +38,37 @@
             padding: 0;
             transition: var(--transition);
         }
-        
+
         .sidebar .nav-link {
             color: #495057;
             padding: 12px 20px;
             border-left: 4px solid transparent;
             transition: var(--transition);
         }
-        
+
         .sidebar .nav-link:hover {
             background-color: #f8f9fa;
             border-left: 4px solid var(--primary-color);
         }
-        
+
         .sidebar .nav-link.active {
             background-color: #e9ecef;
             border-left: 4px solid var(--primary-color);
             color: var(--primary-color);
             font-weight: 600;
         }
-        
+
         .sidebar .nav-link i {
             margin-right: 10px;
             width: 24px;
             text-align: center;
         }
-        
+
         .main-content {
             padding: 20px;
             transition: var(--transition);
         }
-        
+
         .page-header {
             background: white;
             border-radius: 10px;
@@ -75,7 +76,7 @@
             padding: 20px;
             margin-bottom: 20px;
         }
-        
+
         .table-container {
             background: white;
             border-radius: 10px;
@@ -83,7 +84,7 @@
             padding: 20px;
             margin-top: 20px;
         }
-        
+
         .table thead th {
             background-color: #f8f9fa;
             border-top: none;
@@ -91,14 +92,14 @@
             color: #495057;
             vertical-align: middle;
         }
-        
+
         .status-badge {
             padding: 0.35em 0.65em;
             font-size: 0.75em;
             font-weight: 600;
             border-radius: 0.25rem;
         }
-        
+
         .filter-card {
             background: white;
             border-radius: 10px;
@@ -106,7 +107,7 @@
             padding: 20px;
             margin-bottom: 20px;
         }
-        
+
         .pagination-container {
             background: white;
             border-radius: 10px;
@@ -114,17 +115,17 @@
             padding: 15px 20px;
             margin-top: 20px;
         }
-        
+
         .btn-action {
             padding: 0.25rem 0.5rem;
             font-size: 0.875rem;
             margin: 0 2px;
         }
-        
+
         .table-hover tbody tr:hover {
             background-color: rgba(67, 97, 238, 0.05);
         }
-        
+
         .stats-card {
             background: white;
             border-radius: 10px;
@@ -133,33 +134,34 @@
             margin-bottom: 15px;
             transition: var(--transition);
         }
-        
+
         .stats-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
-        
+
         .badge-pill {
             border-radius: 10rem;
         }
-        
+
         @media (max-width: 768px) {
             .sidebar {
                 min-height: auto;
                 border-right: none;
                 border-bottom: 1px solid #e9ecef;
             }
-            
+
             .table-responsive {
                 font-size: 14px;
             }
-            
+
             .stats-card {
                 padding: 12px;
             }
         }
     </style>
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
@@ -179,8 +181,11 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profil</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
@@ -196,13 +201,16 @@
                     <a href="{{ route('superadmin.dashboard') }}" class="list-group-item list-group-item-action py-3">
                         <i class="bi bi-speedometer2"></i> Dashboard
                     </a>
-                    <a href="{{ route('superadmin.request.index') }}" class="list-group-item list-group-item-action py-3">
+                    <a href="{{ route('superadmin.request.index') }}"
+                        class="list-group-item list-group-item-action py-3">
                         <i class="bi bi-cart-check"></i> Request Barang
                     </a>
-                    <a href="{{ route('superadmin.sparepart.index') }}" class="list-group-item list-group-item-action py-3 active">
+                    <a href="{{ route('superadmin.sparepart.index') }}"
+                        class="list-group-item list-group-item-action py-3 active">
                         <i class="bi bi-tools"></i> Daftar Sparepart
                     </a>
-                    <a href="{{ route('superadmin.history.index') }}" class="list-group-item list-group-item-action py-3">
+                    <a href="{{ route('superadmin.history.index') }}"
+                        class="list-group-item list-group-item-action py-3">
                         <i class="bi bi-clock-history"></i> Histori Barang
                     </a>
                 </div>
@@ -218,7 +226,8 @@
                             <p class="text-muted mb-0">Kelola data sparepart yang tersedia di sistem</p>
                         </div>
                         <div>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahSparepartModal">
+                            <button class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#tambahSparepartModal">
                                 <i class="bi bi-plus-circle me-1"></i> Tambah Sparepart
                             </button>
                             <a href="{{ route('superadmin.dashboard') }}" class="btn btn-secondary">
@@ -255,7 +264,8 @@
                         <div class="col-md-4 mb-3">
                             <label for="searchFilter" class="form-label">Cari Sparepart</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Cari ID atau nama sparepart..." id="searchFilter">
+                                <input type="text" class="form-control" placeholder="Cari ID atau nama sparepart..."
+                                    id="searchFilter">
                                 <button class="btn btn-primary">
                                     <i class="bi bi-search"></i>
                                 </button>
@@ -335,120 +345,54 @@
                             <thead>
                                 <tr>
                                     <th>ID Sparepart</th>
-                                    <th>Jenis</th>
-                                    <th>Nama</th>
+                                    <th>Jenis & Type</th>
                                     <th>Status</th>
                                     <th>Quantity</th>
                                     <th>Harga</th>
-                                    <th>Supplier</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td><span class="fw-bold">SP001</span></td>
-                                    <td>Kampas Rem</td>
-                                    <td>Kampas Rem Depan</td>
+                                    <td>SFP 1G-850nm-300m</td>
                                     <td><span class="badge bg-success status-badge">Tersedia</span></td>
-                                    <td>120</td>
-                                    <td>Rp 85.000</td>
-                                    <td>PT Auto Parts</td>
+                                    <td>25</td>
+                                    <td>Rp 750.000</td>
                                     <td>
-                                        <button class="btn btn-primary btn-action" data-bs-toggle="tooltip" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-danger btn-action" data-bs-toggle="tooltip" title="Hapus">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <button class="btn btn-info btn-action" data-bs-toggle="tooltip" title="Detail">
-                                            <i class="bi bi-eye"></i>
+                                        <button class="btn btn-primary btn-action" data-bs-toggle="tooltip"
+                                            title="Edit"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-danger btn-action" data-bs-toggle="tooltip"
+                                            title="Hapus"><i class="bi bi-trash"></i></button>
+
+                                        <button class="btn btn-info btn-sm btn-detail" data-id="SP001" title="Detail">
+                                            <i class="bi bi-eye"></i> Detail
                                         </button>
                                     </td>
                                 </tr>
+
                                 <tr>
                                     <td><span class="fw-bold">SP002</span></td>
-                                    <td>Oli Mesin</td>
-                                    <td>Oli Mesin Synthetic</td>
+                                    <td>SFP 1G-1310nm-10km</td>
                                     <td><span class="badge bg-warning status-badge">Dipesan</span></td>
-                                    <td>15</td>
-                                    <td>Rp 120.000</td>
-                                    <td>PT Lubricants</td>
+                                    <td>10</td>
+                                    <td>Rp 1.200.000</td>
                                     <td>
-                                        <button class="btn btn-primary btn-action" data-bs-toggle="tooltip" title="Edit">
-                                            <i class="bi bi-pencil"></i>
+                                        <button class="btn btn-primary btn-action"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-danger btn-action"><i class="bi bi-trash"></i></button>
+
+                                        <button class="btn btn-info btn-sm btn-detail" data-id="SP002" title="Detail">
+                                            <i class="bi bi-eye"></i> Detail
                                         </button>
-                                        <button class="btn btn-danger btn-action" data-bs-toggle="tooltip" title="Hapus">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <button class="btn btn-info btn-action" data-bs-toggle="tooltip" title="Detail">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
+
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td><span class="fw-bold">SP003</span></td>
-                                    <td>Filter</td>
-                                    <td>Filter Udara</td>
-                                    <td><span class="badge bg-danger status-badge">Habis</span></td>
-                                    <td>0</td>
-                                    <td>Rp 65.000</td>
-                                    <td>PT Filter Indonesia</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-action" data-bs-toggle="tooltip" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-danger btn-action" data-bs-toggle="tooltip" title="Hapus">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <button class="btn btn-info btn-action" data-bs-toggle="tooltip" title="Detail">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><span class="fw-bold">SP004</span></td>
-                                    <td>Busi</td>
-                                    <td>Busi Iridium</td>
-                                    <td><span class="badge bg-success status-badge">Tersedia</span></td>
-                                    <td>200</td>
-                                    <td>Rp 35.000</td>
-                                    <td>PT Spark Plug</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-action" data-bs-toggle="tooltip" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-danger btn-action" data-bs-toggle="tooltip" title="Hapus">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <button class="btn btn-info btn-action" data-bs-toggle="tooltip" title="Detail">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><span class="fw-bold">SP005</span></td>
-                                    <td>Aki</td>
-                                    <td>Aki Kering</td>
-                                    <td><span class="badge bg-success status-badge">Tersedia</span></td>
-                                    <td>30</td>
-                                    <td>Rp 950.000</td>
-                                    <td>PT Battery Life</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-action" data-bs-toggle="tooltip" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-danger btn-action" data-bs-toggle="tooltip" title="Hapus">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <button class="btn btn-info btn-action" data-bs-toggle="tooltip" title="Detail">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+
                             </tbody>
                         </table>
                     </div>
                 </div>
+
 
                 <!-- Pagination -->
                 <div class="pagination-container d-flex justify-content-between align-items-center">
@@ -496,7 +440,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="namaSparepart" class="form-label">Nama Sparepart</label>
-                            <input type="text" class="form-control" id="namaSparepart" placeholder="Masukkan nama sparepart">
+                            <input type="text" class="form-control" id="namaSparepart"
+                                placeholder="Masukkan nama sparepart">
                         </div>
                         <div class="mb-3">
                             <label for="quantity" class="form-label">Quantity</label>
@@ -517,15 +462,6 @@
                                 <option>PT Battery Life</option>
                             </select>
                         </div>
-                        <div class="mb-3">
-                            <label for="status" class="form-label">Status</label>
-                            <select class="form-select" id="status">
-                                <option selected>Pilih status</option>
-                                <option>Tersedia</option>
-                                <option>Habis</option>
-                                <option>Dipesan</option>
-                            </select>
-                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -536,33 +472,134 @@
         </div>
     </div>
 
+    <!-- Modal Detail Transaksi -->
+    <div class="modal fade" id="transaksiDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-receipt me-2"></i>Detail Transaksi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" id="transaksi-spinner" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+
+                    <div id="transaksi-content" style="display:none;">
+                        <div class="row mb-3">
+                            <div class="col-md-6"><strong>ID Transaksi:</strong> <span id="trx-id"></span></div>
+                            <div class="col-md-6"><strong>Tanggal:</strong> <span id="trx-date"></span></div>
+                        </div>
+                        <h6 class="mt-3 mb-2">Daftar Sparepart:</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Serial Number</th>
+                                        <th>Jenis</th>
+                                        <th>Type</th>
+                                        <th>Harga</th>
+                                        <th>Vendor (Supplier)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="trx-items-list">
+                                    <!-- diisi via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Highlight menu aktif
-            const currentLocation = location.href;
-            const menuItems = document.querySelectorAll('.list-group-item');
-            const menuLength = menuItems.length;
-            
-            for (let i = 0; i < menuLength; i++) {
-                if (menuItems[i].href === currentLocation) {
-                    menuItems[i].classList.add('active');
-                }
+        const transaksiData = {
+    "SP001": {
+        id: "TRX-001",
+        tanggal: "27 Agustus 2025",
+        items: [
+            { serial: "SN-001", jenis: "SFP", type: "1G-850nm-300m", harga: 750000, vendor: "PT Optik Nusantara" },
+            { serial: "SN-002", jenis: "SFP", type: "1G-1310nm-10km", harga: 1200000, vendor: "PT Fiber Link" }
+        ]
+    },
+    "SP002": {
+        id: "TRX-002",
+        tanggal: "28 Agustus 2025",
+        items: [
+            { serial: "SN-003", jenis: "SFP", type: "1G-850nm-10km", harga: 900000, vendor: "PT Jaringan Sentosa" }
+        ]
+    }
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+    transaksiDetailModal = new bootstrap.Modal(document.getElementById('transaksiDetailModal'));
+
+    document.querySelectorAll(".btn-detail").forEach(btn => {
+        btn.addEventListener("click", function () {
+            const id = this.dataset.id;
+            const data = transaksiData[id];
+            if (data) {
+                showTransaksiDetail(data);
             }
-            
-            // Initialize tooltips
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-            
-            // Format input harga
-            document.getElementById('harga').addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                value = new Intl.NumberFormat('id-ID').format(value);
-                e.target.value = value ? 'Rp ' + value : '';
-            });
         });
+    });
+});
+
+
+        let transaksiDetailModal;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            transaksiDetailModal = new bootstrap.Modal(document.getElementById('transaksiDetailModal'));
+        });
+
+        function formatRupiah(val) {
+            const num = Number(String(val).replace(/\D/g, '')) || 0;
+            return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
+        }
+
+        // contoh fungsi untuk tampilkan detail transaksi
+        function showTransaksiDetail(data) {
+            // data = {id, tanggal, items: [{serial, type, jenis, harga, vendor}]}
+
+            document.getElementById('transaksi-spinner').style.display = 'block';
+            document.getElementById('transaksi-content').style.display = 'none';
+
+            document.getElementById('trx-id').textContent = data.id || '-';
+            document.getElementById('trx-date').textContent = data.tanggal || '-';
+
+            const tbody = document.getElementById('trx-items-list');
+            tbody.innerHTML = "";
+
+            data.items.forEach((item, i) => {
+                const row = `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${item.serial || '-'}</td>
+        <td>${item.jenis || '-'}</td>
+        <td>${item.type || '-'}</td>
+        <td>${item.harga ? formatRupiah(item.harga) : '-'}</td>
+        <td>${item.vendor || '-'}</td>
+      </tr>
+    `;
+                tbody.insertAdjacentHTML("beforeend", row);
+            });
+
+            document.getElementById('transaksi-spinner').style.display = 'none';
+            document.getElementById('transaksi-content').style.display = 'block';
+            transaksiDetailModal.show();
+        }
+
     </script>
 </body>
+
 </html>
