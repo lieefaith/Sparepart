@@ -339,7 +339,6 @@
                                                 <textarea class="form-control"
                                                     id="keteranganRequest1">Request untuk maintenance</textarea>
                                             </div>
-                                            <button type="submit" class="btn btn-primary">Update Request</button>
                                         </form>
                                     </div>
 
@@ -366,7 +365,6 @@
                                                 <textarea class="form-control"
                                                     id="catatanPengiriman1">Pengiriman sesuai jadwal</textarea>
                                             </div>
-                                            <button type="submit" class="btn btn-success">Update Pengiriman</button>
                                         </form>
                                     </div>
                                 </div>

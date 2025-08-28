@@ -348,7 +348,8 @@
                                     <th>Jenis & Type</th>
                                     <th>Status</th>
                                     <th>Quantity</th>
-                                    <th>Harga</th>
+                                    <th>PIC</th>
+                                    <th>Tanggal</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -358,13 +359,17 @@
                                     <td>SFP 1G-850nm-300m</td>
                                     <td><span class="badge bg-success status-badge">Tersedia</span></td>
                                     <td>25</td>
-                                    <td>Rp 750.000</td>
+                                    <td>Andi</td>
+                                    <td>2025-08-28</td>
                                     <td>
                                         <button class="btn btn-primary btn-action" data-bs-toggle="tooltip"
-                                            title="Edit"><i class="bi bi-pencil"></i></button>
+                                            title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
                                         <button class="btn btn-danger btn-action" data-bs-toggle="tooltip"
-                                            title="Hapus"><i class="bi bi-trash"></i></button>
-
+                                            title="Hapus">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
                                         <button class="btn btn-info btn-sm btn-detail" data-id="SP001" title="Detail">
                                             <i class="bi bi-eye"></i> Detail
                                         </button>
@@ -376,15 +381,20 @@
                                     <td>SFP 1G-1310nm-10km</td>
                                     <td><span class="badge bg-warning status-badge">Dipesan</span></td>
                                     <td>10</td>
-                                    <td>Rp 1.200.000</td>
+                                    <td>Budi</td>
+                                    <td>2025-08-27</td>
                                     <td>
-                                        <button class="btn btn-primary btn-action"><i class="bi bi-pencil"></i></button>
-                                        <button class="btn btn-danger btn-action"><i class="bi bi-trash"></i></button>
-
+                                        <button class="btn btn-primary btn-action" data-bs-toggle="tooltip"
+                                            title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-action" data-bs-toggle="tooltip"
+                                            title="Hapus">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
                                         <button class="btn btn-info btn-sm btn-detail" data-id="SP002" title="Detail">
                                             <i class="bi bi-eye"></i> Detail
                                         </button>
-
                                     </td>
                                 </tr>
 
@@ -392,6 +402,7 @@
                         </table>
                     </div>
                 </div>
+
 
 
                 <!-- Pagination -->
@@ -427,6 +438,7 @@
                 </div>
                 <div class="modal-body">
                     <form>
+                        <!-- Jenis -->
                         <div class="mb-3">
                             <label for="jenisSparepart" class="form-label">Jenis Sparepart</label>
                             <select class="form-select" id="jenisSparepart">
@@ -438,29 +450,55 @@
                                 <option>Aki</option>
                             </select>
                         </div>
+                        <!-- Type -->
                         <div class="mb-3">
-                            <label for="namaSparepart" class="form-label">Nama Sparepart</label>
-                            <input type="text" class="form-control" id="namaSparepart"
-                                placeholder="Masukkan nama sparepart">
+                            <label for="typeSparepart" class="form-label">Type</label>
+                            <input type="text" class="form-control" id="typeSparepart"
+                                placeholder="Masukkan type sparepart">
                         </div>
+                        <!-- Serial Number -->
+                        <div class="mb-3">
+                            <label for="serialNumber" class="form-label">Serial Number</label>
+                            <input type="text" class="form-control" id="serialNumber"
+                                placeholder="Masukkan serial number">
+                        </div>
+                        <!-- Quantity -->
                         <div class="mb-3">
                             <label for="quantity" class="form-label">Quantity</label>
                             <input type="number" class="form-control" id="quantity" placeholder="Masukkan jumlah">
                         </div>
+                        <!-- Vendor -->
                         <div class="mb-3">
-                            <label for="harga" class="form-label">Harga</label>
-                            <input type="text" class="form-control" id="harga" placeholder="Masukkan harga">
-                        </div>
-                        <div class="mb-3">
-                            <label for="supplier" class="form-label">Supplier</label>
-                            <select class="form-select" id="supplier">
-                                <option selected>Pilih supplier</option>
+                            <label for="vendor" class="form-label">Vendor</label>
+                            <select class="form-select" id="vendor">
+                                <option selected>Pilih vendor</option>
                                 <option>PT Auto Parts</option>
                                 <option>PT Lubricants</option>
                                 <option>PT Filter Indonesia</option>
                                 <option>PT Spark Plug</option>
                                 <option>PT Battery Life</option>
                             </select>
+                        </div>
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status">
+                                <option selected>Pilih status</option>
+                                <option value="tersedia">Tersedia</option>
+                                <option value="dipesan">Dipesan</option>
+                                <option value="kosong">Kosong</option>
+                            </select>
+                        </div>
+                        <!-- Harga -->
+                        <div class="mb-3">
+                            <label for="harga" class="form-label">Harga</label>
+                            <input type="text" class="form-control" id="harga" placeholder="Masukkan harga">
+                        </div>
+                        <!-- Keterangan -->
+                        <div class="mb-3">
+                            <label for="keterangan" class="form-label">Keterangan</label>
+                            <textarea class="form-control" id="keterangan" rows="3"
+                                placeholder="Tambahkan keterangan sparepart"></textarea>
                         </div>
                     </form>
                 </div>
@@ -471,6 +509,8 @@
             </div>
         </div>
     </div>
+
+
 
     <!-- Modal Detail Transaksi -->
     <div class="modal fade" id="transaksiDetailModal" tabindex="-1" aria-hidden="true">
@@ -499,10 +539,12 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Serial Number</th>
-                                        <th>Jenis</th>
                                         <th>Type</th>
+                                        <th>Jenis</th>
                                         <th>Harga</th>
                                         <th>Vendor (Supplier)</th>
+                                        <th>SPK</th>
+                                        <th>Keterangan</th>
                                     </tr>
                                 </thead>
                                 <tbody id="trx-items-list">
@@ -521,39 +563,44 @@
 
 
 
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const transaksiData = {
-    "SP001": {
-        id: "TRX-001",
-        tanggal: "27 Agustus 2025",
-        items: [
-            { serial: "SN-001", jenis: "SFP", type: "1G-850nm-300m", harga: 750000, vendor: "PT Optik Nusantara" },
-            { serial: "SN-002", jenis: "SFP", type: "1G-1310nm-10km", harga: 1200000, vendor: "PT Fiber Link" }
-        ]
-    },
-    "SP002": {
-        id: "TRX-002",
-        tanggal: "28 Agustus 2025",
-        items: [
-            { serial: "SN-003", jenis: "SFP", type: "1G-850nm-10km", harga: 900000, vendor: "PT Jaringan Sentosa" }
-        ]
-    }
-};
-
-document.addEventListener("DOMContentLoaded", function () {
-    transaksiDetailModal = new bootstrap.Modal(document.getElementById('transaksiDetailModal'));
-
-    document.querySelectorAll(".btn-detail").forEach(btn => {
-        btn.addEventListener("click", function () {
-            const id = this.dataset.id;
-            const data = transaksiData[id];
-            if (data) {
-                showTransaksiDetail(data);
+            "SP001": {
+                tanggal: "27 Agustus 2025",
+                items: [
+                    { serial: "SN-001", type: "1G-850nm-300m", jenis: "SFP", harga: 750000, vendor: "PT Optik Nusantara", spk: "SPK-001", keterangan: "Barang ready stock" },
+                    { serial: "SN-002", type: "1G-1310nm-10km", jenis: "SFP", harga: 1200000, vendor: "PT Fiber Link", spk: "SPK-002", keterangan: "Dipesan untuk proyek Batam" },
+                    { serial: "SN-003", type: "1G-1550nm-40km", jenis: "SFP", harga: 1800000, vendor: "PT Cahaya Fiber", spk: "SPK-003", keterangan: "Stok untuk Jakarta Barat" },
+                    { serial: "SN-004", type: "1G-850nm-2km", jenis: "SFP", harga: 950000, vendor: "PT Metro Optik", spk: "SPK-004", keterangan: "Cadangan untuk gudang pusat" },
+                    { serial: "SN-005", type: "1G-1310nm-20km", jenis: "SFP", harga: 1350000, vendor: "PT Fiber Link", spk: "SPK-005", keterangan: "Untuk penggantian unit lama" }
+                ]
+            },
+            "SP002": {
+                tanggal: "28 Agustus 2025",
+                items: [
+                    { serial: "SN-006", type: "1G-850nm-10km", jenis: "SFP", harga: 900000, vendor: "PT Jaringan Sentosa", spk: "SPK-006", keterangan: "Untuk gudang Jakarta" },
+                    { serial: "SN-007", type: "1G-1550nm-80km", jenis: "SFP", harga: 2200000, vendor: "PT Cahaya Fiber", spk: "SPK-007", keterangan: "Pengadaan proyek Surabaya" },
+                    { serial: "SN-008", type: "1G-850nm-500m", jenis: "SFP", harga: 800000, vendor: "PT Optik Nusantara", spk: "SPK-008", keterangan: "Testing dan lab" }
+                ]
             }
+        };
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            transaksiDetailModal = new bootstrap.Modal(document.getElementById('transaksiDetailModal'));
+
+            document.querySelectorAll(".btn-detail").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const id = this.dataset.id;
+                    const data = transaksiData[id];
+                    if (data) {
+                        showTransaksiDetail(data);
+                    }
+                });
+            });
         });
-    });
-});
 
 
         let transaksiDetailModal;
@@ -569,7 +616,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // contoh fungsi untuk tampilkan detail transaksi
         function showTransaksiDetail(data) {
-            // data = {id, tanggal, items: [{serial, type, jenis, harga, vendor}]}
+            // data = {id, tanggal, items: [{serial, type, jenis, harga, vendor, spk, keterangan}]}
 
             document.getElementById('transaksi-spinner').style.display = 'block';
             document.getElementById('transaksi-content').style.display = 'none';
@@ -582,15 +629,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
             data.items.forEach((item, i) => {
                 const row = `
-      <tr>
-        <td>${i + 1}</td>
-        <td>${item.serial || '-'}</td>
-        <td>${item.jenis || '-'}</td>
-        <td>${item.type || '-'}</td>
-        <td>${item.harga ? formatRupiah(item.harga) : '-'}</td>
-        <td>${item.vendor || '-'}</td>
-      </tr>
-    `;
+        <tr>
+            <td>${i + 1}</td>
+            <td>${item.serial || '-'}</td>
+            <td>${item.type || '-'}</td>
+            <td>${item.jenis || '-'}</td>
+            <td>${item.harga ? formatRupiah(item.harga) : '-'}</td>
+            <td>${item.vendor || '-'}</td>
+            <td>${item.spk || '-'}</td>
+            <td>${item.keterangan || '-'}</td>
+        </tr>
+        `;
                 tbody.insertAdjacentHTML("beforeend", row);
             });
 
@@ -598,6 +647,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById('transaksi-content').style.display = 'block';
             transaksiDetailModal.show();
         }
+
 
     </script>
 </body>

@@ -260,39 +260,26 @@
                                             <th>Requester</th>
                                             <th>Barang Diminta</th>
                                             <th>Status</th>
-                                            <th>Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td>REQ001</td>
-                                            <td>Kepala RO 1</td>
+                                            <td>RO Batam</td>
                                             <td>Oli Mesin</td>
                                             <td><span class="badge bg-warning status-badge">Menunggu</span></td>
-                                            <td>
-                                                <button class="btn btn-success btn-action"><i class="bi bi-check-lg"></i></button>
-                                                <button class="btn btn-danger btn-action"><i class="bi bi-x-lg"></i></button>
-                                            </td>
                                         </tr>
                                         <tr>
                                             <td>REQ002</td>
-                                            <td>Kepala RO 2</td>
+                                            <td>RO Bekasi</td>
                                             <td>Kampas Rem</td>
                                             <td><span class="badge bg-info status-badge">Diproses</span></td>
-                                            <td>
-                                                <button class="btn btn-success btn-action"><i class="bi bi-check-lg"></i></button>
-                                                <button class="btn btn-danger btn-action"><i class="bi bi-x-lg"></i></button>
-                                            </td>
                                         </tr>
                                         <tr>
                                             <td>REQ003</td>
-                                            <td>Kepala RO 3</td>
+                                            <td>RO Jambi</td>
                                             <td>Filter Udara</td>
                                             <td><span class="badge bg-success status-badge">Disetujui</span></td>
-                                            <td>
-                                                <button class="btn btn-outline-secondary btn-action" disabled><i class="bi bi-check-lg"></i></button>
-                                                <button class="btn btn-outline-secondary btn-action" disabled><i class="bi bi-x-lg"></i></button>
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
