@@ -184,7 +184,8 @@
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+                            <li><a class="dropdown-item" href="#"><i
+                                        class="bi bi-box-arrow-right me-2"></i>Logout</a>
                             </li>
                         </ul>
                     </li>
@@ -341,8 +342,8 @@
                 <!-- Table -->
                 <div class="table-container">
                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
+                        <table class="table table-bordered">
+                            <thead class="table-light">
                                 <tr>
                                     <th>ID Sparepart</th>
                                     <th>Jenis & Type</th>
@@ -354,52 +355,39 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td><span class="fw-bold">SP001</span></td>
-                                    <td>SFP 1G-850nm-300m</td>
-                                    <td><span class="badge bg-success status-badge">Tersedia</span></td>
-                                    <td>25</td>
-                                    <td>Andi</td>
-                                    <td>2025-08-28</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-action" data-bs-toggle="tooltip"
-                                            title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-danger btn-action" data-bs-toggle="tooltip"
-                                            title="Hapus">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <button class="btn btn-info btn-sm btn-detail" data-id="SP001" title="Detail">
-                                            <i class="bi bi-eye"></i> Detail
-                                        </button>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td><span class="fw-bold">SP002</span></td>
-                                    <td>SFP 1G-1310nm-10km</td>
-                                    <td><span class="badge bg-warning status-badge">Dipesan</span></td>
-                                    <td>10</td>
-                                    <td>Budi</td>
-                                    <td>2025-08-27</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-action" data-bs-toggle="tooltip"
-                                            title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-danger btn-action" data-bs-toggle="tooltip"
-                                            title="Hapus">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <button class="btn btn-info btn-sm btn-detail" data-id="SP002" title="Detail">
-                                            <i class="bi bi-eye"></i> Detail
-                                        </button>
-                                    </td>
-                                </tr>
-
+                                @forelse($listBarang as $barang)
+                                    <tr>
+                                        <td><span class="fw-bold">{{ $barang->tiket_sparepart }}</span></td>
+                                        <td>{{ $barang->jenisBarang->jenis }} {{ $barang->tipeBarang->tipe }}</td>
+                                        <td>{{ $barang->status }}</td>
+                                        <td>{{ $barang->quantity }}</td>
+                                        <td>{{ $barang->pic }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($barang->tanggal)->format('d-m-Y') }}</td>
+                                        <td>
+                                            <button class="btn btn-primary btn-action" data-bs-toggle="tooltip"
+                                                title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-danger btn-action" data-bs-toggle="tooltip"
+                                                title="Hapus">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            <button class="btn btn-info btn-sm btn-detail" data-id="SP002"
+                                                title="Detail">
+                                                <i class="bi bi-eye"></i> Detail
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-4">
+                                            Tidak ada data
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
+
                     </div>
                 </div>
 
@@ -413,7 +401,8 @@
                     <nav aria-label="Page navigation">
                         <ul class="pagination mb-0">
                             <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Sebelumnya</a>
+                                <a class="page-link" href="#" tabindex="-1"
+                                    aria-disabled="true">Sebelumnya</a>
                             </li>
                             <li class="page-item active"><a class="page-link" href="#">1</a></li>
                             <li class="page-item"><a class="page-link" href="#">2</a></li>
@@ -497,8 +486,7 @@
                         <!-- Keterangan -->
                         <div class="mb-3">
                             <label for="keterangan" class="form-label">Keterangan</label>
-                            <textarea class="form-control" id="keterangan" rows="3"
-                                placeholder="Tambahkan keterangan sparepart"></textarea>
+                            <textarea class="form-control" id="keterangan" rows="3" placeholder="Tambahkan keterangan sparepart"></textarea>
                         </div>
                     </form>
                 </div>
@@ -547,9 +535,45 @@
                                         <th>Keterangan</th>
                                     </tr>
                                 </thead>
-                                <tbody id="trx-items-list">
-                                    <!-- diisi via JS -->
+                                <tbody>
+                                    @forelse ($listBarang as $item)
+                                        <tr>
+                                            <td><span class="fw-bold">{{ $item->tiket_sparepart }}</span></td>
+                                            <td>{{ $item->details->first()->nama_barang ?? '-' }}</td>
+                                            <td>
+                                                <span
+                                                    class="badge 
+                    {{ $item->status == 'tersedia' ? 'bg-success' : ($item->status == 'dipesan' ? 'bg-warning' : 'bg-danger') }} 
+                    status-badge">
+                                                    {{ ucfirst($item->status ?? 'kosong') }}
+                                                </span>
+                                            </td>
+                                            <td>{{ $item->details->sum('quantity') }}</td>
+                                            <td>{{ $item->pic ?? '-' }}</td>
+                                            <td>{{ $item->tanggal->format('Y-m-d') }}</td>
+                                            <td>
+                                                <button class="btn btn-primary btn-action" title="Edit">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-danger btn-action" title="Hapus">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                                <button class="btn btn-info btn-sm btn-detail"
+                                                    data-id="{{ $item->tiket_sparepart }}" title="Detail">
+                                                    <i class="bi bi-eye"></i> Detail
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center py-4">
+                                                <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
+                                                <p class="text-muted">Belum ada sparepart</p>
+                                            </td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
+
                             </table>
                         </div>
                     </div>
@@ -565,7 +589,7 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    {{-- <script>
         const transaksiData = {
             "SP001": {
                 tanggal: "27 Agustus 2025",
@@ -649,7 +673,68 @@
         }
 
 
+    </script> --}}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            transaksiDetailModal = new bootstrap.Modal(document.getElementById('transaksiDetailModal'));
+
+            document.querySelectorAll(".btn-detail").forEach(btn => {
+                btn.addEventListener("click", function() {
+                    const id = this.dataset.id;
+                    console.log(items)
+
+                    // fetch ke backend Laravel
+                    fetch(`/sparepart/${id}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log("Data dari server:", data); // cek dulu di console
+                            showTransaksiDetail(data);
+                        })
+                        .catch(err => console.error("Error:", err));
+                });
+            });
+        });
+
+        let transaksiDetailModal;
+
+        function formatRupiah(val) {
+            const num = Number(String(val).replace(/\D/g, '')) || 0;
+            return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
+        }
+
+        function showTransaksiDetail(data) {
+            document.getElementById('transaksi-spinner').style.display = 'block';
+            document.getElementById('transaksi-content').style.display = 'none';
+
+            document.getElementById('trx-id').textContent = data.id || '-';
+            document.getElementById('trx-date').textContent = data.tanggal || '-';
+
+            const tbody = document.getElementById('trx-items-list');
+            tbody.innerHTML = "";
+
+            data.items.forEach((item, i) => {
+                const row = `
+                <tr>
+                    <td>${i + 1}</td>a
+                    <td>${item.serial || '-'}<td>
+                    <td>${item.type || '-'}</td>
+                    <td>${item.jenis || '-'}</td>
+                    <td>${item.harga ? formatRupiah(item.harga) : '-'}</td>
+                    <td>${item.vendor || '-'}</td>
+                    <td>${item.spk || '-'}</td>
+                    <td>${item.keterangan || '-'}</td>
+                </tr>
+            `;
+                tbody.insertAdjacentHTML("beforeend", row);
+            });
+
+            document.getElementById('transaksi-spinner').style.display = 'none';
+            document.getElementById('transaksi-content').style.display = 'block';
+            transaksiDetailModal.show();
+        }
     </script>
+
+
 </body>
 
 </html>

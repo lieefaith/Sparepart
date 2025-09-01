@@ -6,8 +6,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PermintaanController;
 use App\Http\Controllers\SuperadminController;
+use App\Http\Controllers\SparepartController;
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 // =====================
 // DEFAULT ROUTE
@@ -39,7 +40,9 @@ Route::middleware(['auth', 'role:1'])
     ->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/request', 'requestIndex')->name('request.index');
-        Route::get('/sparepart', 'sparepartIndex')->name('sparepart.index');
+        Route::post('/sparepart/store', [SparepartController::class, 'store'])->name('sparepart.store');
+        Route::get('/sparepart',  [SparepartController::class, 'index'])->name('sparepart.index');
+        Route::get('/sparepart/{tiket_sparepart}/detail', [SparepartController::class, 'getDetail'])->name('sparepart.detail');
         Route::get('/history', 'historyIndex')->name('history.index');
     });
 
@@ -51,7 +54,7 @@ Route::middleware(['auth', 'role:2'])
     ->prefix('kepalaro')
     ->name('kepalaro.')
     ->group(function () {
-        Route::get('/dashboard', fn () => view('kepalaro.dashboard'))->name('dashboard');
+        Route::get('/dashboard', fn() => view('kepalaro.dashboard'))->name('dashboard');
     });
 
 
@@ -62,7 +65,7 @@ Route::middleware(['auth', 'role:3'])
     ->prefix('kepalagudang')
     ->name('kepalagudang.')
     ->group(function () {
-        Route::get('/dashboard', fn () => view('kepalagudang.dashboard'))->name('dashboard');
+        Route::get('/dashboard', fn() => view('kepalagudang.dashboard'))->name('dashboard');
     });
 
 
@@ -79,12 +82,12 @@ Route::middleware(['auth', 'role:4'])
 // =====================
 // AUTHENTICATED AREA (all roles)
 // =====================
-    // Menu lain
-    Route::get('/jenisbarang', fn () => view('user.jenisbarang'))->name('jenis.barang');
+// Menu lain
+Route::get('/jenisbarang', fn() => view('user.jenisbarang'))->name('jenis.barang');
 
-    // Request Barang
-    Route::prefix('requestbarang')->name('request.')->controller(PermintaanController::class)->group(function () {
-        Route::get('/', 'index')->name('barang');
-        Route::get('/{tiket}', 'getDetail');
-        Route::post('/', 'store')->name('store');
-    });
+// Request Barang
+Route::prefix('requestbarang')->name('request.')->controller(PermintaanController::class)->group(function () {
+    Route::get('/', 'index')->name('barang');
+    Route::get('/{tiket}', 'getDetail');
+    Route::post('/', 'store')->name('store');
+});
