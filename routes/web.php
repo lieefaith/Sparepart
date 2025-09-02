@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PermintaanController;
 use App\Http\Controllers\SuperadminController;
+use App\Http\Controllers\KepalaGudangController;
 
 require __DIR__.'/auth.php';
 
@@ -61,9 +62,20 @@ Route::middleware(['auth', 'role:2'])
 Route::middleware(['auth', 'role:3'])
     ->prefix('kepalagudang')
     ->name('kepalagudang.')
+    ->controller(KepalaGudangController::class)
     ->group(function () {
-        Route::get('/dashboard', fn () => view('kepalagudang.dashboard'))->name('dashboard');
+        Route::get('/dashboard', 'dashboard')->name('dashboard');
+
+        Route::get('/request', 'requestIndex')->name('request.index');
+        Route::post('/request/store', 'requestStore')->name('request.store');
+
+        Route::get('/sparepart', 'sparepartIndex')->name('sparepart.index');
+        Route::post('/sparepart/store', 'sparepartStore')->name('sparepart.store');
+
+        Route::get('/history', 'historyIndex')->name('history.index');
+        Route::get('/history/{id}', 'historyDetail')->name('history.detail');
     });
+
 
 
 // =====================
