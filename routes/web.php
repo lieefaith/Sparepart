@@ -42,7 +42,7 @@ Route::middleware(['auth', 'role:1'])
         Route::get('/request', 'requestIndex')->name('request.index');
         Route::post('/sparepart/store', [SparepartController::class, 'store'])->name('sparepart.store');
         Route::get('/sparepart',  [SparepartController::class, 'index'])->name('sparepart.index');
-        Route::get('/sparepart/{tiket_sparepart}/detail', [SparepartController::class, 'getDetail'])->name('sparepart.detail');
+        Route::get('/sparepart/{tiket_sparepart}/detail', [SparepartController::class, 'showDetail'])->name('sparepart.detail');
         Route::get('/history', 'historyIndex')->name('history.index');
     });
 

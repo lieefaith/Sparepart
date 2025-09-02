@@ -19,6 +19,7 @@ class DetailBarang extends Model
         'spk',
         'harga',
         'quantity',
+        'vendor',
         'keterangan',
         'kode_region',
     ];
@@ -26,20 +27,5 @@ class DetailBarang extends Model
     public function listBarang()
     {
         return $this->belongsTo(ListBarang::class, 'tiket_sparepart', 'tiket_sparepart');
-    }
-
-    public function region()
-    {
-        return $this->belongsTo(Region::class, 'kode_region', 'kode_region');
-    }
-
-    public function jenisBarang()
-    {
-        return $this->belongsTo(JenisBarang::class, 'jenis_id');
-    }
-
-    public function tipeBarang()
-    {
-        return $this->belongsTo(TipeBarang::class, 'tipe_id');
     }
 }

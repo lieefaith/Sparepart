@@ -11,15 +11,50 @@ use Illuminate\Http\Request;
 
 class SparepartController extends Controller
 {
-    public function index()
+    public function index(Request $request)
 {
-    $listBarang = ListBarang::with(['details', 'jenisBarang', 'tipeBarang'])->get();
+    $query = ListBarang::with(['details', 'jenisBarang', 'tipeBarang']);
+
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+    if ($request->filled('jenis')) {
+        $query->whereHas('jenisBarang', function ($q) use ($request) {
+            $q->where('jenis', $request->jenis);
+        });
+    }
+
+    // Contoh filter: search tiket_sparepart atau tipeBarang tipe
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('tiket_sparepart', 'like', "%$search%")
+              ->orWhereHas('tipeBarang', function($q2) use ($search) {
+                  $q2->where('tipe', 'like', "%$search%");
+              });
+        });
+    }
+
+    $listBarang = $query->orderBy('tanggal', 'desc')->paginate(5)->withQueryString();
+
     $regions = Region::all();
     $jenis = JenisBarang::all();
     $tipe = TipeBarang::all();
 
-    return view('superadmin.sparepart', compact('listBarang', 'regions', 'jenis', 'tipe'));
+    $totalQty = DetailBarang::sum('quantity');
+    $totalTersedia = ListBarang::with('details')->get()
+    ->filter(fn($item) => $item->status === ListBarang::STATUS_TERSEDIA)
+    ->sum->quantity;
+    $totalDipesan = ListBarang::with('details')->get()
+    ->filter(fn($item) => $item->status === ListBarang::STATUS_DIPESAN)
+    ->sum->quantity;
+    $totalHabis = ListBarang::with('details')->get()
+    ->filter(fn($item) => $item->status === ListBarang::STATUS_HABIS)
+    ->sum->quantity;
+
+    return view('superadmin.sparepart', compact('listBarang', 'regions', 'jenis', 'tipe', 'totalQty', 'totalTersedia','totalDipesan','totalHabis'));
 }
+
 
     public function store(Request $request)
     {
@@ -83,7 +118,7 @@ class SparepartController extends Controller
 
     public function showDetail($tiket_sparepart)
 {
-    $list = ListBarang::with(['details.tipeBarang', 'details.jenisBarang'])
+    $list = ListBarang::with(['details', 'jenisBarang', 'tipeBarang'])
         ->where('tiket_sparepart', $tiket_sparepart)
         ->firstOrFail();
 
@@ -91,11 +126,11 @@ class SparepartController extends Controller
         'success' => true,
         'id'      => $list->tiket_sparepart,
         'tanggal' => \Carbon\Carbon::parse($list->tanggal)->format('d F Y'),
+        'type'       => $list->tipeBarang->tipe ?? '-',
+        'jenis'      => $list->jenisBarang->jenis ?? '-',
         'items'   => $list->details->map(function ($d) {
             return [
                 'serial'     => $d->serial_number,
-                'type'       => $d->tipeBarang->nama ?? '-',
-                'jenis'      => $d->jenisBarang->nama ?? '-',
                 'harga'      => $d->harga,
                 'vendor'     => $d->vendor ?? '-',
                 'spk'        => $d->spk,

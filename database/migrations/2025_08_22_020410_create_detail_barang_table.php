@@ -26,6 +26,8 @@ return new class extends Migration
             $table->foreign('tipe_id')->references('id')->on('tipe_barang')->onDelete('cascade');
             $table->foreign('kode_region')->references('kode_region')->on('region')->onDelete('cascade');
 
+            $table->string('spk')->nullable();
+            $table->string('vendor')->nullable();
             $table->integer('quantity')->default(0);
             $table->decimal('harga', 15, 2)->nullable();
             $table->text('keterangan')->nullable();
