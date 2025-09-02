@@ -239,49 +239,60 @@
                 </div>
 
                 <!-- Filter Section -->
-                <div class="filter-card">
-                    <h5 class="mb-4"><i class="bi bi-funnel me-2"></i>Filter Sparepart</h5>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label for="statusFilter" class="form-label">Status Sparepart</label>
-                            <select class="form-select" id="statusFilter">
-                                <option value="">Semua Status</option>
-                                <option value="tersedia">Tersedia</option>
-                                <option value="habis">Habis</option>
-                                <option value="dipesan">Dipesan</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="jenisFilter" class="form-label">Jenis Sparepart</label>
-                            <select class="form-select" id="jenisFilter">
-                                <option value="">Semua Jenis</option>
-                                <option value="oli">Oli Mesin</option>
-                                <option value="kampas">Kampas Rem</option>
-                                <option value="filter">Filter</option>
-                                <option value="busi">Busi</option>
-                                <option value="aki">Aki</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="searchFilter" class="form-label">Cari Sparepart</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Cari ID atau nama sparepart..."
-                                    id="searchFilter">
-                                <button class="btn btn-primary">
-                                    <i class="bi bi-search"></i>
-                                </button>
+                <form method="GET" action="{{ route('superadmin.sparepart.index') }}">
+                    <div class="filter-card">
+                        <h5 class="mb-4"><i class="bi bi-funnel me-2"></i>Filter Sparepart</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="statusFilter" class="form-label">Status Sparepart</label>
+                                <select class="form-select" name="status" id="statusFilter">
+                                    <option value="">Semua Status</option>
+                                    <option value="tersedia" {{ request('status') == 'tersedia' ? 'selected' : '' }}>
+                                        Tersedia</option>
+                                    <option value="habis" {{ request('status') == 'habis' ? 'selected' : '' }}>Habis
+                                    </option>
+                                    <option value="dipesan" {{ request('status') == 'dipesan' ? 'selected' : '' }}>
+                                        Dipesan</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="jenisFilter" class="form-label">Jenis Sparepart</label>
+                                <select class="form-select" name="jenis" id="jenisFilter"
+                                    onchange="this.form.submit()">
+                                    <option value="">Semua Jenis</option>
+                                    @foreach ($jenis as $j)
+                                        <option value="{{ $j->id }}"
+                                            {{ (string) request('jenis') === (string) $j->id ? 'selected' : '' }}>
+                                            {{ $j->jenis }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="searchFilter" class="form-label">Cari Sparepart</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control"
+                                        placeholder="Cari ID atau nama sparepart..." name="search"
+                                        value="{{ request('search') }}">
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                        <div class="d-flex justify-content-end">
+                            <a href="{{ route('superadmin.sparepart.index') }}" class="btn btn-light me-2">
+                                <i class="bi bi-arrow-clockwise me-1"></i> Reset
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-filter me-1"></i> Terapkan Filter
+                            </button>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-end">
-                        <button class="btn btn-light me-2">
-                            <i class="bi bi-arrow-clockwise me-1"></i> Reset
-                        </button>
-                        <button class="btn btn-primary">
-                            <i class="bi bi-filter me-1"></i> Terapkan Filter
-                        </button>
-                    </div>
-                </div>
+                </form>
+
 
                 <!-- Stats Cards -->
                 <div class="row g-3 mb-4">

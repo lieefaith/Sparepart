@@ -15,16 +15,14 @@ class SparepartController extends Controller
 {
     $query = ListBarang::with(['details', 'jenisBarang', 'tipeBarang']);
 
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
+    // Filter jenis barang (ini ada di DB, aman)
     if ($request->filled('jenis')) {
         $query->whereHas('jenisBarang', function ($q) use ($request) {
             $q->where('jenis', $request->jenis);
         });
     }
 
-    // Contoh filter: search tiket_sparepart atau tipeBarang tipe
+    // Filter search (tiket_sparepart atau tipe barang)
     if ($request->filled('search')) {
         $search = $request->search;
         $query->where(function ($q) use ($search) {
@@ -35,25 +33,48 @@ class SparepartController extends Controller
         });
     }
 
-    $listBarang = $query->orderBy('tanggal', 'desc')->paginate(5)->withQueryString();
+    // Ambil data (tanpa filter status dulu)
+    $listBarang = $query->orderBy('tanggal', 'desc')->get();
+
+    // Kalau filter status dipilih, lakukan di Collection
+    if ($request->filled('status')) {
+        $listBarang = $listBarang->filter(function ($item) use ($request) {
+            return $item->status === $request->status;
+        });
+    }
+
+    // Pagination manual setelah filtering collection
+    $perPage = 5;
+    $page = request('page', 1);
+    $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
+        $listBarang->forPage($page, $perPage),
+        $listBarang->count(),
+        $perPage,
+        $page,
+        ['path' => request()->url(), 'query' => request()->query()]
+    );
 
     $regions = Region::all();
     $jenis = JenisBarang::all();
     $tipe = TipeBarang::all();
 
     $totalQty = DetailBarang::sum('quantity');
-    $totalTersedia = ListBarang::with('details')->get()
-    ->filter(fn($item) => $item->status === ListBarang::STATUS_TERSEDIA)
-    ->sum->quantity;
-    $totalDipesan = ListBarang::with('details')->get()
-    ->filter(fn($item) => $item->status === ListBarang::STATUS_DIPESAN)
-    ->sum->quantity;
-    $totalHabis = ListBarang::with('details')->get()
-    ->filter(fn($item) => $item->status === ListBarang::STATUS_HABIS)
-    ->sum->quantity;
+    $totalTersedia = $listBarang->where('status', ListBarang::STATUS_TERSEDIA)->sum('quantity');
+    $totalDipesan  = $listBarang->where('status', ListBarang::STATUS_DIPESAN)->sum('quantity');
+    $totalHabis    = $listBarang->where('status', ListBarang::STATUS_HABIS)->sum('quantity');
 
-    return view('superadmin.sparepart', compact('listBarang', 'regions', 'jenis', 'tipe', 'totalQty', 'totalTersedia','totalDipesan','totalHabis'));
+    return view('superadmin.sparepart', [
+        'listBarang'    => $paginated,
+        'regions'       => $regions,
+        'jenis'         => $jenis,
+        'tipe'          => $tipe,
+        'totalQty'      => $totalQty,
+        'totalTersedia' => $totalTersedia,
+        'totalDipesan'  => $totalDipesan,
+        'totalHabis'    => $totalHabis,
+    ]);
 }
+
 
 
     public function store(Request $request)
