@@ -6,9 +6,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PermintaanController;
 use App\Http\Controllers\SuperadminController;
-use App\Http\Controllers\SparepartController;
+use App\Http\Controllers\KepalaGudangController;
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
 
 // =====================
 // DEFAULT ROUTE
@@ -40,9 +40,7 @@ Route::middleware(['auth', 'role:1'])
     ->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/request', 'requestIndex')->name('request.index');
-        Route::post('/sparepart/store', [SparepartController::class, 'store'])->name('sparepart.store');
-        Route::get('/sparepart',  [SparepartController::class, 'index'])->name('sparepart.index');
-        Route::get('/sparepart/{tiket_sparepart}/detail', [SparepartController::class, 'showDetail'])->name('sparepart.detail');
+        Route::get('/sparepart', 'sparepartIndex')->name('sparepart.index');
         Route::get('/history', 'historyIndex')->name('history.index');
     });
 
@@ -54,7 +52,7 @@ Route::middleware(['auth', 'role:2'])
     ->prefix('kepalaro')
     ->name('kepalaro.')
     ->group(function () {
-        Route::get('/dashboard', fn() => view('kepalaro.dashboard'))->name('dashboard');
+        Route::get('/dashboard', fn () => view('kepalaro.dashboard'))->name('dashboard');
     });
 
 
@@ -64,9 +62,20 @@ Route::middleware(['auth', 'role:2'])
 Route::middleware(['auth', 'role:3'])
     ->prefix('kepalagudang')
     ->name('kepalagudang.')
+    ->controller(KepalaGudangController::class)
     ->group(function () {
-        Route::get('/dashboard', fn() => view('kepalagudang.dashboard'))->name('dashboard');
+        Route::get('/dashboard', 'dashboard')->name('dashboard');
+
+        Route::get('/request', 'requestIndex')->name('request.index');
+        Route::post('/request/store', 'requestStore')->name('request.store');
+
+        Route::get('/sparepart', 'sparepartIndex')->name('sparepart.index');
+        Route::post('/sparepart/store', 'sparepartStore')->name('sparepart.store');
+
+        Route::get('/history', 'historyIndex')->name('history.index');
+        Route::get('/history/{id}', 'historyDetail')->name('history.detail');
     });
+
 
 
 // =====================
@@ -82,12 +91,12 @@ Route::middleware(['auth', 'role:4'])
 // =====================
 // AUTHENTICATED AREA (all roles)
 // =====================
-// Menu lain
-Route::get('/jenisbarang', fn() => view('user.jenisbarang'))->name('jenis.barang');
+    // Menu lain
+    Route::get('/jenisbarang', fn () => view('user.jenisbarang'))->name('jenis.barang');
 
-// Request Barang
-Route::prefix('requestbarang')->name('request.')->controller(PermintaanController::class)->group(function () {
-    Route::get('/', 'index')->name('barang');
-    Route::get('/{tiket}', 'getDetail');
-    Route::post('/', 'store')->name('store');
-});
+    // Request Barang
+    Route::prefix('requestbarang')->name('request.')->controller(PermintaanController::class)->group(function () {
+        Route::get('/', 'index')->name('barang');
+        Route::get('/{tiket}', 'getDetail');
+        Route::post('/', 'store')->name('store');
+    });
