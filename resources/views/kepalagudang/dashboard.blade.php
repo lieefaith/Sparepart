@@ -304,7 +304,7 @@
                             <i class="bi bi-person-circle me-1"></i> Kepala Gudang
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profil</a></li>
+                            <li><a class="dropdown-item" href="{{ route('kepalagudang.profile') }}"><i class="bi bi-person me-2"></i>Profil</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                         </ul>

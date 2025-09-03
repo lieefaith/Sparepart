@@ -74,6 +74,8 @@ Route::middleware(['auth', 'role:3'])
 
         Route::get('/history', 'historyIndex')->name('history.index');
         Route::get('/history/{id}', 'historyDetail')->name('history.detail');
+
+        Route::get('/profile', fn () => view('kepalagudang.profile'))->name('profile');
     });
 
 
