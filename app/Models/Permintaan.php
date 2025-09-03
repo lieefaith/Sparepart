@@ -30,7 +30,7 @@ class Permintaan extends Model
 
             $nextNumber = $lastTiketNumber ? $lastTiketNumber + 1 : 1;
 
-            $permintaan->tiket = 'Tiket-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+            $permintaan->tiket = 'REQ-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
         });
     }
 
@@ -42,10 +42,5 @@ class Permintaan extends Model
     public function details()
     {
         return $this->hasMany(PermintaanDetail::class, 'tiket', 'tiket');
-    }
-
-    public function histori()
-    {
-        return $this->hasOne(HistoriPermintaan::class, 'tiket', 'tiket');
     }
 }

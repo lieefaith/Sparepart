@@ -8,7 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-        /* ... CSS Anda di sini ... */
         :root {
             --primary-color: #4361ee;
             --secondary-color: #3f37c9;
@@ -164,6 +163,7 @@
 </head>
 
 <body>
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ route('superadmin.dashboard') }}">
@@ -196,6 +196,7 @@
 
     <div class="container-fluid">
         <div class="row">
+            <!-- Sidebar -->
             <div class="col-lg-2 col-md-3 p-0 sidebar">
                 <div class="list-group list-group-flush">
                     <a href="{{ route('superadmin.dashboard') }}" class="list-group-item list-group-item-action py-3">
@@ -216,7 +217,9 @@
                 </div>
             </div>
 
+            <!-- Main Content -->
             <div class="col-lg-10 col-md-9 main-content">
+                <!-- Page Header -->
                 <div class="page-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -235,6 +238,7 @@
                     </div>
                 </div>
 
+                <!-- Filter Section -->
                 <form method="GET" action="{{ route('superadmin.sparepart.index') }}">
                     <div class="filter-card">
                         <h5 class="mb-4"><i class="bi bi-funnel me-2"></i>Filter Sparepart</h5>
@@ -263,6 +267,8 @@
                                         </option>
                                     @endforeach
                                 </select>
+
+
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="searchFilter" class="form-label">Cari Sparepart</label>
@@ -287,6 +293,8 @@
                     </div>
                 </form>
 
+
+                <!-- Stats Cards -->
                 <div class="row g-3 mb-4">
                     <div class="col-md-3">
                         <div class="stats-card">
@@ -342,6 +350,7 @@
                     </div>
                 </div>
 
+                <!-- Table -->
                 <div class="table-container">
                     <div class="table-responsive">
                         <table class="table table-bordered">
@@ -363,11 +372,11 @@
                                         <td>{{ $barang->jenisBarang->jenis }} {{ $barang->tipeBarang->tipe }}</td>
                                         <td>
                                             <span
-                                                class="badge
-                                                    @if ($barang->status == 'tersedia') bg-success
-                                                    @elseif($barang->status == 'habis') bg-danger
-                                                    @elseif($barang->status == 'dipesan') bg-warning
-                                                    @else bg-secondary @endif">
+                                                class="badge 
+        @if ($barang->status == 'tersedia') bg-success 
+        @elseif($barang->status == 'habis') bg-danger 
+        @elseif($barang->status == 'dipesan') bg-warning 
+        @else bg-secondary @endif">
                                                 {{ ucfirst($barang->status) }}
                                             </span>
                                         </td>
@@ -403,6 +412,9 @@
                     </div>
                 </div>
 
+
+
+                <!-- Pagination -->
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div class="text-muted">
                         Menampilkan {{ $listBarang->firstItem() }} hingga {{ $listBarang->lastItem() }} dari
@@ -412,10 +424,12 @@
                         {{ $listBarang->links('pagination::bootstrap-5') }}
                     </nav>
                 </div>
+
             </div>
         </div>
     </div>
 
+    <!-- Modal Tambah Sparepart -->
     <div class="modal fade" id="tambahSparepartModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -424,124 +438,81 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="POST" action="{{ route('superadmin.sparepart.store') }}" id="sparepartForm">
-                        @csrf
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-
-                        <div class="mb-3">
-                            <label for="tanggal" class="form-label">Tanggal</label>
-                            <input type="date" class="form-control @error('tanggal') is-invalid @enderror" id="tanggal" name="tanggal" value="{{ old('tanggal') }}" required>
-                            @error('tanggal')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
+                    <form>
+                        <!-- Jenis -->
                         <div class="mb-3">
                             <label for="jenisSparepart" class="form-label">Jenis Sparepart</label>
-                            <select class="form-select @error('jenisSparepart') is-invalid @enderror" id="jenisSparepart" name="jenisSparepart" required>
-                                <option value="" selected>Pilih jenis sparepart</option>
-                                @foreach ($jenis as $j)
-                                    <option value="{{ $j->id }}" {{ old('jenisSparepart') == $j->id ? 'selected' : '' }}>{{ $j->jenis }}</option>
-                                @endforeach
+                            <select class="form-select" id="jenisSparepart">
+                                <option selected>Pilih jenis sparepart</option>
+                                <option>Kampas Rem</option>
+                                <option>Oli Mesin</option>
+                                <option>Filter</option>
+                                <option>Busi</option>
+                                <option>Aki</option>
                             </select>
-                            @error('jenisSparepart')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
                         </div>
-
+                        <!-- Type -->
                         <div class="mb-3">
-                            <label for="typeSparepart" class="form-label">Type Sparepart</label>
-                            <select class="form-select @error('typeSparepart') is-invalid @enderror" id="typeSparepart" name="typeSparepart" required>
-                                <option value="" selected>Pilih tipe sparepart</option>
-                                @foreach ($tipe as $t)
-                                    <option value="{{ $t->id }}" {{ old('typeSparepart') == $t->id ? 'selected' : '' }}>{{ $t->tipe }}</option>
-                                @endforeach
-                            </select>
-                            @error('typeSparepart')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <label for="typeSparepart" class="form-label">Type</label>
+                            <input type="text" class="form-control" id="typeSparepart"
+                                placeholder="Masukkan type sparepart">
                         </div>
+                        <!-- Serial Number -->
                         <div class="mb-3">
                             <label for="serialNumber" class="form-label">Serial Number</label>
-                            <input type="text" class="form-control @error('serial_number') is-invalid @enderror" id="serialNumber" name="serial_number" placeholder="Masukkan serial number" value="{{ old('serial_number') }}">
-                            @error('serial_number')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <input type="text" class="form-control" id="serialNumber"
+                                placeholder="Masukkan serial number">
                         </div>
-
+                        <!-- Quantity -->
                         <div class="mb-3">
                             <label for="quantity" class="form-label">Quantity</label>
-                            <input type="number" class="form-control @error('quantity') is-invalid @enderror" id="quantity" name="quantity" placeholder="Masukkan jumlah" required min="1" value="{{ old('quantity', 1) }}">
-                            @error('quantity')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <input type="number" class="form-control" id="quantity" placeholder="Masukkan jumlah">
                         </div>
-
-                        <div class="mb-3">
-                            <label for="spk" class="form-label">SPK</label>
-                            <input type="text" class="form-control @error('spk') is-invalid @enderror" id="spk" name="spk" placeholder="Masukkan SPK" value="{{ old('spk') }}">
-                            @error('spk')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
+                        <!-- Vendor -->
                         <div class="mb-3">
                             <label for="vendor" class="form-label">Vendor</label>
-                            <input type="text" class="form-control @error('vendor') is-invalid @enderror" id="vendor" name="vendor" placeholder="Masukkan vendor" value="{{ old('vendor') }}">
-                            @error('vendor')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <select class="form-select" id="vendor">
+                                <option selected>Pilih vendor</option>
+                                <option>PT Auto Parts</option>
+                                <option>PT Lubricants</option>
+                                <option>PT Filter Indonesia</option>
+                                <option>PT Spark Plug</option>
+                                <option>PT Battery Life</option>
+                            </select>
                         </div>
-
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status">
+                                <option selected>Pilih status</option>
+                                <option value="tersedia">Tersedia</option>
+                                <option value="dipesan">Dipesan</option>
+                                <option value="kosong">Kosong</option>
+                            </select>
+                        </div>
+                        <!-- Harga -->
                         <div class="mb-3">
                             <label for="harga" class="form-label">Harga</label>
-                            <input type="number" class="form-control @error('harga') is-invalid @enderror" id="harga" name="harga" placeholder="Masukkan harga" required value="{{ old('harga') }}">
-                            @error('harga')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <input type="text" class="form-control" id="harga" placeholder="Masukkan harga">
                         </div>
-
-                        <div class="mb-3">
-                            <label for="pic" class="form-label">PIC</label>
-                            <input type="text" class="form-control @error('pic') is-invalid @enderror" id="pic" name="pic" placeholder="Masukkan PIC" required value="{{ old('pic') }}">
-                            @error('pic')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="department" class="form-label">Department</label>
-                            <input type="text" class="form-control @error('department') is-invalid @enderror" id="department" name="department" placeholder="Masukkan department" value="{{ old('department') }}">
-                            @error('department')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
+                        <!-- Keterangan -->
                         <div class="mb-3">
                             <label for="keterangan" class="form-label">Keterangan</label>
-                            <textarea class="form-control @error('keterangan') is-invalid @enderror" id="keterangan" name="keterangan" rows="3" placeholder="Tambahkan keterangan sparepart">{{ old('keterangan') }}</textarea>
-                            @error('keterangan')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-primary">Simpan</button>
+                            <textarea class="form-control" id="keterangan" rows="3" placeholder="Tambahkan keterangan sparepart"></textarea>
                         </div>
                     </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary">Simpan</button>
                 </div>
             </div>
         </div>
     </div>
 
+
+
+    <!-- Modal Detail Transaksi -->
     <div class="modal fade" id="transaksiDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -590,19 +561,16 @@
         </div>
     </div>
 
+
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let transaksiDetailModal;
-
         document.addEventListener("DOMContentLoaded", function() {
             transaksiDetailModal = new bootstrap.Modal(document.getElementById('transaksiDetailModal'));
-
-            // Memeriksa jika ada error validasi saat halaman dimuat
-            @if ($errors->any())
-                const modal = new bootstrap.Modal(document.getElementById('tambahSparepartModal'));
-                modal.show();
-            @endif
         });
+
+        let transaksiDetailModal;
 
         function formatRupiah(val) {
             const num = Number(String(val).replace(/\D/g, '')) || 0;
@@ -655,5 +623,8 @@
                 });
         }
     </script>
+
+
 </body>
+
 </html>

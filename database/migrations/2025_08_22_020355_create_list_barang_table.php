@@ -4,42 +4,40 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateListBarangTable extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
         Schema::create('list_barang', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('jenis_id');
-            $table->string('kode_region', 10);
-            $table->string('jenis', 50)->nullable();
-            $table->string('tipe', 50)->nullable();
-            $table->string('nama_barang');
-            $table->string('serial_number', 50)->nullable();
-            $table->string('in_out', 10);
-            $table->string('spk', 50);
-            $table->integer('harga');
-            $table->integer('quantity');
-            $table->string('unit', 50);
+            $table->string('tiket_sparepart')->unique();
+            $table->unsignedBigInteger('jenis_id')->nullable();
+            $table->unsignedBigInteger('tipe_id')->nullable();
+            $table->string('kode_region')->nullable();
+            $table->enum('status', ['tersedia', 'dipesan', 'habis'])->default('tersedia');
+            $table->string('pic')->nullable();
+            $table->string('department')->nullable();
             $table->date('tanggal');
-            $table->string('pic');
-            $table->string('department');
-            $table->text('keterangan');
-            $table->string('status', 50)->nullable();
 
-            $table->foreign('jenis_id')->references('id')->on('jenis_barang')->onDelete('cascade');
-            $table->foreign('kode_region')->references('kode_region')->on('region')->onDelete('cascade');
+            $table->foreign('jenis_id')
+                ->references('id')
+                ->on('jenis_barang')
+                ->onDelete('set null');
+
+            $table->foreign('tipe_id')
+                ->references('id')
+                ->on('tipe_barang')
+                ->onDelete('set null');
+
+            $table->foreign('kode_region')
+                ->references('kode_region')
+                ->on('region')
+                ->onDelete('set null');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('list_barang');
     }
-};
+}

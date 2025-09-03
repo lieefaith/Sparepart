@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class JenisBarang extends Model
+class TipeBarang extends Model
 {
+    public $timestamps = false;
+
     protected $fillable = ['jenis'];
 
-    protected $table = 'jenis_barang';
-
-    public $timestamps = false;
+    protected $table = 'tipe_barang';
 
     public function listBarang()
     {
