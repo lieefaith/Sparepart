@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PermintaanController;
 use App\Http\Controllers\SuperadminController;
 use App\Http\Controllers\KepalaGudangController;
+use App\Http\Controllers\SparepartController;
 
 require __DIR__.'/auth.php';
 
@@ -47,7 +48,9 @@ Route::middleware(['auth', 'role:1'])
     ->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/request', 'requestIndex')->name('request.index');
-        Route::get('/sparepart', 'sparepartIndex')->name('sparepart.index');
+        Route::post('/sparepart/store', [SparepartController::class, 'store'])->name('sparepart.store');
+        Route::get('/sparepart',  [SparepartController::class, 'index'])->name('sparepart.index');
+        Route::get('/sparepart/{tiket_sparepart}/detail', [SparepartController::class, 'showDetail'])->name('sparepart.detail');
         Route::get('/history', 'historyIndex')->name('history.index');
     });
 
