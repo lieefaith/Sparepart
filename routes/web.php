@@ -72,6 +72,18 @@ Route::middleware(['auth', 'role:3'])
     ->controller(KepalaGudangController::class)
     ->group(function () {
         Route::get('/dashboard', fn () => view('kepalagudang.dashboard'))->name('dashboard');
+        Route::get('/dashboard', 'dashboard')->name('dashboard');
+
+        Route::get('/request', 'requestIndex')->name('request.index');
+        Route::post('/request/store', 'requestStore')->name('request.store');
+
+        Route::get('/sparepart', 'sparepartIndex')->name('sparepart.index');
+        Route::post('/sparepart/store', 'sparepartStore')->name('sparepart.store');
+
+        Route::get('/history', 'historyIndex')->name('history.index');
+        Route::get('/history/{id}', 'historyDetail')->name('history.detail');
+
+        Route::get('/profile', fn () => view('kepalagudang.profile'))->name('profile');
     });
 
 
