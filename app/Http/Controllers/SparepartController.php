@@ -39,7 +39,7 @@ class SparepartController extends Controller
             });
         }
 
-        $listBarang = $query->orderBy('tanggal', 'desc')->paginate(5);
+        $listBarang = $query->orderBy('tiket_sparepart', 'desc')->paginate(5);
 
         $totalPerStatus = DB::table('detail_barang as d')
             ->join('list_barang as l', 'd.tiket_sparepart', '=', 'l.tiket_sparepart')
