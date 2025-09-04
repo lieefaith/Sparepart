@@ -29,6 +29,13 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/logout', 'logout')->name('logout');
 });
 
+// =====================
+// PROFILE (all roles)
+// =====================
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', fn () => view('profile.index'))->name('profile.index');
+});
+
 
 // =====================
 // SUPERADMIN (role:1)
@@ -74,6 +81,8 @@ Route::middleware(['auth', 'role:3'])
 
         Route::get('/history', 'historyIndex')->name('history.index');
         Route::get('/history/{id}', 'historyDetail')->name('history.detail');
+
+         Route::get('/profile', fn () => view('kepalagudang.profile'))->name('profile');
     });
 
 

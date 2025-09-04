@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +24,7 @@
             --sidebar-color: #ecf0f1;
             --sidebar-active: #3498db;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f5f7fb;
@@ -31,7 +32,7 @@
             overflow-x: hidden;
             padding-top: var(--header-height);
         }
-        
+
         /* Navbar Styling */
         .navbar {
             background: linear-gradient(120deg, var(--primary), var(--secondary));
@@ -43,16 +44,16 @@
             right: 0;
             z-index: 1000;
         }
-        
+
         .navbar-brand {
             font-weight: 700;
             font-size: 1.5rem;
         }
-        
+
         .navbar-brand i {
             font-size: 1.8rem;
         }
-        
+
         /* Sidebar Styling */
         .sidebar {
             background-color: var(--sidebar-bg);
@@ -66,7 +67,7 @@
             box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
             z-index: 900;
         }
-        
+
         .sidebar .list-group-item {
             background: transparent;
             color: var(--sidebar-color);
@@ -77,28 +78,28 @@
             font-weight: 500;
             transition: all 0.3s;
         }
-        
+
         .sidebar .list-group-item:hover {
             background-color: rgba(255, 255, 255, 0.1);
             border-left-color: var(--sidebar-active);
         }
-        
+
         .sidebar .list-group-item.active {
             background: linear-gradient(90deg, rgba(52, 152, 219, 0.2), transparent);
             border-left-color: var(--sidebar-active);
             color: white;
         }
-        
+
         .sidebar .list-group-item i {
             width: 24px;
             margin-right: 12px;
             transition: all 0.3s;
         }
-        
+
         .sidebar .list-group-item.active i {
             transform: scale(1.2);
         }
-        
+
         /* Main Content Area */
         .main-content {
             margin-left: var(--sidebar-width);
@@ -106,7 +107,7 @@
             width: calc(100% - var(--sidebar-width));
             transition: all 0.3s;
         }
-        
+
         /* Dashboard Cards */
         .dashboard-card {
             background: white;
@@ -117,12 +118,12 @@
             position: relative;
             height: 100%;
         }
-        
+
         .dashboard-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
-        
+
         .dashboard-card .card-icon {
             width: 60px;
             height: 60px;
@@ -133,20 +134,20 @@
             font-size: 1.5rem;
             margin-bottom: 1rem;
         }
-        
+
         .stats-number {
             font-size: 2rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
             color: var(--dark);
         }
-        
+
         .stats-title {
             color: #6c757d;
             font-weight: 500;
             margin-bottom: 0;
         }
-        
+
         /* Table Styling */
         .table-container {
             background: white;
@@ -156,7 +157,7 @@
             margin-bottom: 2rem;
             height: 100%;
         }
-        
+
         .table-container h5 {
             color: var(--primary);
             font-weight: 600;
@@ -164,23 +165,23 @@
             padding-bottom: 0.75rem;
             border-bottom: 2px solid #f0f0f0;
         }
-        
+
         .table-hover tbody tr:hover {
             background-color: rgba(67, 97, 238, 0.05);
         }
-        
+
         .table th {
             font-weight: 600;
             color: #495057;
             border-top: none;
             border-bottom: 2px solid #f0f0f0;
         }
-        
+
         .table td {
             vertical-align: middle;
             padding: 1rem 0.75rem;
         }
-        
+
         /* Date Badge */
         .badge-date {
             background: linear-gradient(45deg, var(--primary), var(--info));
@@ -190,107 +191,149 @@
             box-shadow: 0 4px 8px rgba(67, 97, 238, 0.2);
             color: white;
         }
-        
+
         /* Responsive Adjustments */
         @media (max-width: 992px) {
             .sidebar {
                 width: 70px;
                 text-align: center;
             }
-            
+
             .sidebar .list-group-item span {
                 display: none;
             }
-            
+
             .sidebar .list-group-item i {
                 margin-right: 0;
                 font-size: 1.3rem;
             }
-            
+
             .main-content {
                 margin-left: 70px;
                 width: calc(100% - 70px);
             }
         }
-        
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 0;
                 overflow: hidden;
             }
-            
+
             .sidebar.show {
                 width: var(--sidebar-width);
             }
-            
+
             .main-content {
                 margin-left: 0;
                 width: 100%;
             }
         }
-        
+
         /* Animation for cards */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        
+
         .dashboard-card {
             animation: fadeIn 0.5s ease-out;
         }
-        
+
         .dashboard-card:nth-child(2) {
             animation-delay: 0.1s;
         }
-        
+
         .dashboard-card:nth-child(3) {
             animation-delay: 0.2s;
         }
-        
+
         .dashboard-card:nth-child(4) {
             animation-delay: 0.3s;
         }
-        
+
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
-        
+
         ::-webkit-scrollbar-track {
             background: #f1f1f1;
         }
-        
+
         ::-webkit-scrollbar-thumb {
             background: var(--primary);
             border-radius: 10px;
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
             background: var(--secondary);
         }
-        
+
         /* Additional improvements */
-        .card-icon.bg-primary { background-color: rgba(67, 97, 238, 0.1) !important; }
-        .card-icon.bg-danger { background-color: rgba(230, 57, 70, 0.1) !important; }
-        .card-icon.bg-success { background-color: rgba(76, 201, 240, 0.1) !important; }
-        .card-icon.bg-warning { background-color: rgba(247, 37, 133, 0.1) !important; }
-        
-        .bg-primary { background-color: var(--primary) !important; }
-        .bg-danger { background-color: var(--danger) !important; }
-        .bg-success { background-color: var(--success) !important; }
-        .bg-warning { background-color: var(--warning) !important; }
-        
-        .text-primary { color: var(--primary) !important; }
-        .text-danger { color: var(--danger) !important; }
-        .text-success { color: var(--success) !important; }
-        .text-warning { color: var(--warning) !important; }
+        .card-icon.bg-primary {
+            background-color: rgba(67, 97, 238, 0.1) !important;
+        }
+
+        .card-icon.bg-danger {
+            background-color: rgba(230, 57, 70, 0.1) !important;
+        }
+
+        .card-icon.bg-success {
+            background-color: rgba(76, 201, 240, 0.1) !important;
+        }
+
+        .card-icon.bg-warning {
+            background-color: rgba(247, 37, 133, 0.1) !important;
+        }
+
+        .bg-primary {
+            background-color: var(--primary) !important;
+        }
+
+        .bg-danger {
+            background-color: var(--danger) !important;
+        }
+
+        .bg-success {
+            background-color: var(--success) !important;
+        }
+
+        .bg-warning {
+            background-color: var(--warning) !important;
+        }
+
+        .text-primary {
+            color: var(--primary) !important;
+        }
+
+        .text-danger {
+            color: var(--danger) !important;
+        }
+
+        .text-success {
+            color: var(--success) !important;
+        }
+
+        .text-warning {
+            color: var(--warning) !important;
+        }
     </style>
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <button class="navbar-toggler me-2 d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler me-2 d-lg-none" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <a class="navbar-brand" href="#">
@@ -304,9 +347,13 @@
                             <i class="bi bi-person-circle me-1"></i> Kepala Gudang
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profil</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                            <li><a class="dropdown-item" href="{{ route('profile.index') }}"><i
+                                        class="bi bi-person me-2"></i>Profil</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
@@ -336,7 +383,8 @@
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="fw-bold">Dashboard Kepala Gudang</h3>
-            <span class="badge badge-date"><i class="bi bi-calendar me-1"></i> <span id="current-date">{{ date('d F Y') }}</span></span>
+            <span class="badge badge-date"><i class="bi bi-calendar me-1"></i> <span
+                    id="current-date">{{ date('d F Y') }}</span></span>
         </div>
 
         <!-- Stats Cards -->
@@ -348,7 +396,6 @@
                     </div>
                     <h4 class="stats-number">25</h4>
                     <p class="stats-title">Barang Masuk</p>
-                    <small class="text-success"><i class="bi bi-arrow-up"></i> 5 dari kemarin</small>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
@@ -358,7 +405,6 @@
                     </div>
                     <h4 class="stats-number">10</h4>
                     <p class="stats-title">Barang Keluar</p>
-                    <small class="text-danger"><i class="bi bi-arrow-down"></i> 2 dari kemarin</small>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
@@ -368,7 +414,6 @@
                     </div>
                     <h4 class="stats-number">156</h4>
                     <p class="stats-title">Total Sparepart</p>
-                    <small class="text-muted">12 kategori</small>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
@@ -378,7 +423,6 @@
                     </div>
                     <h4 class="stats-number">42</h4>
                     <p class="stats-title">Transaksi Hari Ini</p>
-                    <small class="text-primary">75% selesai</small>
                 </div>
             </div>
         </div>
@@ -425,7 +469,8 @@
                         </table>
                     </div>
                     <div class="d-flex justify-content-end mt-3">
-                        <a href="#" class="btn btn-sm btn-outline-primary">Lihat Semua <i class="bi bi-arrow-right"></i></a>
+                        <a href="#" class="btn btn-sm btn-outline-primary">Lihat Semua <i
+                                class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
             </div>
@@ -469,7 +514,8 @@
                         </table>
                     </div>
                     <div class="d-flex justify-content-end mt-3">
-                        <a href="#" class="btn btn-sm btn-outline-primary">Lihat Semua <i class="bi bi-arrow-right"></i></a>
+                        <a href="#" class="btn btn-sm btn-outline-primary">Lihat Semua <i
+                                class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
             </div>
@@ -485,14 +531,15 @@
             const formattedDate = now.toLocaleDateString('id-ID', options);
             document.getElementById('current-date').textContent = formattedDate;
         }
-        
+
         // Initial call
         updateDate();
-        
+
         // Toggle sidebar on mobile (if needed)
-        document.querySelector('.navbar-toggler').addEventListener('click', function() {
+        document.querySelector('.navbar-toggler').addEventListener('click', function () {
             document.querySelector('.sidebar').classList.toggle('show');
         });
     </script>
 </body>
+
 </html>

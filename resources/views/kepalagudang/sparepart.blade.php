@@ -341,7 +341,7 @@
                             <i class="bi bi-person-circle me-1"></i> Kepala Gudang
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profil</a></li>
+                            <li><a class="dropdown-item" href="{{ route('profile.index') }}"><i class="bi bi-person me-2"></i>Profil</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
@@ -401,7 +401,6 @@
                     </div>
                     <h4 class="stats-number">156</h4>
                     <p class="stats-title">Total Sparepart</p>
-                    <small class="text-muted">12 kategori</small>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
@@ -411,7 +410,6 @@
                     </div>
                     <h4 class="stats-number">120</h4>
                     <p class="stats-title">Tersedia</p>
-                    <small class="text-success"><i class="bi bi-arrow-up"></i> 78% dari total</small>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
@@ -421,7 +419,6 @@
                     </div>
                     <h4 class="stats-number">25</h4>
                     <p class="stats-title">Dipesan</p>
-                    <small class="text-warning"><i class="bi bi-info-circle"></i> Perlu restock</small>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
@@ -431,7 +428,6 @@
                     </div>
                     <h4 class="stats-number">11</h4>
                     <p class="stats-title">Habis</p>
-                    <small class="text-danger"><i class="bi bi-arrow-down"></i> Segera restock</small>
                 </div>
             </div>
         </div>
