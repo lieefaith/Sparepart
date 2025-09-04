@@ -14,7 +14,10 @@ class DetailBarang extends Model
         'tiket_sparepart',
         'jenis_id',
         'tipe_id',
+<<<<<<< HEAD
         'nama_barang',
+=======
+>>>>>>> acf6717e1b5c802543747fa6191fd20489504409
         'serial_number',
         'spk',
         'harga',

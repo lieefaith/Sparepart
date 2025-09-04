@@ -18,16 +18,23 @@ class ListBarang extends Model
         'kode_region',
         'tanggal',
         'pic',
+<<<<<<< HEAD
         'department',
+=======
+        'department'
+>>>>>>> acf6717e1b5c802543747fa6191fd20489504409
     ];
 
     protected $casts = [
         'tanggal' => 'date',
     ];
 
+<<<<<<< HEAD
     const STATUS_TERSEDIA = 'tersedia';
     const STATUS_HABIS = 'habis';
     const STATUS_DIPESAN = 'dipesan';
+=======
+>>>>>>> acf6717e1b5c802543747fa6191fd20489504409
 
     protected static function boot()
     {
@@ -43,7 +50,10 @@ class ListBarang extends Model
         });
     }
 
+<<<<<<< HEAD
     // 🔗 Relasi
+=======
+>>>>>>> acf6717e1b5c802543747fa6191fd20489504409
     public function region()
     {
         return $this->belongsTo(Region::class, 'kode_region', 'kode_region');
@@ -64,11 +74,15 @@ class ListBarang extends Model
         return $this->hasMany(DetailBarang::class, 'tiket_sparepart', 'tiket_sparepart');
     }
 
+<<<<<<< HEAD
     // 🧮 Quantity otomatis
+=======
+>>>>>>> acf6717e1b5c802543747fa6191fd20489504409
     public function getQuantityAttribute()
     {
         return $this->details()->sum('quantity');
     }
+<<<<<<< HEAD
 
     // 🚦 Status otomatis
     public function getStatusAttribute()
@@ -78,4 +92,6 @@ class ListBarang extends Model
         if ($qty < 5) return self::STATUS_DIPESAN; // threshold bisa diatur
         return self::STATUS_TERSEDIA;
     }
+=======
+>>>>>>> acf6717e1b5c802543747fa6191fd20489504409
 }

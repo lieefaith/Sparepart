@@ -16,11 +16,18 @@ return new class extends Migration
             $table->string('tiket_sparepart');
             $table->foreign('tiket_sparepart')->references('tiket_sparepart')->on('list_barang')->onDelete('cascade');
 
+<<<<<<< HEAD
             $table->string('nama_barang');
             $table->string('serial_number')->nullable();
             $table->unsignedBigInteger('jenis_id');
             $table->unsignedBigInteger('tipe_id');
             $table->string('kode_region');
+=======
+            $table->string('serial_number');
+            $table->unsignedBigInteger('jenis_id');
+            $table->unsignedBigInteger('tipe_id');
+            $table->string('kode_region')->nullable();
+>>>>>>> acf6717e1b5c802543747fa6191fd20489504409
 
             $table->foreign('jenis_id')->references('id')->on('jenis_barang')->onDelete('cascade');
             $table->foreign('tipe_id')->references('id')->on('tipe_barang')->onDelete('cascade');
