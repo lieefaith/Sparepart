@@ -56,7 +56,7 @@ class SparepartController extends Controller
         $tipe = TipeBarang::all();
         $totalQty = DetailBarang::sum('quantity');
 
-        return view('superadmin.sparepart', [
+        return view('kepalagudang.sparepart', [
             'listBarang'    => $listBarang,
             'regions'       => $regions,
             'jenis'         => $jenis,
