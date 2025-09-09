@@ -8,6 +8,7 @@ use App\Http\Controllers\PermintaanController;
 use App\Http\Controllers\SuperadminController;
 use App\Http\Controllers\KepalaGudangController;
 use App\Http\Controllers\SparepartController;
+use App\Http\Controllers\ProfileController;
 
 require __DIR__ . '/auth.php';
 
@@ -35,6 +36,9 @@ Route::controller(AuthController::class)->group(function () {
 // =====================
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', fn() => view('profile.index'))->name('profile.index');
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
 });
 
 
