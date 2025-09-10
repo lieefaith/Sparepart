@@ -52,8 +52,8 @@ Route::middleware(['auth', 'role:1'])
     ->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/request', 'requestIndex')->name('request.index');
-        Route::get('/sparepart', [SuperadminController::class, 'sparepartIndex'])->name('sparepart.index');
-        Route::get('/sparepart/{tiket_sparepart}/detail', [SuperadminController::class, 'showDetail'])->name('sparepart.detail');
+        Route::get('/sparepart', [SparepartController::class, 'indexAdmin'])->name('sparepart.index');
+        Route::get('/sparepart/{tiket_sparepart}/detail', [SparepartController::class, 'showDetail'])->name('sparepart.detail');
         Route::get('/history', 'historyIndex')->name('history.index');
     });
 

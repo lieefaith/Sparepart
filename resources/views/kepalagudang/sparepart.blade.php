@@ -567,12 +567,12 @@
                                 <td>{{ $barang->jenisBarang->jenis }} {{ $barang->tipeBarang->tipe }}</td>
                                 <td>{{ $barang->quantity }}</td>
                                 @if ($filterStatus === 'habis')
-                <td>{{ $totalsPerTiket[$barang->tiket_sparepart]['habis'] ?? 0 }}</td>
-            @elseif ($filterStatus === 'dipesan')
-                <td>{{ $totalsPerTiket[$barang->tiket_sparepart]['dipesan'] ?? 0 }}</td>
-            @else
-                <td>{{ $totalsPerTiket[$barang->tiket_sparepart]['tersedia'] ?? 0 }}</td>
-            @endif
+                                    <td>{{ $totalsPerTiket[$barang->tiket_sparepart]['habis'] ?? 0 }}</td>
+                                @elseif ($filterStatus === 'dipesan')
+                                    <td>{{ $totalsPerTiket[$barang->tiket_sparepart]['dipesan'] ?? 0 }}</td>
+                                @else
+                                    <td>{{ $totalsPerTiket[$barang->tiket_sparepart]['tersedia'] ?? 0 }}</td>
+                                @endif
                                 <td>
                                     <button class="btn btn-info btn-sm btn-detail"
                                         onclick="showDetail('{{ $barang->tiket_sparepart }}')" title="Detail">
@@ -604,7 +604,7 @@
     </div>
 
     <!-- Modal Tambah Sparepart -->
- <div class="modal fade" id="tambahSparepartModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="tambahSparepartModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -614,7 +614,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
- <form method="POST" action="{{ route('kepalagudang.sparepart.store') }}" id="sparepartForm">
+                    <form method="POST" action="{{ route('kepalagudang.sparepart.store') }}" id="sparepartForm">
                         <div class="row g-3">
                             @csrf
                             @if ($errors->any())
@@ -853,7 +853,7 @@
             @endforeach
         </div>
     </div> --}}
-</div>
+    </div>
 
 
     <div class="modal fade" id="sparepartDetailModal" tabindex="-1" aria-hidden="true">
@@ -911,42 +911,43 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    let sparepartDetailModal;
+        let sparepartDetailModal;
 
-document.addEventListener("DOMContentLoaded", function() {
-    sparepartDetailModal = new bootstrap.Modal(document.getElementById('sparepartDetailModal'));
+        document.addEventListener("DOMContentLoaded", function() {
+            sparepartDetailModal = new bootstrap.Modal(document.getElementById('sparepartDetailModal'));
 
-    @if ($errors->any())
-        const modal = new bootstrap.Modal(document.getElementById('tambahSparepartModal'));
-        modal.show();
-    @endif
-});
-function formatRupiah(val) {
+            @if ($errors->any())
+                const modal = new bootstrap.Modal(document.getElementById('tambahSparepartModal'));
+                modal.show();
+            @endif
+        });
+
+        function formatRupiah(val) {
             const num = Number(String(val).replace(/\D/g, '')) || 0;
             return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
         }
 
-function showTransaksiDetail(data) {
-    // spinner dan konten sesuai dengan id modal detail kamu
-    document.getElementById('sparepart-spinner').style.display = 'block';
-    document.getElementById('sparepart-content').style.display = 'none';
+        function showTransaksiDetail(data) {
+            // spinner dan konten sesuai dengan id modal detail kamu
+            document.getElementById('sparepart-spinner').style.display = 'block';
+            document.getElementById('sparepart-content').style.display = 'none';
 
-    document.getElementById('trx-id').textContent = data.id || '-';
+            document.getElementById('trx-id').textContent = data.id || '-';
 
-    const tbody = document.getElementById('trx-items-list');
-    tbody.innerHTML = "";
+            const tbody = document.getElementById('trx-items-list');
+            tbody.innerHTML = "";
 
-    data.items.forEach((item, i) => {
-        let statusClass = 'bg-secondary';
-        if (item.status === 'tersedia') {
-            statusClass = 'bg-success';
-        } else if (item.status === 'habis') {
-            statusClass = 'bg-danger';
-        } else if (item.status === 'dipesan') {
-            statusClass = 'bg-warning';
-        }
+            data.items.forEach((item, i) => {
+                let statusClass = 'bg-secondary';
+                if (item.status === 'tersedia') {
+                    statusClass = 'bg-success';
+                } else if (item.status === 'habis') {
+                    statusClass = 'bg-danger';
+                } else if (item.status === 'dipesan') {
+                    statusClass = 'bg-warning';
+                }
 
-        const row = `
+                const row = `
             <tr>
                 <td>${i + 1}</td>
                 <td>${item.serial || '-'}</td>
@@ -969,28 +970,27 @@ function showTransaksiDetail(data) {
                 </td>
             </tr>
         `;
-        tbody.insertAdjacentHTML("beforeend", row);
-    });
+                tbody.insertAdjacentHTML("beforeend", row);
+            });
 
-    document.getElementById('sparepart-spinner').style.display = 'none';
-    document.getElementById('sparepart-content').style.display = 'block';
+            document.getElementById('sparepart-spinner').style.display = 'none';
+            document.getElementById('sparepart-content').style.display = 'block';
 
-    sparepartDetailModal.show();
-}
+            sparepartDetailModal.show();
+        }
 
-function showDetail(tiket_sparepart) {
-    fetch(`/kepalagudang/sparepart/${tiket_sparepart}/detail`)
-        .then(res => res.json())
-        .then(data => {
-            showTransaksiDetail(data);
-            console.log(data);
-        })
-        .catch(err => {
-            console.error('Fetch error:', err);
-            alert('Gagal mengambil detail!');
-        });
-}
-
+        function showDetail(tiket_sparepart) {
+            fetch(`/kepalagudang/sparepart/${tiket_sparepart}/detail`)
+                .then(res => res.json())
+                .then(data => {
+                    showTransaksiDetail(data);
+                    console.log(data);
+                })
+                .catch(err => {
+                    console.error('Fetch error:', err);
+                    alert('Gagal mengambil detail!');
+                });
+        }
     </script>
 </body>
 

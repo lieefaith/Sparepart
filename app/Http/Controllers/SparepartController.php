@@ -100,6 +100,93 @@ foreach ($listBarang as $barang) {
         ]);
     }
 
+    public function indexAdmin(Request $request)
+    {
+        $jenisSparepart = JenisBarang::all();
+
+        $query = ListBarang::with(['details', 'jenisBarang', 'tipeBarang']);
+
+        if ($request->filled('jenis')) {
+            $query->whereHas('jenisBarang', function ($q) use ($request) {
+                $q->where('id', $request->jenis);
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->whereHas('details', function ($q) use ($request) {
+                $q->where('status', $request->status);
+            });
+        }
+
+
+if ($request->filled('search')) {
+    $search = $request->search;
+    $query->where(function ($q) use ($search) {
+        $keywords = explode(' ', $search); 
+
+        $q->where('tiket_sparepart', 'like', "%$search%")
+            ->orWhere(function ($q2) use ($keywords) {
+                if (count($keywords) > 1) {
+                    $q2->whereHas('jenisBarang', function ($q3) use ($keywords) {
+                        $q3->where('jenis', 'like', "%{$keywords[0]}%");
+                    })
+                    ->whereHas('tipeBarang', function ($q3) use ($keywords) {
+                        $q3->where('tipe', 'like', "%{$keywords[1]}%"); 
+                    });
+                }
+            });
+    });
+}
+
+        $listBarang = $query->orderBy('tiket_sparepart', 'desc')->paginate(5);
+
+        $totalPerStatus = DB::table('detail_barang as d')
+            ->select('d.status', DB::raw('SUM(d.quantity) as total_quantity'))
+            ->groupBy('d.status')
+            ->pluck('total_quantity', 'status');
+
+        $totalTersedia = $totalPerStatus->get('tersedia', 0);
+        $totalDipesan  = $totalPerStatus->get('dipesan', 0);
+        $totalHabis    = $totalPerStatus->get('habis', 0);
+
+        $totalsPerTiket = [];
+
+foreach ($listBarang as $barang) {
+    $tiket = $barang->tiket_sparepart;
+
+    $totalPerStatus = collect($barang->details)
+        ->groupBy('status')
+        ->map(fn($items) => $items->sum('quantity'));
+
+    $totalsPerTiket[$tiket] = [
+        'tersedia' => $totalPerStatus->get('tersedia', 0),
+        'dipesan'  => $totalPerStatus->get('dipesan', 0),
+        'habis'    => $totalPerStatus->get('habis', 0),
+    ];
+}
+
+        $regions = Region::all();
+        $jenis = JenisBarang::all();
+        $tipe = TipeBarang::all();
+        $totalQty = DetailBarang::sum('quantity');
+
+        return view('superadmin.sparepart', [
+            'listBarang'    => $listBarang,
+            'regions'       => $regions,
+            'jenis'         => $jenis,
+            'tipe'          => $tipe,
+            'jenisSparepart' => $jenisSparepart,
+            'totalQty'      => $totalQty,
+            'totalTersedia' => $totalTersedia,
+            'totalDipesan'  => $totalDipesan,
+            'totalHabis'    => $totalHabis,
+            'totalsPerTiket' => $totalsPerTiket,
+            'filterJenis'   => $request->jenis,
+            'filterStatus'  => $request->status,
+            'search'        => $request->search,
+        ]);
+    }
+
 
     public function store(Request $request)
     {
