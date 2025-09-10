@@ -59,7 +59,7 @@ if ($request->filled('search')) {
             ->pluck('total_quantity', 'status');
 
         $totalTersedia = $totalPerStatus->get('tersedia', 0);
-        $totalDipesan  = $totalPerStatus->get('dipesan', 0);
+        $totalDikirim  = $totalPerStatus->get('dikirim', 0);
         $totalHabis    = $totalPerStatus->get('habis', 0);
 
         $totalsPerTiket = [];
@@ -73,7 +73,7 @@ foreach ($listBarang as $barang) {
 
     $totalsPerTiket[$tiket] = [
         'tersedia' => $totalPerStatus->get('tersedia', 0),
-        'dipesan'  => $totalPerStatus->get('dipesan', 0),
+        'dikirim'  => $totalPerStatus->get('dikirim', 0),
         'habis'    => $totalPerStatus->get('habis', 0),
     ];
 }
@@ -91,7 +91,7 @@ foreach ($listBarang as $barang) {
             'jenisSparepart' => $jenisSparepart,
             'totalQty'      => $totalQty,
             'totalTersedia' => $totalTersedia,
-            'totalDipesan'  => $totalDipesan,
+            'totalDikirim'  => $totalDikirim,
             'totalHabis'    => $totalHabis,
             'totalsPerTiket' => $totalsPerTiket,
             'filterJenis'   => $request->jenis,
@@ -146,7 +146,7 @@ if ($request->filled('search')) {
             ->pluck('total_quantity', 'status');
 
         $totalTersedia = $totalPerStatus->get('tersedia', 0);
-        $totalDipesan  = $totalPerStatus->get('dipesan', 0);
+        $totalDikirim  = $totalPerStatus->get('dikirim', 0);
         $totalHabis    = $totalPerStatus->get('habis', 0);
 
         $totalsPerTiket = [];
@@ -160,7 +160,7 @@ foreach ($listBarang as $barang) {
 
     $totalsPerTiket[$tiket] = [
         'tersedia' => $totalPerStatus->get('tersedia', 0),
-        'dipesan'  => $totalPerStatus->get('dipesan', 0),
+        'dikirim'  => $totalPerStatus->get('dikirim', 0),
         'habis'    => $totalPerStatus->get('habis', 0),
     ];
 }
@@ -178,7 +178,7 @@ foreach ($listBarang as $barang) {
             'jenisSparepart' => $jenisSparepart,
             'totalQty'      => $totalQty,
             'totalTersedia' => $totalTersedia,
-            'totalDipesan'  => $totalDipesan,
+            'totalDikirim'  => $totalDikirim,
             'totalHabis'    => $totalHabis,
             'totalsPerTiket' => $totalsPerTiket,
             'filterJenis'   => $request->jenis,
@@ -291,4 +291,47 @@ public function updateDetail(Request $request, $serial_number)
             }),
         ]);
     }
+
+    public function destroyDetailBySerial(Request $request, $serial)
+{
+    if (empty($serial)) {
+        return response()->json(['success' => false, 'message' => 'Serial tidak valid.'], 400);
+    }
+
+    $detail = DetailBarang::where('serial_number', $serial)->firstOrFail();
+
+    if ($detail->status === 'dikirim') {
+        return response()->json(['success' => false, 'message' => 'Tidak dapat menghapus item berstatus "dikirim".'], 403);
+    }
+
+    $tiket = $detail->tiket_sparepart;
+
+    DB::transaction(function () use ($detail) {
+        if (method_exists($detail, 'forceDelete')) {
+            $detail->forceDelete();
+        } else {
+            $detail->delete();
+        }
+    });
+
+    $listDeleted = false;
+    $list = ListBarang::where('tiket_sparepart', $tiket)->first();
+    if ($list && $list->details()->count() === 0) {
+        if (method_exists($list, 'forceDelete')) {
+            $list->forceDelete();
+        } else {
+            $list->delete();
+        }
+        $listDeleted = true;
+    }
+
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Detail barang berhasil dihapus (permanen).',
+        'tiket' => $tiket,
+        'listDeleted' => $listDeleted
+    ]);
+    return redirect()->route('kepalagudang.sparepart.index')->with('success', 'Data sparepart berhasil dihapus.');
+}
 }

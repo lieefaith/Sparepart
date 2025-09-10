@@ -32,7 +32,7 @@
                         <option value="">Semua Status</option>
                         <option value="tersedia" {{ request('status') == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
                         <option value="habis" {{ request('status') == 'habis' ? 'selected' : '' }}>Habis</option>
-                        <option value="dipesan" {{ request('status') == 'dipesan' ? 'selected' : '' }}>Dipesan</option>
+                        <option value="dikirim" {{ request('status') == 'dikirim' ? 'selected' : '' }}>Dikirim</option>
                     </select>
                 </div>
                 <div class="col-md-4 mb-3">
@@ -103,8 +103,8 @@
                         <i class="bi bi-cart text-warning fs-4"></i>
                     </div>
                     <div>
-                        <h6 class="mb-0">Dipesan</h6>
-                        <h4 class="mb-0 fw-bold text-warning">{{ $totalDipesan }}</h4>
+                        <h6 class="mb-0">Dikirimn</h6>
+                        <h4 class="mb-0 fw-bold text-warning">{{ $totalDikirim }}</h4>
                     </div>
                 </div>
             </div>
@@ -135,8 +135,8 @@
                             <th>Quantity</th>
                             @if ($filterStatus === 'habis')
                                 <th>Habis</th>
-                            @elseif ($filterStatus === 'dipesan')
-                                <th>Dipesan</th>
+                            @elseif ($filterStatus === 'dikirim')
+                                <th>Dikirim</th>
                             @else
                                 <th>Tersedia</th>
                             @endif
@@ -151,8 +151,8 @@
                                 <td>{{ $barang->quantity }}</td>
                                 @if ($filterStatus === 'habis')
                                     <td>{{ $totalsPerTiket[$barang->tiket_sparepart]['habis'] ?? 0 }}</td>
-                                @elseif ($filterStatus === 'dipesan')
-                                    <td>{{ $totalsPerTiket[$barang->tiket_sparepart]['dipesan'] ?? 0 }}</td>
+                                @elseif ($filterStatus === 'dikirim')
+                                    <td>{{ $totalsPerTiket[$barang->tiket_sparepart]['dikirim'] ?? 0 }}</td>
                                 @else
                                     <td>{{ $totalsPerTiket[$barang->tiket_sparepart]['tersedia'] ?? 0 }}</td>
                                 @endif
@@ -165,10 +165,11 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">
-                                    Tidak ada data
-                                </td>
-                            </tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox display-4 d-block mb-2"></i>
+                                Tidak ada data sparepart
+                            </td>
+                        </tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -222,7 +223,6 @@
                                         <th>PIC</th>
                                         <th>Keterangan</th>
                                         <th>Tanggal</th>
-                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="trx-items-list"></tbody>
@@ -274,16 +274,29 @@
         tbody.innerHTML = "";
 
         data.items.forEach((item, i) => {
+        let statusClass = 'bg-secondary';
+        if (item.status === 'tersedia') {
+            statusClass = 'bg-success';
+        } else if (item.status === 'habis') {
+            statusClass = 'bg-danger';
+        } else if (item.status === 'dikirim') {
+            statusClass = 'bg-warning';
+        }
             const row = `
                 <tr>
                     <td>${i + 1}</td>
                     <td>${item.serial || '-'}</td>
                     <td>${data.type || '-'}</td>
                     <td>${data.jenis || '-'}</td>
+                    <td><span class="badge ${statusClass}">
+                        ${item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : '-'}
+                    </span></td>
                     <td>${item.harga ? formatRupiah(item.harga) : '-'}</td>
                     <td>${item.vendor || '-'}</td>
                     <td>${item.spk || '-'}</td>
+                    <td>${item.pic || '-'}</td>
                     <td>${item.keterangan || '-'}</td>
+                    <td>${item.tanggal || '-'}</td>
                 </tr>
             `;
             tbody.insertAdjacentHTML("beforeend", row);

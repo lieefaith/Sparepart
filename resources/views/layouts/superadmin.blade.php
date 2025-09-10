@@ -222,6 +222,13 @@
             padding: 1rem 0.75rem;
         }
 
+        .status-badge {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 600;
+            border-radius: 0.25rem;
+        }
+
         /* Date Badge */
         .badge-date {
             background: linear-gradient(45deg, var(--primary), var(--info));
