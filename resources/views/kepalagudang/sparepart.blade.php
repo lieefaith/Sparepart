@@ -582,11 +582,11 @@
                             </tr>
                         @empty
                             <tr>
-                            <td colspan="7" class="text-center text-muted py-4">
-                                <i class="bi bi-inbox display-4 d-block mb-2"></i>
-                                Tidak ada data sparepart
-                            </td>
-                        </tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox display-4 d-block mb-2"></i>
+                                    Tidak ada data sparepart
+                                </td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -746,6 +746,81 @@
     </div>
     </div>
 
+    <!-- Modal Edit Sparepart -->
+    <div class="modal fade" id="editSparepartModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Edit Sparepart</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editSparepartForm">
+                    @csrf
+                    <div class="modal-body">
+                        <input type="hidden" name="original_serial" id="edit-original-serial" />
+                        <div class="row g-3">
+
+
+
+                            <div class="col-md-6">
+                                <label for="edit-serialNumber" class="form-label">Serial Number</label>
+                                <input type="text" class="form-control" id="edit-serialNumber"
+                                    name="serial_number" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="edit-quantity" class="form-label">Quantity</label>
+                                <input type="number" class="form-control" id="edit-quantity" name="quantity"
+                                    min="1" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="edit-tanggal" class="form-label">Tanggal</label>
+                                <input type="date" class="form-control" id="edit-tanggal" name="tanggal"
+                                    required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="edit-spk" class="form-label">SPK</label>
+                                <input type="text" class="form-control" id="edit-spk" name="spk">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="edit-harga" class="form-label">Harga</label>
+                                <input type="number" class="form-control" id="edit-harga" name="harga" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="edit-vendor" class="form-label">Vendor</label>
+                                <input type="text" class="form-control" id="edit-vendor" name="vendor">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="edit-pic" class="form-label">PIC</label>
+                                <input type="text" class="form-control" id="edit-pic" name="pic" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="edit-department" class="form-label">Department</label>
+                                <input type="text" class="form-control" id="edit-department" name="department">
+                            </div>
+
+                            <div class="col-12">
+                                <label for="edit-keterangan" class="form-label">Keterangan</label>
+                                <textarea class="form-control" id="edit-keterangan" name="keterangan" rows="3"></textarea>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
     <div class="modal fade" id="sparepartDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl">
@@ -798,34 +873,142 @@
         </div>
     </div>
 
-    <!-- Confirmation Modal (untuk replace confirm()) -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Konfirmasi Hapus</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-      </div>
-      <div class="modal-body">
-        <p id="confirmDeleteText" class="mb-0">Yakin ingin menghapus item?</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="confirmCancelBtn" data-bs-dismiss="modal">Batal</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
-          <span id="confirmDeleteBtnText">Hapus</span>
-          <span id="confirmDeleteSpinner" class="spinner-border spinner-border-sm ms-2" role="status" style="display:none;"></span>
-        </button>
-      </div>
+    <!-- Konfirmasi Hapus (sudah ada) -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Konfirmasi Hapus</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmDeleteText" class="mb-0">Yakin ingin menghapus item?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="confirmCancelBtn"
+                        data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <span id="confirmDeleteBtnText">Hapus</span>
+                        <span id="confirmDeleteSpinner" class="spinner-border spinner-border-sm ms-2" role="status"
+                            style="display:none;"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
+    <!-- Toast container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer" style="z-index:10800;"></div>
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         let sparepartDetailModal;
+
+        // Helper: toast notification
+        function showToast(message, type = 'info', options = {
+            delay: 5000,
+            autohide: true
+        }) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return console.warn('Toast container not found');
+
+            const id = 'toast-' + Date.now() + Math.floor(Math.random() * 1000);
+            const bgClass = {
+                success: 'bg-success text-white',
+                danger: 'bg-danger text-white',
+                warning: 'bg-warning text-dark',
+                info: 'bg-info text-white',
+                secondary: 'bg-secondary text-white'
+            } [type] || 'bg-secondary text-white';
+
+            const closeBtnClass = bgClass.includes('text-white') ? 'btn-close btn-close-white' : 'btn-close';
+
+            const icon = {
+                success: '<i class="bi bi-check-circle-fill me-2"></i>',
+                danger: '<i class="bi bi-x-circle-fill me-2"></i>',
+                warning: '<i class="bi bi-exclamation-triangle-fill me-2"></i>',
+                info: '<i class="bi bi-info-circle-fill me-2"></i>',
+                secondary: '<i class="bi bi-bell-fill me-2"></i>'
+            } [type] || '';
+
+            const html = `
+        <div id="${id}" class="toast ${bgClass} shadow" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body">${icon}<span>${message}</span></div>
+            <button type="button" class="${closeBtnClass} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+        `;
+            container.insertAdjacentHTML('beforeend', html);
+            const toastEl = document.getElementById(id);
+            const toast = new bootstrap.Toast(toastEl, {
+                delay: options.delay,
+                autohide: options.autohide
+            });
+            toast.show();
+            toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+            return toast;
+        }
+
+        // Helper: modal confirm using existing #confirmDeleteModal
+        function showConfirm(message, okLabel = 'Hapus', cancelLabel = 'Batal') {
+            return new Promise((resolve) => {
+                const modalEl = document.getElementById('confirmDeleteModal');
+                const bodyText = document.getElementById('confirmDeleteText');
+                const okBtn = document.getElementById('confirmDeleteBtn');
+                const cancelBtn = document.getElementById('confirmCancelBtn');
+                const spinner = document.getElementById('confirmDeleteSpinner');
+                const okText = document.getElementById('confirmDeleteBtnText');
+
+                bodyText.textContent = message;
+                okText.textContent = okLabel;
+                cancelBtn.textContent = cancelLabel;
+
+                const modal = new bootstrap.Modal(modalEl, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+                let resolved = false;
+
+                const cleanup = () => {
+                    okBtn.removeEventListener('click', onOk);
+                    cancelBtn.removeEventListener('click', onCancel);
+                    modalEl.removeEventListener('hidden.bs.modal', onHidden);
+                    spinner.style.display = 'none';
+                    okBtn.disabled = false;
+                };
+
+                const onOk = () => {
+                    // User confirmed
+                    resolved = true;
+                    cleanup();
+                    modal.hide();
+                    resolve(true);
+                };
+
+                const onCancel = () => {
+                    resolved = true;
+                    cleanup();
+                    modal.hide();
+                    resolve(false);
+                };
+
+                const onHidden = () => {
+                    if (!resolved) {
+                        cleanup();
+                        resolve(false);
+                    }
+                };
+
+                okBtn.addEventListener('click', onOk);
+                cancelBtn.addEventListener('click', onCancel);
+                modalEl.addEventListener('hidden.bs.modal', onHidden);
+
+                modal.show();
+            });
+        }
 
         document.addEventListener("DOMContentLoaded", function() {
             sparepartDetailModal = new bootstrap.Modal(document.getElementById('sparepartDetailModal'));
@@ -836,129 +1019,27 @@
             @endif
         });
 
-document.addEventListener("DOMContentLoaded", function() {
-
-  let pendingDelete = {
-    serial: null,
-    btn: null,
-    tr: null,
-    tiket: null 
-  };
-
-
-  // Ambil token CSRF dari input @csrf dalam form (pastikan form ada di page)
-  function getCsrfToken() {
-    const tokenInput = document.querySelector('input[name="_token"]');
-    return tokenInput ? tokenInput.value : '';
-  }
-
-  // Event delegation: buka modal konfirmasi ketika tombol delete diklik
-  const tbody = document.getElementById('trx-items-list');
-  tbody.addEventListener('click', (e) => {
-    const btn = e.target.closest('.btn-delete');
-    if (!btn) return;
-
-
-    pendingDelete.serial = serial;
-    pendingDelete.btn = btn;
-    pendingDelete.tr = btn.closest('tr');
-
-    confirmDeleteText.textContent = `Yakin ingin menghapus sparepart dengan serial: ${serial} ?`;
-    confirmDeleteBtn.disabled = false;
-    confirmDeleteBtnText.style.display = 'inline';
-    confirmDeleteSpinner.style.display = 'none';
-
-    confirmModal.show();
-  });
-
-  // Handler ketika user tekan tombol konfirmasi hapus dalam modal
-  confirmDeleteBtn.addEventListener('click', async () => {
-    if (!pendingDelete.serial || !pendingDelete.btn) {
-      confirmModal.hide();
-      return;
-    }
-
-    // Disable tombol & tampilkan spinner
-    confirmDeleteBtn.disabled = true;
-    confirmDeleteBtnText.style.display = 'none';
-    confirmDeleteSpinner.style.display = 'inline-block';
-
-    const serial = pendingDelete.serial;
-    const btn = pendingDelete.btn;
-    const tr = pendingDelete.tr;
-
-    try {
-      const token = getCsrfToken();
-      const params = new URLSearchParams();
-      params.append('_token', token);
-      params.append('_method', 'DELETE');
-
-      // Gunakan POST + _method=DELETE agar Laravel memproses sebagai DELETE
-      const res = await fetch(`/kepalagudang/sparepart/serial/${encodeURIComponent(serial)}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-          'Accept': 'application/json'
-        },
-        body: params.toString()
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        const msg = data.message || `Gagal menghapus (status ${res.status})`;
-        throw new Error(msg);
-      }
-
-      if (tr) tr.remove();
-
-      // Update totals jika server mengembalikan totalsPerStatus
-      if (data.totalsPerStatus) {
-        if (document.getElementById('total-tersedia')) document.getElementById('total-tersedia').textContent = data.totalsPerStatus.tersedia;
-        if (document.getElementById('total-dikirim'))  document.getElementById('total-dikirim').textContent  = data.totalsPerStatus.dikirim;
-        if (document.getElementById('total-habis'))    document.getElementById('total-habis').textContent    = data.totalsPerStatus.habis;
-      }
-
-      // Jika backend beri tahu list ikut dihapus (kosong), tutup modal detail utama
-      if (data.listDeleted && typeof sparepartDetailModal !== 'undefined') {
-        sparepartDetailModal.hide();
-      }
-
-      confirmModal.hide();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      confirmDeleteBtn.disabled = false;
-      confirmDeleteBtnText.style.display = 'inline';
-      confirmDeleteSpinner.style.display = 'none';
-      pendingDelete = { serial: null, btn: null, tr: null, tiket: null };
-    }
-  });
-  document.getElementById('confirmCancelBtn').addEventListener('click', () => {
-    pendingDelete = { serial: null, btn: null, tr: null, tiket: null };
-  });
-});
         function formatRupiah(val) {
             const num = Number(String(val).replace(/\D/g, '')) || 0;
             return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
         }
 
-function showTransaksiDetail(data) {
-        document.getElementById('sparepart-spinner').style.display = 'block';
-        document.getElementById('sparepart-content').style.display = 'none';
+        function showTransaksiDetail(data) {
+            document.getElementById('sparepart-spinner').style.display = 'block';
+            document.getElementById('sparepart-content').style.display = 'none';
 
-        document.getElementById('trx-id').textContent = data.id || '-';
+            document.getElementById('trx-id').textContent = data.id || '-';
 
-        const tbody = document.getElementById('trx-items-list');
-        tbody.innerHTML = "";
+            const tbody = document.getElementById('trx-items-list');
+            tbody.innerHTML = "";
 
-        data.items.forEach((item, i) => {
-            let statusClass = 'bg-secondary';
-            if (item.status === 'tersedia') statusClass = 'bg-success';
-            else if (item.status === 'habis') statusClass = 'bg-danger';
-            else if (item.status === 'dikirim') statusClass = 'bg-warning';
+            data.items.forEach((item, i) => {
+                let statusClass = 'bg-secondary';
+                if (item.status === 'tersedia') statusClass = 'bg-success';
+                else if (item.status === 'habis') statusClass = 'bg-danger';
+                else if (item.status === 'dipesan') statusClass = 'bg-warning';
 
-            const row = `
+                const row = `
             <tr>
                 <td>${i + 1}</td>
                 <td>${item.serial || '-'}</td>
@@ -981,31 +1062,112 @@ function showTransaksiDetail(data) {
                 </td>
             </tr>
             `;
-            tbody.insertAdjacentHTML("beforeend", row);
-        });
-
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
-
-        document.getElementById('sparepart-spinner').style.display = 'none';
-        document.getElementById('sparepart-content').style.display = 'block';
-        sparepartDetailModal.show();
-    }
-
-    function showDetail(tiket_sparepart) {
-        fetch(`/kepalagudang/sparepart/${tiket_sparepart}/detail`)
-            .then(res => {
-                if (!res.ok) throw new Error('Network response was not ok');
-                return res.json();
-            })
-            .then(data => {
-                showTransaksiDetail(data);
-            })
-            .catch(err => {
-                console.error('Fetch error:', err);
-                alert('Gagal mengambil detail!');
+                tbody.insertAdjacentHTML("beforeend", row);
             });
+
+            // re-init tooltip for new elements
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function(el) {
+                return new bootstrap.Tooltip(el);
+            });
+
+            document.getElementById('sparepart-spinner').style.display = 'none';
+            document.getElementById('sparepart-content').style.display = 'block';
+            sparepartDetailModal.show();
         }
+
+        function showDetail(tiket_sparepart) {
+            fetch(`/kepalagudang/sparepart/${tiket_sparepart}/detail`)
+                .then(res => {
+                    if (!res.ok) throw new Error('Network response was not ok');
+                    return res.json();
+                })
+                .then(data => {
+                    showTransaksiDetail(data);
+                })
+                .catch(err => {
+                    console.error('Fetch error:', err);
+                    showToast('Gagal mengambil detail!', 'danger');
+                });
+        }
+
+        // Delete handler (event delegation)
+        document.addEventListener('DOMContentLoaded', () => {
+            const tbody = document.getElementById('trx-items-list');
+
+            tbody.addEventListener('click', async (e) => {
+                const btn = e.target.closest('.btn-delete');
+                if (!btn) return;
+
+                const serial = btn.dataset.itemSerial;
+                if (!serial) {
+                    showToast('Serial tidak ditemukan.', 'warning');
+                    return;
+                }
+
+                const confirmed = await showConfirm('Yakin ingin menghapus item dengan serial: ' +
+                    serial + ' ?', 'Hapus', 'Batal');
+                if (!confirmed) return;
+
+                // give feedback on the clicked button
+                btn.disabled = true;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML =
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+                try {
+                    // ambil token @csrf dari form Blade
+                    const tokenInput = document.querySelector('input[name="_token"]');
+                    const token = tokenInput ? tokenInput.value : '';
+
+                    const params = new URLSearchParams();
+                    params.append('_token', token);
+                    params.append('_method', 'DELETE');
+
+                    const res = await fetch(
+                        `/kepalagudang/sparepart/serial/${encodeURIComponent(serial)}`, {
+                            method: 'POST', // POST + _method=DELETE
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                                'Accept': 'application/json'
+                            },
+                            body: params.toString()
+                        });
+
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(data.message ||
+                        `Gagal menghapus (status ${res.status})`);
+
+                    // remove row
+                    const tr = btn.closest('tr');
+                    if (tr) tr.remove();
+
+                    // update totals if any
+                    if (data.totalsPerStatus) {
+                        if (document.getElementById('total-tersedia')) document.getElementById(
+                            'total-tersedia').textContent = data.totalsPerStatus.tersedia;
+                        if (document.getElementById('total-dipesan')) document.getElementById(
+                            'total-dipesan').textContent = data.totalsPerStatus.dipesan;
+                        if (document.getElementById('total-habis')) document.getElementById(
+                            'total-habis').textContent = data.totalsPerStatus.habis;
+                    }
+
+                    if (data.listDeleted && typeof sparepartDetailModal !== 'undefined')
+                        sparepartDetailModal.hide();
+                    showToast(data.message || 'Berhasil dihapus.', 'success');
+
+                    // reload otomatis setelah 1.2 detik
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1200);
+                } catch (err) {
+                    console.error(err);
+                    showToast('Terjadi kesalahan: ' + (err.message || err), 'danger');
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            });
+        });
     </script>
 </body>
 
