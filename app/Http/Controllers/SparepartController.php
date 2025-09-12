@@ -83,6 +83,7 @@ class SparepartController extends Controller
         $regions = Region::all();
         $jenis = JenisBarang::all();
         $tipe = TipeBarang::all();
+        $vendor = TipeBarang::all();
         $totalQty = DetailBarang::sum('quantity');
 
         return view('kepalagudang.sparepart', [
@@ -90,6 +91,7 @@ class SparepartController extends Controller
             'regions'       => $regions,
             'jenis'         => $jenis,
             'tipe'          => $tipe,
+            'vendor'         => $vendor,
             'jenisSparepart' => $jenisSparepart,
             'totalQty'      => $totalQty,
             'totalTersedia' => $totalTersedia,

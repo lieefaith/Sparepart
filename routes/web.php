@@ -90,6 +90,8 @@ Route::middleware(['auth', 'role:3'])
         Route::get('/history', 'historyIndex')->name('history.index');
         Route::get('/history/{id}', 'historyDetail')->name('history.detail');
 
+        Route::get('/data', fn() => view('kepalagudang.data'))->name('data');
+
         Route::delete('/sparepart/serial/{serial}', [SparepartController::class, 'destroy'])
     ->name('.sparepart.details.destroy')
     ->middleware('auth')
