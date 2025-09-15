@@ -86,6 +86,7 @@ Route::middleware(['auth', 'role:3'])
         Route::post('/sparepart/store', [SparepartController::class, 'store'])->name('sparepart.store');
         Route::get('/sparepart', [SparepartController::class, 'index'])->name('sparepart.index');
         Route::get('/sparepart/{tiket_sparepart}/detail', [SparepartController::class, 'showDetail'])->name('sparepart.detail');
+        Route::put('/sparepart/serial/{serial_number}', [SparepartController::class, 'update'])->name('sparepart.update');
 
         Route::get('/history', 'historyIndex')->name('history.index');
         Route::get('/history/{id}', 'historyDetail')->name('history.detail');

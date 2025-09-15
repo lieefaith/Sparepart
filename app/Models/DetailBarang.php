@@ -21,6 +21,7 @@ class DetailBarang extends Model
         'quantity',
         'keterangan',
         'kode_region',
+        'status',
         'tanggal',
         'pic',
         'department'
@@ -34,5 +35,10 @@ class DetailBarang extends Model
     public function listBarang()
     {
         return $this->belongsTo(ListBarang::class, 'tiket_sparepart', 'tiket_sparepart');
+    }
+
+     public function vendor()
+    {
+        return $this->belongsTo(Vendor::class, 'vendor_id');
     }
 }

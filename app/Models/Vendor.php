@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Vendor extends Model
 {
-    protected $fillable = ['nama_vendor'];
+    protected $fillable = ['nama'];
 
     protected $table = 'vendor';
 
     public $timestamps = false;
 
-    public function listBarang()
+    public function details()
     {
-        return $this->hasMany(ListBarang::class, 'vendor_id');
+        return $this->hasMany(DetailBarang::class, 'vendor_id');
     }
 }

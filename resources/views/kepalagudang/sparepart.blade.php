@@ -76,8 +76,8 @@
                         <option value="">Semua Jenis</option>
                         @foreach ($jenis as $j)
                             <option value="{{ $j->id }}"
-                                {{ (string) request('jenis') === (string) $j->id ? 'selected' : '' }}>
-                                {{ $j->jenis }}
+                                {{ (string) request('nama') === (string) $j->id ? 'selected' : '' }}>
+                                {{ $j->nama }}
                             </option>
                         @endforeach
                     </select>
@@ -114,7 +114,7 @@
                     <select class="form-select" name="kategori" id="kategoriFilter" onchange="this.form.submit()">
                         <option value="">Semua Kategori</option>
                         <option value="aset" {{ old('kategori') == 'aset' ? 'selected' : '' }}>Aset</option>
-                        <option value="non_aset" {{ old('kategori') == 'non_aset' ? 'selected' : '' }}>Non
+                        <option value="non-aset" {{ old('kategori') == 'non-aset' ? 'selected' : '' }}>Non
                             Aset</option>
                     </select>
                 </div>
@@ -154,7 +154,7 @@
                     @forelse($listBarang as $barang)
                         <tr>
                             <td><span class="fw-bold">{{ $barang->tiket_sparepart }}</span></td>
-                            <td>{{ $barang->jenisBarang->jenis }} {{ $barang->tipeBarang->tipe }}</td>
+                            <td>{{ $barang->jenisBarang->nama }} {{ $barang->tipeBarang->nama }}</td>
                             <td>{{ $barang->quantity }}</td>
                             @if ($filterStatus === 'habis')
                                 <td>{{ $totalsPerTiket[$barang->tiket_sparepart]['habis'] ?? 0 }}</td>
@@ -163,6 +163,7 @@
                             @else
                                 <td>{{ $totalsPerTiket[$barang->tiket_sparepart]['tersedia'] ?? 0 }}</td>
                             @endif
+                            <td>{{ ucwords(str_replace('-', ' ', $barang->kategori)) }}</td>
                             <td>
                                 <button class="btn btn-info btn-sm btn-detail"
                                     onclick="showDetail('{{ $barang->tiket_sparepart }}')" title="Detail">
@@ -221,7 +222,7 @@
                                     name="kategori" required>
                                     <option value="" selected>Pilih kategori</option>
                                     <option value="aset" {{ old('kategori') == 'aset' ? 'selected' : '' }}>Aset</option>
-                                    <option value="non_aset" {{ old('kategori') == 'non_aset' ? 'selected' : '' }}>Non
+                                    <option value="non-aset" {{ old('kategori') == 'non-aset' ? 'selected' : '' }}>Non
                                         Aset</option>
                                 </select>
 
@@ -236,7 +237,7 @@
                                     <option value="" selected>Pilih jenis sparepart</option>
                                     @foreach ($jenis as $j)
                                         <option value="{{ $j->id }}"
-                                            {{ old('jenisSparepart') == $j->id ? 'selected' : '' }}>{{ $j->jenis }}
+                                            {{ old('jenisSparepart') == $j->id ? 'selected' : '' }}>{{ $j->nama }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -252,7 +253,7 @@
                                     <option value="" selected>Pilih tipe sparepart</option>
                                     @foreach ($tipe as $t)
                                         <option value="{{ $t->id }}"
-                                            {{ old('typeSparepart') == $t->id ? 'selected' : '' }}>{{ $t->tipe }}
+                                            {{ old('typeSparepart') == $t->id ? 'selected' : '' }}>{{ $t->nama }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -315,7 +316,7 @@
                                     <option value="" selected>Pilih vendor</option>
                                     @foreach ($vendor as $v)
                                         <option value="{{ $v->id }}"
-                                            {{ old('vendor') == $v->id ? 'selected' : '' }}>{{ $v->nama_vendor }}</option>
+                                            {{ old('vendor') == $v->id ? 'selected' : '' }}>{{ $v->nama }}</option>
                                     @endforeach
                                 </select>
                                 @error('vendor')
@@ -345,11 +346,11 @@
                                 <select class="form-select @error('status') is-invalid @enderror" id="status"
                                     name="status" required>
                                     <option value="" selected>Pilih Status</option>
-                                    <option value="tersedia" {{ old('status') == 'aset' ? 'selected' : '' }}>Tersedia
+                                    <option value="tersedia" {{ old('status') == 'tersedia' ? 'selected' : '' }}>Tersedia
                                     </option>
-                                    <option value="dikirim" {{ old('status') == 'non_aset' ? 'selected' : '' }}>Dikirim
+                                    <option value="dikirim" {{ old('status') == 'dikirim' ? 'selected' : '' }}>Dikirim
                                     </option>
-                                    <option value="habis" {{ old('status') == 'non_aset' ? 'selected' : '' }}>Habis
+                                    <option value="habis" {{ old('status') == 'dikirim' ? 'selected' : '' }}>Habis
                                     </option>
                                 </select>
 
@@ -389,18 +390,17 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="edit-kategori" class="form-label">Kategori</label>
-                                <select class="form-select" id="edit-kategori " name="kategori" disabled>
-                                    <option value="" selected>Pilih kategori</option>
-                                    <option value="aset" {{ old('kategori') == 'aset' ? 'selected' : '' }}>Aset</option>
-                                    <option value="non_aset" {{ old('kategori') == 'non_aset' ? 'selected' : '' }}>Non
-                                        Aset</option>
+                                <select class="form-select" id="edit-kategori" name="kategori" disabled>
+                                    @foreach ($listBarang as $j)
+                                        <option value="{{ $j->id }}">{{ $j->kategori }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="col-md-6">
                                 <label for="edit-jenisSparepart" class="form-label">Jenis Sparepart</label>
                                 <select class="form-select" id="edit-jenisSparepart" name="jenisSparepart" disabled>
                                     @foreach ($jenis as $j)
-                                        <option value="{{ $j->id }}">{{ $j->jenis }}</option>
+                                        <option value="{{ $j->id }}">{{ $j->nama }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -410,7 +410,7 @@
                                 <select class="form-select" id="edit-typeSparepart" name="typeSparepart" disabled>
                                     <option value="">Pilih tipe sparepart</option>
                                     @foreach ($tipe as $t)
-                                        <option value="{{ $t->id }}">{{ $t->tipe }}</option>
+                                        <option value="{{ $t->id }}">{{ $t->nama }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -444,10 +444,10 @@
 
                             <div class="col-md-6">
                                 <label for="edit-vendor" class="form-label">Vendor</label>
-                                <select class="form-select" id="edit-vendor" name="vendor" disabled>
-                                    <option value="">Pilih vendor</option>
+                                <select class="form-select" id="edit-vendor" name="vendor">
+                                    <option value="">Pilih tipe sparepart</option>
                                     @foreach ($vendor as $v)
-                                        <option value="{{ $v->id }}">{{ $v->nama_vendor }}</option>
+                                        <option value="{{ $v->id }}">{{ $v->nama }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -463,15 +463,19 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="edit-status" class="form-label">Status</label>
-                                <select class="form-select" id="edit-status" name="status">
-                                    <option value="" selected>Pilih Status</option>
-                                    <option value="tersedia" {{ old('status') == 'aset' ? 'selected' : '' }}>Tersedia
-                                    </option>
-                                    <option value="dikirim" {{ old('status') == 'non_aset' ? 'selected' : '' }}>Dikirim
-                                    </option>
-                                    <option value="habis" {{ old('status') == 'non_aset' ? 'selected' : '' }}>Habis
+                                <select class="form-select" id="edit-status" name="status" required>
+                                    <option value="tersedia"
+                                        {{ old('status', $detail->first()->status) == 'tersedia' ? 'selected' : '' }}>
+                                        Tersedia</option>
+                                    <option value="dikirim"
+                                        {{ old('status', $detail->first()->status) == 'dikirim' ? 'selected' : '' }}>
+                                        Dikirim</option>
+                                    <option value="habis"
+                                        {{ old('status', $detail->first()->status) == 'habis' ? 'selected' : '' }}>Habis
                                     </option>
                                 </select>
+
+
                             </div>
 
                             <div class="col-12">
@@ -952,5 +956,50 @@
                 saveBtn.innerHTML = originalHtml;
             }
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const kategoriSelect = document.getElementById('kategori');
+            const jenisSelect = document.getElementById('jenisSparepart');
+            const tipeSelect = document.getElementById('typeSparepart');
+            const otherFields = document.querySelectorAll(
+                '#sparepartForm select:not(#kategori), #sparepartForm input, #sparepartForm textarea');
+
+            otherFields.forEach(field => field.disabled = true);
+
+            kategoriSelect.addEventListener('change', function() {
+                const kategori = this.value;
+
+                if (kategori) {
+                    otherFields.forEach(field => field.disabled = false);
+
+                    let filteredJenis = jenisData.filter(j => j.kategori === kategori);
+
+                    jenisSelect.innerHTML = '<option value="" selected>Pilih jenis sparepart</option>';
+                    filteredJenis.forEach(j => {
+                        const option = document.createElement('option');
+                        option.value = j.id;
+                        option.textContent = j.nama;
+                        jenisSelect.appendChild(option);
+                    });
+
+                    let filteredTipe = tipeData.filter(t => t.kategori === kategori);
+                    tipeSelect.innerHTML = '<option value="" selected>Pilih tipe sparepart</option>';
+                    filteredTipe.forEach(t => {
+                        const option = document.createElement('option');
+                        option.value = t.id;
+                        option.textContent = t.nama;
+                        tipeSelect.appendChild(option);
+                    });
+
+                } else {
+                    otherFields.forEach(field => field.disabled = true);
+
+                    jenisSelect.innerHTML = '<option value="" selected>Pilih jenis sparepart</option>';
+                    tipeSelect.innerHTML = '<option value="" selected>Pilih tipe sparepart</option>';
+                }
+            });
+        });
+        const jenisData = @json($jenis);
+        const tipeData = @json($tipe);
     </script>
 @endpush
