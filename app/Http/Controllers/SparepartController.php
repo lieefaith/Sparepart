@@ -117,16 +117,15 @@ class SparepartController extends Controller
             'filterKategori' => $request->kategori,
         ]);
     }
-
     public function indexAdmin(Request $request)
     {
         $jenisSparepart = JenisBarang::all();
 
         $query = ListBarang::with(['details', 'jenisBarang', 'tipeBarang']);
 
-        if ($request->filled('jenis')) {
+        if ($request->filled('nama')) {
             $query->whereHas('jenisBarang', function ($q) use ($request) {
-                $q->where('id', $request->jenis);
+                $q->where('id', $request->nama);
             });
         }
 
@@ -135,7 +134,15 @@ class SparepartController extends Controller
                 $q->where('status', $request->status);
             });
         }
+    if ($request->filled('tanggal_mulai') && $request->filled('tanggal_berakhir')) {
+        $query->whereHas('details', function ($q) use ($request) {
+            $q->whereBetween('tanggal', [$request->tanggal_mulai, $request->tanggal_berakhir]);
+        });
+    }
 
+    if ($request->filled('kategori')) {
+        $query->where('kategori', $request->kategori);
+    }
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -146,10 +153,10 @@ class SparepartController extends Controller
                     ->orWhere(function ($q2) use ($keywords) {
                         if (count($keywords) > 1) {
                             $q2->whereHas('jenisBarang', function ($q3) use ($keywords) {
-                                $q3->where('jenis', 'like', "%{$keywords[0]}%");
+                                $q3->where('nama', 'like', "%{$keywords[0]}%");
                             })
                                 ->whereHas('tipeBarang', function ($q3) use ($keywords) {
-                                    $q3->where('tipe', 'like', "%{$keywords[1]}%");
+                                    $q3->where('nama', 'like', "%{$keywords[1]}%");
                                 });
                         }
                     });
@@ -187,6 +194,7 @@ class SparepartController extends Controller
         $jenis = JenisBarang::all();
         $tipe = TipeBarang::all();
         $vendor = Vendor::all();
+        $detail = DetailBarang::all();
         $totalQty = DetailBarang::sum('quantity');
 
         return view('superadmin.sparepart', [
@@ -194,7 +202,8 @@ class SparepartController extends Controller
             'regions'       => $regions,
             'jenis'         => $jenis,
             'tipe'          => $tipe,
-            'vendor'        => $vendor,
+            'vendor'         => $vendor,
+            'detail'         => $detail,
             'jenisSparepart' => $jenisSparepart,
             'totalQty'      => $totalQty,
             'totalTersedia' => $totalTersedia,
@@ -204,9 +213,11 @@ class SparepartController extends Controller
             'filterJenis'   => $request->jenis,
             'filterStatus'  => $request->status,
             'search'        => $request->search,
+            'filterTanggalMulai' => $request->tanggal_mulai,
+            'filterTanggalBerakhir' => $request->tanggal_berakhir,
+            'filterKategori' => $request->kategori,
         ]);
     }
-
 
     public function store(Request $request)
     {
@@ -256,20 +267,22 @@ class SparepartController extends Controller
     }
 
 
-    public function update(Request $request, $serial_number)
+    public function update(Request $request, $id)
     {
+        
         $request->validate([
-            'serial_number' => 'required|string',
+            'serial_number' => 'nullable|string',
             'harga'         => 'required|numeric',
             'quantity'      => 'required|numeric',
             'spk'           => 'nullable|string',
+            'vendor'        => 'required|exists:vendor,id',
             'pic'           => 'required|string',
             'department'    => 'nullable|string',
             'keterangan'    => 'nullable|string',
             'tanggal'       => 'required|date',
         ]);
 
-        $detail = DetailBarang::where('serial_number', $serial_number)->firstOrFail();
+        $detail = DetailBarang::where('id', $id)->firstOrFail();
 
         $detail->update([
             'serial_number' => $request->serial_number,
@@ -311,6 +324,7 @@ class SparepartController extends Controller
             'jenis'      => $list->jenisBarang->nama ?? '-',
             'items'   => $list->details->map(function ($d) {
                 return [
+                    'id'     => $d->id,
                     'serial'     => $d->serial_number,
                     'status'     => $d->status,
                     'harga'      => $d->harga,
@@ -326,40 +340,34 @@ class SparepartController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, $serial)
-    {
-        $detail = DetailBarang::where('serial_number', $serial)->firstOrFail();
+public function destroy(Request $request, $id)
+{
+    $detail = DetailBarang::findOrFail($id);
 
-        // aturan bisnis / autorizasi jika perlu...
-        if ($detail->status === 'dipesan') {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['success' => false, 'message' => 'Tidak dapat menghapus item berstatus dipesan.'], 403);
-            }
-            return redirect()->route('kepalagudang.sparepart.index')->with('error', 'Tidak dapat menghapus item berstatus dipesan.');
-        }
 
-        $tiket = $detail->tiket_sparepart;
-        $detail->delete();
+    $tiket = $detail->tiket_sparepart;
+    $detail->delete();
 
-        // optional: delete list if empty...
-        $listDeleted = false;
-        $list = ListBarang::where('tiket_sparepart', $tiket)->first();
-        if ($list && $list->details()->count() === 0) {
-            $list->delete();
-            $listDeleted = true;
-        }
-
-        // jika request AJAX, kembalikan JSON berisi redirect URL
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Detail sparepart berhasil dihapus.',
-                'redirect' => route('kepalagudang.sparepart.index'),
-                'listDeleted' => $listDeleted
-            ]);
-        }
-
-        // non-AJAX: redirect dengan flash message
-        return redirect()->route('kepalagudang.sparepart.index')->with('success', 'Detail sparepart berhasil dihapus.');
+    // Menghapus list barang jika detail kosong
+    $listDeleted = false;
+    $list = ListBarang::where('tiket_sparepart', $tiket)->first();
+    if ($list && $list->details()->count() === 0) {
+        $list->delete();
+        $listDeleted = true;
     }
+
+    // Jika request AJAX, kembalikan JSON berisi redirect URL
+    if ($request->ajax() || $request->wantsJson()) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Detail sparepart berhasil dihapus.',
+            'redirect' => route('kepalagudang.sparepart.index'),
+            'listDeleted' => $listDeleted
+        ]);
+    }
+
+    // Non-AJAX: redirect dengan flash message
+    return redirect()->route('kepalagudang.sparepart.index')->with('success', 'Detail sparepart berhasil dihapus.');
+}
+
 }

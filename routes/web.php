@@ -52,7 +52,7 @@ Route::middleware(['auth', 'role:1'])
     ->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/request', 'requestIndex')->name('request.index');
-        Route::get('/sparepart', [SparepartController::class, 'indexAdmin'])->name('sparepart.index');
+         Route::get('/sparepart', [SparepartController::class, 'indexAdmin'])->name('sparepart.index');
         Route::get('/sparepart/{tiket_sparepart}/detail', [SparepartController::class, 'showDetail'])->name('sparepart.detail');
         Route::get('/history', 'historyIndex')->name('history.index');
     });
@@ -86,14 +86,14 @@ Route::middleware(['auth', 'role:3'])
         Route::post('/sparepart/store', [SparepartController::class, 'store'])->name('sparepart.store');
         Route::get('/sparepart', [SparepartController::class, 'index'])->name('sparepart.index');
         Route::get('/sparepart/{tiket_sparepart}/detail', [SparepartController::class, 'showDetail'])->name('sparepart.detail');
-        Route::put('/sparepart/serial/{serial_number}', [SparepartController::class, 'update'])->name('sparepart.update');
+        Route::put('/sparepart/{id}', [SparepartController::class, 'update'])->name('sparepart.update');
 
         Route::get('/history', 'historyIndex')->name('history.index');
         Route::get('/history/{id}', 'historyDetail')->name('history.detail');
 
         Route::get('/data', fn() => view('kepalagudang.data'))->name('data');
 
-        Route::delete('/sparepart/serial/{serial}', [SparepartController::class, 'destroy'])
+        Route::delete('/sparepart/{id}', [SparepartController::class, 'destroy'])
     ->name('.sparepart.details.destroy')
     ->middleware('auth')
     ->where('serial', '.*');

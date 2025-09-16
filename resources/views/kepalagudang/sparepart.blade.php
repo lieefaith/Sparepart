@@ -190,7 +190,7 @@
             {{ $listBarang->total() }} entri
         </div>
         <nav aria-label="Page navigation">
-            {{ $listBarang->links('pagination::bootstrap-5') }}
+            {{ $listBarang->appends(request()->query())->links('pagination::bootstrap-5') }}
         </nav>
     </div>
 
@@ -302,8 +302,11 @@
 
                             <div class="col-md-6">
                                 <label for="harga" class="form-label">Harga</label>
-                                <input type="number" class="form-control @error('harga') is-invalid @enderror"
-                                    id="harga" name="harga" required value="{{ old('harga') }}">
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" class="form-control @error('harga') is-invalid @enderror"
+                                        id="harga" name="harga" required value="{{ old('harga') }}">
+                                </div>
                                 @error('harga')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -386,14 +389,17 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <input type="hidden" name="original_serial" id="edit-original-serial" />
+                        <input type="hidden" name="original_id" id="edit-original-id" />
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="edit-kategori" class="form-label">Kategori</label>
                                 <select class="form-select" id="edit-kategori" name="kategori" disabled>
-                                    @foreach ($listBarang as $j)
-                                        <option value="{{ $j->id }}">{{ $j->kategori }}</option>
-                                    @endforeach
+                                    <option value="aset"
+                                        {{ old('ketegori', $listBarang->first()->kategori) == 'aset' ? 'selected' : '' }}>
+                                        Aset</option>
+                                    <option value="non-aset"
+                                        {{ old('kategori', $listBarang->first()->kategori) == 'non-aset' ? 'selected' : '' }}>
+                                        Non Aset</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
@@ -417,8 +423,7 @@
 
                             <div class="col-md-6">
                                 <label for="edit-serialNumber" class="form-label">Serial Number</label>
-                                <input type="text" class="form-control" id="edit-serialNumber" name="serial_number"
-                                    required>
+                                <input type="text" class="form-control" id="edit-serialNumber" name="serial_number">
                             </div>
 
                             <div class="col-md-6">
@@ -439,13 +444,16 @@
 
                             <div class="col-md-6">
                                 <label for="edit-harga" class="form-label">Harga</label>
-                                <input type="number" class="form-control" id="edit-harga" name="harga" required>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" class="form-control" id="edit-harga" name="harga" required>
+                                </div>
                             </div>
 
                             <div class="col-md-6">
                                 <label for="edit-vendor" class="form-label">Vendor</label>
                                 <select class="form-select" id="edit-vendor" name="vendor">
-                                    <option value="">Pilih tipe sparepart</option>
+                                    <option value="">Pilih vendor</option>
                                     @foreach ($vendor as $v)
                                         <option value="{{ $v->id }}">{{ $v->nama }}</option>
                                     @endforeach
@@ -602,13 +610,13 @@
             } [type] || '';
 
             const html = `
-    <div id="${id}" class="toast ${bgClass} shadow" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="d-flex">
-        <div class="toast-body">${icon}<span>${message}</span></div>
-        <button type="button" class="${closeBtnClass} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-    </div>
-    `;
+<div id="${id}" class="toast ${bgClass} shadow" role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="d-flex">
+    <div class="toast-body">${icon}<span>${message}</span></div>
+    <button type="button" class="${closeBtnClass} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+</div>
+`;
             container.insertAdjacentHTML('beforeend', html);
             const toastEl = document.getElementById(id);
             const toast = new bootstrap.Toast(toastEl, {
@@ -686,8 +694,13 @@
 
         function formatRupiah(val) {
             const num = Number(String(val).replace(/\D/g, '')) || 0;
-            return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
+            const formattedNum = (num / 100).toFixed(2);
+            return 'Rp ' + new Intl.NumberFormat('id-ID', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(formattedNum);
         }
+
 
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
@@ -707,21 +720,22 @@
             const tbody = document.getElementById('trx-items-list');
             tbody.innerHTML = "";
 
-            console.log(data)
-
             data.items.forEach((item, i) => {
                 let statusClass = 'bg-secondary';
                 if (item.status === 'tersedia') statusClass = 'bg-success';
                 else if (item.status === 'habis') statusClass = 'bg-danger';
                 else if (item.status === 'dipesan' || item.status === 'dikirim') statusClass = 'bg-warning';
 
+                const idForBtn = item.id || '';
                 const dataAttrs = [
+                    `data-item-id="${escapeHtml(idForBtn)}"`,
                     `data-item-serial="${escapeHtml(item.serial)}"`,
                     `data-item-quantity="${escapeHtml(item.quantity)}"`,
                     `data-item-tanggal="${escapeHtml(item.tanggal)}"`,
                     `data-item-spk="${escapeHtml(item.spk)}"`,
                     `data-item-harga="${escapeHtml(item.harga)}"`,
                     `data-item-vendor="${escapeHtml(item.vendor)}"`,
+                    `data-item-status="${escapeHtml(item.status)}"`,
                     `data-item-pic="${escapeHtml(item.pic)}"`,
                     `data-item-department="${escapeHtml(item.department)}"`,
                     `data-item-keterangan="${escapeHtml(item.keterangan)}"`,
@@ -730,29 +744,29 @@
                 ].join(' ');
 
                 const row = `
-        <tr>
-            <td>${i + 1}</td>
-            <td>${escapeHtml(item.serial) || '-'}</td>
-            <td>${escapeHtml(data.type) || '-'}</td>
-            <td>${escapeHtml(data.jenis) || '-'}</td>
-            <td><span class="badge ${statusClass}">${item.status ? (item.status.charAt(0).toUpperCase() + item.status.slice(1)) : '-'}</span></td>
-            <td>${item.harga ? formatRupiah(item.harga) : '-'}</td>
-            <td>${escapeHtml(item.vendor) || '-'}</td>
-            <td>${escapeHtml(item.spk) || '-'}</td>
-            <td>${escapeHtml(item.quantity) || '-'}</td>
-            <td>${escapeHtml(item.pic) || '-'}</td>
-            <td>${escapeHtml(item.keterangan) || '-'}</td>
-            <td>${escapeHtml(item.tanggal) || '-'}</td>
-            <td>
-                <button class="btn btn-primary btn-action btn-edit" ${dataAttrs} data-bs-toggle="tooltip" title="Edit">
-                    <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn btn-danger btn-action btn-delete" data-item-serial="${escapeHtml(item.serial)}" data-bs-toggle="tooltip" title="Hapus">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </td>
-        </tr>
-        `;
+<tr>
+    <td>${i + 1}</td>
+    <td>${escapeHtml(item.serial) || '-'}</td>
+    <td>${escapeHtml(data.type) || '-'}</td>
+    <td>${escapeHtml(data.jenis) || '-'}</td>
+    <td><span class="badge ${statusClass}">${item.status ? (item.status.charAt(0).toUpperCase() + item.status.slice(1)) : '-'}</span></td>
+    <td>${item.harga ? formatRupiah(item.harga) : '-'}</td>
+    <td>${escapeHtml(item.vendor) || '-'}</td>
+    <td>${escapeHtml(item.spk) || '-'}</td>
+    <td>${escapeHtml(item.quantity) || '-'}</td>
+    <td>${escapeHtml(item.pic) || '-'}</td>
+    <td>${escapeHtml(item.keterangan) || '-'}</td>
+    <td>${escapeHtml(item.tanggal) || '-'}</td>
+    <td>
+        <button class="btn btn-primary btn-action btn-edit" ${dataAttrs} data-bs-toggle="tooltip" title="Edit">
+            <i class="bi bi-pencil"></i>
+        </button>
+        <button class="btn btn-danger btn-action btn-delete" data-id="${escapeHtml(idForBtn)}" data-bs-toggle="tooltip" title="Hapus">
+            <i class="bi bi-trash"></i>
+        </button>
+    </td>
+</tr>
+`;
                 tbody.insertAdjacentHTML("beforeend", row);
             });
 
@@ -779,10 +793,7 @@
                     showToast('Gagal mengambil detail!', 'danger');
                 });
         }
-
-        /* Event delegation: edit + delete handlers inside detail modal */
         document.addEventListener('click', (e) => {
-            // Edit button
             const editBtn = e.target.closest('.btn-edit');
             if (editBtn) {
                 const serial = editBtn.getAttribute('data-item-serial') || '';
@@ -793,35 +804,44 @@
                 const spk = editBtn.getAttribute('data-item-spk') || '';
                 const harga = editBtn.getAttribute('data-item-harga') || '';
                 const vendor = editBtn.getAttribute('data-item-vendor') || '';
+                const status = editBtn.getAttribute('data-item-status') || '';
                 const pic = editBtn.getAttribute('data-item-pic') || '';
                 const department = editBtn.getAttribute('data-item-department') || '';
                 const keterangan = editBtn.getAttribute('data-item-keterangan') || '';
+                const itemId = editBtn.getAttribute('data-item-id') || '';
+                var select = document.getElementById('edit-vendor');
 
-                document.getElementById('edit-original-serial').value = serial;
+                document.getElementById('edit-original-id').value = itemId;
                 document.getElementById('edit-serialNumber').value = serial;
                 document.getElementById('edit-quantity').value = quantity;
                 document.getElementById('edit-tanggal').value = tanggal;
                 document.getElementById('edit-spk').value = spk;
                 document.getElementById('edit-harga').value = harga;
-                document.getElementById('edit-vendor').value = vendor;
+                select.value = vendor;
+                document.getElementById('edit-status').value = status;
                 document.getElementById('edit-pic').value = pic;
                 document.getElementById('edit-department').value = department;
                 document.getElementById('edit-keterangan').value = keterangan;
 
-                // select jenis & tipe by value if id was provided, otherwise try matching by text
+                const selectedId = select.value; // ini string id vendor
+                const selectedName = select.options[select.selectedIndex].text;
                 const jenisSelect = document.getElementById('edit-jenisSparepart');
                 const tipeSelect = document.getElementById('edit-typeSparepart');
 
-                for (let opt of jenisSelect.options) {
-                    if (opt.value === jenis || opt.text.trim() === jenis.trim()) {
-                        opt.selected = true;
-                        break;
+                if (jenisSelect) {
+                    for (let opt of jenisSelect.options) {
+                        if ((opt.value && opt.value === jenis) || (opt.text && opt.text.trim() === jenis.trim())) {
+                            opt.selected = true;
+                            break;
+                        }
                     }
                 }
-                for (let opt of tipeSelect.options) {
-                    if (opt.value === tipe || opt.text.trim() === tipe.trim()) {
-                        opt.selected = true;
-                        break;
+                if (tipeSelect) {
+                    for (let opt of tipeSelect.options) {
+                        if ((opt.value && opt.value === tipe) || (opt.text && opt.text.trim() === tipe.trim())) {
+                            opt.selected = true;
+                            break;
+                        }
                     }
                 }
 
@@ -831,20 +851,19 @@
                 return;
             }
 
-            // Delete button (delegated to any btn-delete)
             const delBtn = e.target.closest('.btn-delete');
             if (!delBtn) return;
 
             (async () => {
                 const btn = delBtn;
-                const serial = btn.dataset.itemSerial;
-                if (!serial) {
-                    showToast('Serial tidak ditemukan.', 'warning');
+                const id = btn.dataset.id;
+                if (!id) {
+                    showToast('Id tidak ditemukan.', 'warning');
                     return;
-                }
+                } else {}
 
-                const confirmed = await showConfirm('Yakin ingin menghapus item dengan serial: ' + serial +
-                    ' ?', 'Hapus', 'Batal');
+                const confirmed = await showConfirm('Yakin ingin menghapus item dengan id: ' + id + ' ?',
+                    'Hapus', 'Batal');
                 if (!confirmed) return;
 
                 btn.disabled = true;
@@ -853,22 +872,19 @@
                     '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
 
                 try {
-                    const tokenInput = document.querySelector('input[name="_token"]');
+                    const tokenInput = document.querySelector('input[name="_token"]') || document
+                        .getElementById('csrf_token');
                     const token = tokenInput ? tokenInput.value : '';
 
-                    const params = new URLSearchParams();
-                    params.append('_token', token);
-                    params.append('_method', 'DELETE');
+                    const url = `/kepalagudang/sparepart/${encodeURIComponent(id)}`;
 
-                    const res = await fetch(
-                        `/kepalagudang/sparepart/serial/${encodeURIComponent(serial)}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-                                'Accept': 'application/json'
-                            },
-                            body: params.toString()
-                        });
+                    const res = await fetch(url, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': token,
+                            'Accept': 'application/json'
+                        }
+                    });
 
                     const data = await res.json().catch(() => ({}));
                     if (!res.ok) throw new Error(data.message || `Gagal menghapus (status ${res.status})`);
@@ -876,21 +892,11 @@
                     const tr = btn.closest('tr');
                     if (tr) tr.remove();
 
-                    if (data.totalsPerStatus) {
-                        if (document.getElementById('total-tersedia')) document.getElementById(
-                            'total-tersedia').textContent = data.totalsPerStatus.tersedia;
-                        if (document.getElementById('total-dikirim')) document.getElementById(
-                            'total-dikirim').textContent = data.totalsPerStatus.dikirim;
-                        if (document.getElementById('total-habis')) document.getElementById('total-habis')
-                            .textContent = data.totalsPerStatus.habis;
-                    }
-
                     if (data.listDeleted && typeof sparepartDetailModal !== 'undefined')
                         sparepartDetailModal.hide();
                     showToast(data.message || 'Berhasil dihapus.', 'success');
 
-                    // auto reload so main table syncs with backend
-                    setTimeout(() => location.reload(), 1200);
+                    setTimeout(() => location.reload(), 1100);
                 } catch (err) {
                     console.error(err);
                     showToast('Terjadi kesalahan: ' + (err.message || err), 'danger');
@@ -900,38 +906,45 @@
             })();
         });
 
-        /* Submit edit form via AJAX */
-        document.getElementById('editSparepartForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const saveBtn = document.getElementById('editSaveBtn');
-            const originalHtml = saveBtn.innerHTML;
-            saveBtn.disabled = true;
-            saveBtn.innerHTML =
-                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
+        (function attachEditSubmit() {
+            const form = document.getElementById('editSparepartForm');
+            if (!form) return;
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const saveBtn = document.getElementById('editSaveBtn');
+                const originalHtml = saveBtn.innerHTML;
+                saveBtn.disabled = true;
+                saveBtn.innerHTML =
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
 
-            try {
-                const originalSerial = document.getElementById('edit-original-serial').value;
-                const tokenInput = document.querySelector('input[name="_token"]');
-                const token = tokenInput ? tokenInput.value : '';
+                try {
+                    const originalId = document.getElementById('edit-original-id').value;
+                    const tokenInput = document.querySelector('input[name="_token"]') || document
+                        .getElementById('csrf_token');
+                    const token = tokenInput ? tokenInput.value : '';
 
-                const params = new URLSearchParams();
-                params.append('_token', token);
-                params.append('_method', 'PUT');
+                    const params = new URLSearchParams();
+                    params.append('_token', token);
+                    params.append('_method', 'PUT');
 
-                params.append('jenisSparepart', document.getElementById('edit-jenisSparepart').value);
-                params.append('typeSparepart', document.getElementById('edit-typeSparepart').value);
-                params.append('serial_number', document.getElementById('edit-serialNumber').value);
-                params.append('quantity', document.getElementById('edit-quantity').value);
-                params.append('tanggal', document.getElementById('edit-tanggal').value);
-                params.append('spk', document.getElementById('edit-spk').value);
-                params.append('harga', document.getElementById('edit-harga').value);
-                params.append('vendor', document.getElementById('edit-vendor').value);
-                params.append('pic', document.getElementById('edit-pic').value);
-                params.append('department', document.getElementById('edit-department').value);
-                params.append('keterangan', document.getElementById('edit-keterangan').value);
+                    params.append('jenisSparepart', document.getElementById('edit-jenisSparepart') ?
+                        document.getElementById('edit-jenisSparepart').value : '');
+                    params.append('typeSparepart', document.getElementById('edit-typeSparepart') ? document
+                        .getElementById('edit-typeSparepart').value : '');
+                    params.append('serial_number', document.getElementById('edit-serialNumber').value);
+                    params.append('quantity', document.getElementById('edit-quantity').value);
+                    params.append('tanggal', document.getElementById('edit-tanggal').value);
+                    params.append('spk', document.getElementById('edit-spk').value);
+                    params.append('harga', document.getElementById('edit-harga').value);
+                    params.append('vendor', document.getElementById('edit-vendor').value);
+                    params.append('pic', document.getElementById('edit-pic').value);
+                    params.append('status', document.getElementById('edit-status').value);
+                    params.append('department', document.getElementById('edit-department').value);
+                    params.append('keterangan', document.getElementById('edit-keterangan').value);
 
-                const res = await fetch(
-                    `/kepalagudang/sparepart/serial/${encodeURIComponent(originalSerial)}`, {
+                    const url = `/kepalagudang/sparepart/${encodeURIComponent(originalId)}`;
+
+                    const res = await fetch(url, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
@@ -940,22 +953,23 @@
                         body: params.toString()
                     });
 
-                const data = await res.json().catch(() => ({}));
-                if (!res.ok) throw new Error(data.message || `Gagal menyimpan (status ${res.status})`);
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(data.message || `Gagal menyimpan (status ${res.status})`);
 
-                const editModalEl = document.getElementById('editSparepartModal');
-                const editModalInstance = bootstrap.Modal.getInstance(editModalEl);
-                if (editModalInstance) editModalInstance.hide();
+                    const editModalEl = document.getElementById('editSparepartModal');
+                    const editModalInstance = bootstrap.Modal.getInstance(editModalEl);
+                    if (editModalInstance) editModalInstance.hide();
 
-                showToast(data.message || 'Perubahan berhasil disimpan.', 'success');
-                setTimeout(() => location.reload(), 1200);
-            } catch (err) {
-                console.error(err);
-                showToast('Terjadi kesalahan: ' + (err.message || err), 'danger');
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = originalHtml;
-            }
-        });
+                    showToast(data.message || 'Perubahan berhasil disimpan.', 'success');
+                    setTimeout(() => location.reload(), 1200);
+                } catch (err) {
+                    console.error(err);
+                    showToast('Terjadi kesalahan: ' + (err.message || err), 'danger');
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalHtml;
+                }
+            });
+        })();
 
         document.addEventListener('DOMContentLoaded', function() {
             const kategoriSelect = document.getElementById('kategori');
@@ -966,40 +980,45 @@
 
             otherFields.forEach(field => field.disabled = true);
 
-            kategoriSelect.addEventListener('change', function() {
-                const kategori = this.value;
+            if (kategoriSelect) {
+                kategoriSelect.addEventListener('change', function() {
+                    const kategori = this.value;
 
-                if (kategori) {
-                    otherFields.forEach(field => field.disabled = false);
+                    if (kategori) {
+                        otherFields.forEach(field => field.disabled = false);
 
-                    let filteredJenis = jenisData.filter(j => j.kategori === kategori);
+                        let filteredJenis = jenisData.filter(j => j.kategori === kategori);
 
-                    jenisSelect.innerHTML = '<option value="" selected>Pilih jenis sparepart</option>';
-                    filteredJenis.forEach(j => {
-                        const option = document.createElement('option');
-                        option.value = j.id;
-                        option.textContent = j.nama;
-                        jenisSelect.appendChild(option);
-                    });
+                        jenisSelect.innerHTML = '<option value="" selected>Pilih jenis sparepart</option>';
+                        filteredJenis.forEach(j => {
+                            const option = document.createElement('option');
+                            option.value = j.id;
+                            option.textContent = j.nama;
+                            jenisSelect.appendChild(option);
+                        });
 
-                    let filteredTipe = tipeData.filter(t => t.kategori === kategori);
-                    tipeSelect.innerHTML = '<option value="" selected>Pilih tipe sparepart</option>';
-                    filteredTipe.forEach(t => {
-                        const option = document.createElement('option');
-                        option.value = t.id;
-                        option.textContent = t.nama;
-                        tipeSelect.appendChild(option);
-                    });
+                        let filteredTipe = tipeData.filter(t => t.kategori === kategori);
+                        tipeSelect.innerHTML = '<option value="" selected>Pilih tipe sparepart</option>';
+                        filteredTipe.forEach(t => {
+                            const option = document.createElement('option');
+                            option.value = t.id;
+                            option.textContent = t.nama;
+                            tipeSelect.appendChild(option);
+                        });
 
-                } else {
-                    otherFields.forEach(field => field.disabled = true);
+                    } else {
+                        otherFields.forEach(field => field.disabled = true);
 
-                    jenisSelect.innerHTML = '<option value="" selected>Pilih jenis sparepart</option>';
-                    tipeSelect.innerHTML = '<option value="" selected>Pilih tipe sparepart</option>';
-                }
-            });
+                        jenisSelect.innerHTML = '<option value="" selected>Pilih jenis sparepart</option>';
+                        tipeSelect.innerHTML = '<option value="" selected>Pilih tipe sparepart</option>';
+                        vendorSelect.innerHTML = '<option value="" selected>Pilih vendor</option>';
+                    }
+                });
+            }
         });
+
         const jenisData = @json($jenis);
         const tipeData = @json($tipe);
+        const vendorData = @json($vendor);
     </script>
 @endpush
