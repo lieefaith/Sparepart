@@ -33,15 +33,15 @@ class SparepartController extends Controller
                 $q->where('status', $request->status);
             });
         }
-    if ($request->filled('tanggal_mulai') && $request->filled('tanggal_berakhir')) {
-        $query->whereHas('details', function ($q) use ($request) {
-            $q->whereBetween('tanggal', [$request->tanggal_mulai, $request->tanggal_berakhir]);
-        });
-    }
+        if ($request->filled('tanggal_mulai') && $request->filled('tanggal_berakhir')) {
+            $query->whereHas('details', function ($q) use ($request) {
+                $q->whereBetween('tanggal', [$request->tanggal_mulai, $request->tanggal_berakhir]);
+            });
+        }
 
-    if ($request->filled('kategori')) {
-        $query->where('kategori', $request->kategori);
-    }
+        if ($request->filled('kategori')) {
+            $query->where('kategori', $request->kategori);
+        }
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -134,15 +134,15 @@ class SparepartController extends Controller
                 $q->where('status', $request->status);
             });
         }
-    if ($request->filled('tanggal_mulai') && $request->filled('tanggal_berakhir')) {
-        $query->whereHas('details', function ($q) use ($request) {
-            $q->whereBetween('tanggal', [$request->tanggal_mulai, $request->tanggal_berakhir]);
-        });
-    }
+        if ($request->filled('tanggal_mulai') && $request->filled('tanggal_berakhir')) {
+            $query->whereHas('details', function ($q) use ($request) {
+                $q->whereBetween('tanggal', [$request->tanggal_mulai, $request->tanggal_berakhir]);
+            });
+        }
 
-    if ($request->filled('kategori')) {
-        $query->where('kategori', $request->kategori);
-    }
+        if ($request->filled('kategori')) {
+            $query->where('kategori', $request->kategori);
+        }
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -238,12 +238,17 @@ class SparepartController extends Controller
         ]);
 
         DB::transaction(function () use ($request) {
-            $list = ListBarang::create([
-                'tanggal'    => $request->tanggal,
-                'jenis_id'   => $request->jenisSparepart,
-                'tipe_id'    => $request->typeSparepart,
-                'kategori'   => $request->kategori,
-            ]);
+            $list = ListBarang::where('jenis_id', $request->jenisSparepart)
+                ->where('tipe_id', $request->typeSparepart)
+                ->where('kategori', $request->kategori)
+                ->first();
+            if (!$list) {
+                $list = ListBarang::create([
+                    'jenis_id'        => $request->jenisSparepart,
+                    'tipe_id'         => $request->typeSparepart,
+                    'kategori'        => $request->kategori,
+                ]);
+            }
 
             DetailBarang::create([
                 'tiket_sparepart' => $list->tiket_sparepart,
@@ -263,13 +268,14 @@ class SparepartController extends Controller
             ]);
         });
 
+
         return redirect()->back()->with('success', 'List & Detail Barang berhasil ditambahkan!');
     }
 
 
     public function update(Request $request, $id)
     {
-        
+
         $request->validate([
             'serial_number' => 'nullable|string',
             'harga'         => 'required|numeric',
@@ -297,7 +303,6 @@ class SparepartController extends Controller
             'tanggal'       => $request->tanggal,
         ]);
 
-        // If AJAX request, send JSON; otherwise redirect as before
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
@@ -329,6 +334,7 @@ class SparepartController extends Controller
                     'status'     => $d->status,
                     'harga'      => $d->harga,
                     'vendor'     => $d->vendor->nama ?? '-',
+                    'vendor_id'  => $d->vendor_id ?? '-',
                     'quantity'   => $d->quantity,
                     'spk'        => $d->spk,
                     'pic'        => $d->pic,
@@ -340,34 +346,29 @@ class SparepartController extends Controller
         ]);
     }
 
-public function destroy(Request $request, $id)
-{
-    $detail = DetailBarang::findOrFail($id);
+    public function destroy(Request $request, $id)
+    {
+        $detail = DetailBarang::findOrFail($id);
 
 
-    $tiket = $detail->tiket_sparepart;
-    $detail->delete();
+        $tiket = $detail->tiket_sparepart;
+        $detail->delete();
+        $listDeleted = false;
+        $list = ListBarang::where('tiket_sparepart', $tiket)->first();
+        if ($list && $list->details()->count() === 0) {
+            $list->delete();
+            $listDeleted = true;
+        }
 
-    // Menghapus list barang jika detail kosong
-    $listDeleted = false;
-    $list = ListBarang::where('tiket_sparepart', $tiket)->first();
-    if ($list && $list->details()->count() === 0) {
-        $list->delete();
-        $listDeleted = true;
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Detail sparepart berhasil dihapus.',
+                'redirect' => route('kepalagudang.sparepart.index'),
+                'listDeleted' => $listDeleted
+            ]);
+        }
+
+        return redirect()->route('kepalagudang.sparepart.index')->with('success', 'Detail sparepart berhasil dihapus.');
     }
-
-    // Jika request AJAX, kembalikan JSON berisi redirect URL
-    if ($request->ajax() || $request->wantsJson()) {
-        return response()->json([
-            'success' => true,
-            'message' => 'Detail sparepart berhasil dihapus.',
-            'redirect' => route('kepalagudang.sparepart.index'),
-            'listDeleted' => $listDeleted
-        ]);
-    }
-
-    // Non-AJAX: redirect dengan flash message
-    return redirect()->route('kepalagudang.sparepart.index')->with('success', 'Detail sparepart berhasil dihapus.');
-}
-
 }

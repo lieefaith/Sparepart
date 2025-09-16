@@ -719,6 +719,7 @@
 
             const tbody = document.getElementById('trx-items-list');
             tbody.innerHTML = "";
+            
 
             data.items.forEach((item, i) => {
                 let statusClass = 'bg-secondary';
@@ -734,7 +735,7 @@
                     `data-item-tanggal="${escapeHtml(item.tanggal)}"`,
                     `data-item-spk="${escapeHtml(item.spk)}"`,
                     `data-item-harga="${escapeHtml(item.harga)}"`,
-                    `data-item-vendor="${escapeHtml(item.vendor)}"`,
+                    `data-item-vendor-id="${escapeHtml(item.vendor_id)}"`,
                     `data-item-status="${escapeHtml(item.status)}"`,
                     `data-item-pic="${escapeHtml(item.pic)}"`,
                     `data-item-department="${escapeHtml(item.department)}"`,
@@ -795,6 +796,7 @@
         }
         document.addEventListener('click', (e) => {
             const editBtn = e.target.closest('.btn-edit');
+            console.log(editBtn)
             if (editBtn) {
                 const serial = editBtn.getAttribute('data-item-serial') || '';
                 const jenis = editBtn.getAttribute('data-item-jenis') || '';
@@ -803,13 +805,12 @@
                 const tanggal = editBtn.getAttribute('data-item-tanggal') || '';
                 const spk = editBtn.getAttribute('data-item-spk') || '';
                 const harga = editBtn.getAttribute('data-item-harga') || '';
-                const vendor = editBtn.getAttribute('data-item-vendor') || '';
+                const vendor_id = editBtn.getAttribute('data-item-vendor-id') || '';
                 const status = editBtn.getAttribute('data-item-status') || '';
                 const pic = editBtn.getAttribute('data-item-pic') || '';
                 const department = editBtn.getAttribute('data-item-department') || '';
                 const keterangan = editBtn.getAttribute('data-item-keterangan') || '';
                 const itemId = editBtn.getAttribute('data-item-id') || '';
-                var select = document.getElementById('edit-vendor');
 
                 document.getElementById('edit-original-id').value = itemId;
                 document.getElementById('edit-serialNumber').value = serial;
@@ -817,14 +818,15 @@
                 document.getElementById('edit-tanggal').value = tanggal;
                 document.getElementById('edit-spk').value = spk;
                 document.getElementById('edit-harga').value = harga;
-                select.value = vendor;
+
+                document.getElementById('edit-vendor').value = vendor_id;
                 document.getElementById('edit-status').value = status;
                 document.getElementById('edit-pic').value = pic;
                 document.getElementById('edit-department').value = department;
                 document.getElementById('edit-keterangan').value = keterangan;
 
-                const selectedId = select.value; // ini string id vendor
-                const selectedName = select.options[select.selectedIndex].text;
+                console.log(vendor_id)
+                // const selectedName = select.options[select.selectedIndex].text;
                 const jenisSelect = document.getElementById('edit-jenisSparepart');
                 const tipeSelect = document.getElementById('edit-typeSparepart');
 
@@ -937,6 +939,7 @@
                     params.append('spk', document.getElementById('edit-spk').value);
                     params.append('harga', document.getElementById('edit-harga').value);
                     params.append('vendor', document.getElementById('edit-vendor').value);
+                    params.append('vendor_id', document.getElementById('edit-vendor').value);
                     params.append('pic', document.getElementById('edit-pic').value);
                     params.append('status', document.getElementById('edit-status').value);
                     params.append('department', document.getElementById('edit-department').value);
