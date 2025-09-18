@@ -27,13 +27,13 @@
 
 
     <!-- Filter Card -->
-    <div class="filter-card">
+ <div class="filter-card">
         <h5 class="mb-3"><i class="bi bi-funnel me-2"></i>Filter Data</h5>
         <form method="GET" action="{{ route('superadmin.sparepart.index') }}">
             <div class="row g-3">
                 <div class="col-md-4">
                     <label for="jenisFilter" class="form-label">Jenis Sparepart</label>
-                    <select class="form-select" name="jenis" id="jenisFilter" onchange="this.form.submit()">
+                    <select class="form-select" name="jenis" id="jenisFilter">
                         <option value="">Semua Jenis</option>
                         @foreach ($jenis as $j)
                             <option value="{{ $j->id }}"
@@ -72,15 +72,15 @@
                 </div>
                 <div class="col-md-4">
                     <label for="kategoriFilter" class="form-label">Kategori Sparepart</label>
-                    <select class="form-select" name="kategori" id="kategoriFilter" onchange="this.form.submit()">
+                    <select class="form-select" name="kategori" id="kategoriFilter">
                         <option value="">Semua Kategori</option>
-                        <option value="aset" {{ old('kategori') == 'aset' ? 'selected' : '' }}>Aset</option>
-                        <option value="non-aset" {{ old('kategori') == 'non-aset' ? 'selected' : '' }}>Non
-                            Aset</option>
+                        <option value="aset" {{ request('kategori') == 'aset' ? 'selected' : '' }}>Aset</option>
+                        <option value="non-aset" {{ request('kategori') == 'non-aset' ? 'selected' : '' }}>Non Aset
+                        </option>
                     </select>
                 </div>
                 <div class="col-12 text-end">
-                    <a href="{{ route('superadmin.sparepart.index') }}" class="btn btn-light me-2">
+                    <a href="{{ route('kepalagudang.sparepart.index') }}" class="btn btn-light me-2">
                         <i class="bi bi-arrow-clockwise me-1"></i> Reset
                     </a>
                     <button type="submit" class="btn btn-primary">

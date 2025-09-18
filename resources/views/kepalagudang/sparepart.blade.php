@@ -72,7 +72,7 @@
             <div class="row g-3">
                 <div class="col-md-4">
                     <label for="jenisFilter" class="form-label">Jenis Sparepart</label>
-                    <select class="form-select" name="jenis" id="jenisFilter" onchange="this.form.submit()">
+                    <select class="form-select" name="jenis" id="jenisFilter">
                         <option value="">Semua Jenis</option>
                         @foreach ($jenis as $j)
                             <option value="{{ $j->id }}"
@@ -111,11 +111,11 @@
                 </div>
                 <div class="col-md-4">
                     <label for="kategoriFilter" class="form-label">Kategori Sparepart</label>
-                    <select class="form-select" name="kategori" id="kategoriFilter" onchange="this.form.submit()">
+                    <select class="form-select" name="kategori" id="kategoriFilter">
                         <option value="">Semua Kategori</option>
-                        <option value="aset" {{ old('kategori') == 'aset' ? 'selected' : '' }}>Aset</option>
-                        <option value="non-aset" {{ old('kategori') == 'non-aset' ? 'selected' : '' }}>Non
-                            Aset</option>
+                        <option value="aset" {{ request('kategori') == 'aset' ? 'selected' : '' }}>Aset</option>
+                        <option value="non-aset" {{ request('kategori') == 'non-aset' ? 'selected' : '' }}>Non Aset
+                        </option>
                     </select>
                 </div>
                 <div class="col-12 text-end">
@@ -378,7 +378,58 @@
         </div>
     </div>
 
-    <!-- Modal Edit Sparepart (mirip form tambah) -->
+
+    <!-- Detail Modal -->
+    <div class="modal fade" id="sparepartDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-receipt me-2"></i>Detail Sparepart</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" id="sparepart-spinner" role="status"><span
+                                class="visually-hidden">Loading...</span></div>
+                    </div>
+
+                    <div id="sparepart-content" style="display:none;">
+                        <div class="row mb-3">
+                            <div class="col-md-6"><strong>ID Sparepart:</strong> <span id="trx-id"></span></div>
+                        </div>
+
+                        <h6 class="mt-3 mb-2">Daftar Sparepart:</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Serial Number</th>
+                                        <th>Type</th>
+                                        <th>Jenis</th>
+                                        <th>Status</th>
+                                        <th>Harga</th>
+                                        <th>Vendor</th>
+                                        <th>SPK</th>
+                                        <th>Qty</th>
+                                        <th>PIC</th>
+                                        <th>Keterangan</th>
+                                        <th>Tanggal</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="trx-items-list"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Tutup</button></div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Modal Edit Sparepart (mirip form tambah) -->
     <div class="modal fade" id="editSparepartModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -395,10 +446,10 @@
                                 <label for="edit-kategori" class="form-label">Kategori</label>
                                 <select class="form-select" id="edit-kategori" name="kategori" disabled>
                                     <option value="aset"
-                                        {{ old('ketegori', $listBarang->first()->kategori) == 'aset' ? 'selected' : '' }}>
+                                        {{ old('ketegori', optional($listBarang->first())->kategori) == 'aset' ? 'selected' : '' }}>
                                         Aset</option>
                                     <option value="non-aset"
-                                        {{ old('kategori', $listBarang->first()->kategori) == 'non-aset' ? 'selected' : '' }}>
+                                        {{ old('kategori', optional($listBarang->first())->kategori) == 'non-aset' ? 'selected' : '' }}>
                                         Non Aset</option>
                                 </select>
                             </div>
@@ -473,14 +524,19 @@
                                 <label for="edit-status" class="form-label">Status</label>
                                 <select class="form-select" id="edit-status" name="status" required>
                                     <option value="tersedia"
-                                        {{ old('status', $detail->first()->status) == 'tersedia' ? 'selected' : '' }}>
-                                        Tersedia</option>
-                                    <option value="dikirim"
-                                        {{ old('status', $detail->first()->status) == 'dikirim' ? 'selected' : '' }}>
-                                        Dikirim</option>
-                                    <option value="habis"
-                                        {{ old('status', $detail->first()->status) == 'habis' ? 'selected' : '' }}>Habis
+                                        {{ old('status', $detail->first()->status ?? '') == 'tersedia' ? 'selected' : '' }}>
+                                        Tersedia
                                     </option>
+
+                                    <option value="dikirim"
+                                        {{ old('status', $detail->first()->status ?? '') == 'dikirim' ? 'selected' : '' }}>
+                                        Dikirim
+                                    </option>
+                                    <option value="habis"
+                                        {{ old('status', $detail->first()->status ?? '') == 'habis' ? 'selected' : '' }}>
+                                        Habis
+                                    </option>
+
                                 </select>
 
 
@@ -498,56 +554,6 @@
                         <button type="submit" class="btn btn-primary" id="editSaveBtn">Simpan Perubahan</button>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detail Modal -->
-    <div class="modal fade" id="sparepartDetailModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title"><i class="bi bi-receipt me-2"></i>Detail Sparepart</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="d-flex justify-content-center">
-                        <div class="spinner-border text-primary" id="sparepart-spinner" role="status"><span
-                                class="visually-hidden">Loading...</span></div>
-                    </div>
-
-                    <div id="sparepart-content" style="display:none;">
-                        <div class="row mb-3">
-                            <div class="col-md-6"><strong>ID Sparepart:</strong> <span id="trx-id"></span></div>
-                        </div>
-
-                        <h6 class="mt-3 mb-2">Daftar Sparepart:</h6>
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Serial Number</th>
-                                        <th>Type</th>
-                                        <th>Jenis</th>
-                                        <th>Status</th>
-                                        <th>Harga</th>
-                                        <th>Vendor</th>
-                                        <th>SPK</th>
-                                        <th>Qty</th>
-                                        <th>PIC</th>
-                                        <th>Keterangan</th>
-                                        <th>Tanggal</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="trx-items-list"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer"><button type="button" class="btn btn-secondary"
-                        data-bs-dismiss="modal">Tutup</button></div>
             </div>
         </div>
     </div>
@@ -582,6 +588,18 @@
 
 @push('scripts')
     <script>
+        @if (session('success') || session('error'))
+            window.flash = {
+                message: {!! json_encode(session('success') ?? session('error')) !!},
+                type: {!! json_encode(session('success') ? 'success' : 'danger') !!}
+            };
+        @endif
+        if (window.flash && window.flash.message) {
+            document.addEventListener('DOMContentLoaded', () => {
+                showToast(window.flash.message, window.flash.type || 'info');
+                delete window.flash;
+            });
+        }
         /* ====== Helpers ====== */
         function showToast(message, type = 'info', options = {
             delay: 5000,
@@ -719,7 +737,7 @@
 
             const tbody = document.getElementById('trx-items-list');
             tbody.innerHTML = "";
-            
+
 
             data.items.forEach((item, i) => {
                 let statusClass = 'bg-secondary';
