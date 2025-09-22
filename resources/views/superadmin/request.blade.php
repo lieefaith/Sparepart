@@ -70,7 +70,7 @@
                     </div>
                     <div>
                         <h6 class="mb-0">Pending</h6>
-                        <h4 class="mb-0 fw-bold text-warning">3</h4>
+                        <h4 class="mb-0 fw-bold text-warning">1</h4>
                     </div>
                 </div>
             </div>
@@ -83,7 +83,7 @@
                     </div>
                     <div>
                         <h6 class="mb-0">Disetujui</h6>
-                        <h4 class="mb-0 fw-bold text-success">12</h4>
+                        <h4 class="mb-0 fw-bold text-success">0</h4>
                     </div>
                 </div>
             </div>
@@ -96,7 +96,7 @@
                     </div>
                     <div>
                         <h6 class="mb-0">Ditolak</h6>
-                        <h4 class="mb-0 fw-bold text-danger">2</h4>
+                        <h4 class="mb-0 fw-bold text-danger">0</h4>
                     </div>
                 </div>
             </div>
@@ -184,9 +184,9 @@
         <!-- Pagination -->
         <div class="pagination-container d-flex justify-content-between align-items-center mt-3">
             <div class="text-muted">
-                Menampilkan 1 hingga 5 dari 22 entri
+                Menampilkan 1 hingga 1 dari 1 entri
             </div>
-            <nav aria-label="Page navigation">
+            {{-- <nav aria-label="Page navigation">
                 <ul class="pagination mb-0">
                     <li class="page-item disabled">
                         <a class="page-link" href="#">Sebelumnya</a>
@@ -198,7 +198,7 @@
                         <a class="page-link" href="#">Selanjutnya</a>
                     </li>
                 </ul>
-            </nav>
+            </nav> --}}
         </div>
 
 @endsection

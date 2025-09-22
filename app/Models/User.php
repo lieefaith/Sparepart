@@ -20,16 +20,16 @@ class User extends Authenticatable
     protected $table = 'users';
 
     protected $fillable = [
-        'name', 
-        'email', 
-        'password', 
-        'role', 
-        'region', 
-        'mobile_number', 
-        'perusahaan', 
-        'nokt', 
-        'alamat', 
-        'bagian', 
+        'name',
+        'email',
+        'password',
+        'role',
+        'region',
+        'mobile_number',
+        'perusahaan',
+        'nokt',
+        'alamat',
+        'bagian',
         'atasan',
         'email_verified_at'
     ];
@@ -78,26 +78,30 @@ class User extends Authenticatable
         return $this->hasMany(VerifikasiPermintaan::class, 'signed_by');
     }
 
+    public function region()
+    {
+        return $this->hasMany(Region::class, 'region');
+    }
+
     public function getRoleNameAttribute()
-{
-    return match($this->role) {
-        '1' => 'Superadmin',
-        '2' => 'Regional Office Head',
-        '3' => 'Warehouse Head',
-        '4' => 'Field Technician',
-        default => '-',
-    };
-}
+    {
+        return match ($this->role) {
+            '1' => 'Superadmin',
+            '2' => 'Regional Office Head',
+            '3' => 'Warehouse Head',
+            '4' => 'Field Technician',
+            default => '-',
+        };
+    }
 
-public function getRoleBadgeAttribute()
-{
-    return match($this->role) {
-        '1' => 'bg-primary',
-        '2' => 'bg-success',
-        '3' => 'bg-warning text-dark',
-        '4' => 'bg-info',
-        default => 'bg-secondary',
-    };
-}
-
+    public function getRoleBadgeAttribute()
+    {
+        return match ($this->role) {
+            '1' => 'bg-primary',
+            '2' => 'bg-success',
+            '3' => 'bg-warning text-dark',
+            '4' => 'bg-info',
+            default => 'bg-secondary',
+        };
+    }
 }

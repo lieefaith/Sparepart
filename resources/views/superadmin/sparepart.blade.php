@@ -27,7 +27,7 @@
 
 
     <!-- Filter Card -->
- <div class="filter-card">
+    <div class="filter-card">
         <h5 class="mb-3"><i class="bi bi-funnel me-2"></i>Filter Data</h5>
         <form method="GET" action="{{ route('superadmin.sparepart.index') }}">
             <div class="row g-3">
