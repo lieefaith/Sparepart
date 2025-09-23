@@ -36,7 +36,7 @@
                 <div class="card-icon bg-success bg-opacity-10 text-success">
                     <i class="bi bi-hourglass-split"></i>
                 </div>
-                <h4 class="stats-number">1</h4>
+                <h4 class="stats-number">{{$totalPending ?? 0 }}</h4>
                 <p class="stats-title">Pending</p>
             </div>
         </div>
@@ -108,19 +108,19 @@
                         <tbody>
                             <tr>
                                 <td><span class="badge bg-danger">HIST003</span></td>
-                                <td>Oli Mesin</td>
+                                <td>SFP+</td>
                                 <td>8</td>
                                 <td>2025-09-19</td>
                             </tr>
                             <tr>
                                 <td><span class="badge bg-danger">HIST002</span></td>
-                                <td>Filter Oli</td>
+                                <td>SFP</td>
                                 <td>7</td>
                                 <td>2025-09-19</td>
                             </tr>
                             <tr>
                                 <td><span class="badge bg-danger">HIST001</span></td>
-                                <td>Kampas Rem</td>
+                                <td>DUMMY</td>
                                 <td>5</td>
                                 <td>2025-09-19</td>
                             </tr>
