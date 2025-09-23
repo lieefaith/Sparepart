@@ -782,17 +782,17 @@
         }
 
         function showDetail(tiket_sparepart) {
-            fetch(`/kepalagudang/sparepart/${tiket_sparepart}/detail`)
-                .then(res => {
-                    if (!res.ok) throw new Error('Network response was not ok');
-                    return res.json();
-                })
-                .then(data => showTransaksiDetail(data))
-                .catch(err => {
-                    console.error('Fetch error:', err);
-                    showToast('Gagal mengambil detail!', 'danger');
-                });
-        }
+    fetch(`/kepalagudang/sparepart/${tiket_sparepart}/detail`)
+      .then(res => res.json())
+      .then(data => {
+          const status = document.getElementById('statusFilter') ? document.getElementById('statusFilter').value : '';
+          if (status) {
+              data.items = data.items.filter(item => (item.status || '').toString() === status.toString());
+          }
+          showTransaksiDetail(data);
+      })
+      .catch(err => { console.error(err); alert('Gagal mengambil detail!'); });
+}
         document.addEventListener('click', (e) => {
             const editBtn = e.target.closest('.btn-edit');
             console.log(editBtn)
