@@ -10,11 +10,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\DetailBarang;
+use App\Models\ListBarang;
 
 class KepalaGudangController extends Controller
 {
-    public function dashboard(Request $request){
-     $date = $request->input('date', Carbon::today()->toDateString());
+    public function dashboard(Request $request)
+    {
+        $date = $request->input('date', Carbon::today()->toDateString());
 
         $groups = DB::table('detail_barang')
             ->select('jenis_id', 'tipe_id', DB::raw('SUM(quantity) as total_qty'), DB::raw('MAX(id) as latest_id'))
@@ -40,19 +42,19 @@ class KepalaGudangController extends Controller
 
 
             $jenis_nama = $r && $r->jenis ? $r->jenis->nama : null;
-            $tipe_nama  = $r && $r->tipe  ? $r->tipe->nama  : null;
+            $tipe_nama = $r && $r->tipe ? $r->tipe->nama : null;
 
-            return (object)[
-                'id'             => $g->latest_id,
+            return (object) [
+                'id' => $g->latest_id,
                 'tiket_sparepart' => $r ? $r->tiket_sparepart : null,
-                'nama_barang'    => $r ? $r->nama_barang : null,
-                'qty_record'     => $r ? $r->quantity : 0,
-                'jenis'          => $r ? $r->jenis : (object)['id' => $g->jenis_id, 'nama' => $jenis_nama],
-                'tipe'           => $r ? $r->tipe  : (object)['id' => $g->tipe_id, 'nama' => $tipe_nama],
-                'jenis_nama'     => $jenis_nama,
-                'tipe_nama'      => $tipe_nama,
-                'total_qty'      => (int) $g->total_qty,
-                'tanggal'        => $r ? $r->tanggal : $date,
+                'nama_barang' => $r ? $r->nama_barang : null,
+                'qty_record' => $r ? $r->quantity : 0,
+                'jenis' => $r ? $r->jenis : (object) ['id' => $g->jenis_id, 'nama' => $jenis_nama],
+                'tipe' => $r ? $r->tipe : (object) ['id' => $g->tipe_id, 'nama' => $tipe_nama],
+                'jenis_nama' => $jenis_nama,
+                'tipe_nama' => $tipe_nama,
+                'total_qty' => (int) $g->total_qty,
+                'tanggal' => $r ? $r->tanggal : $date,
             ];
         })->sortByDesc('tiket_sparepart')->values();
 
@@ -60,8 +62,8 @@ class KepalaGudangController extends Controller
         $totalPerDay = $groups->sum('total_qty');
         $totalMasuk = DetailBarang::whereDate('tanggal', $date)->sum('quantity');
         $totalPending = Permintaan::whereDate('tanggal_permintaan', $date)
-                          ->where('status_gudang', 'pending')
-                          ->count();
+            ->where('status_gudang', 'pending')
+            ->count();
 
 
         return view('kepalagudang.dashboard', compact('detail', 'date', 'totalPerDay', 'totalMasuk','totalPending'));
@@ -86,10 +88,7 @@ class KepalaGudangController extends Controller
         return view('kepalagudang.sparepart');
     }
 
-    public function sparepartStore(Request $request)
-    {
-        // Akan kita isi nanti jika diperlukan
-    } public function kirim($id)
+    public function kirim($id)
     {
         $permintaan = Permintaan::findOrFail($id);
         $permintaan->status_barang = 'on_delivery';
@@ -103,7 +102,7 @@ class KepalaGudangController extends Controller
     public function historyIndex()
     {
         $requests = Permintaan::with(['user', 'details'])
-            ->where('status_gudang', '!=', 'pending')
+            ->where('status_gudang', '!=', 'pending') // ✅ Hanya yang sudah di-approve/ditolak
             ->orderBy('tanggal_permintaan', 'desc')
             ->get();
 
@@ -126,15 +125,125 @@ class KepalaGudangController extends Controller
         ]);
     }
 
-    public function approveGudang($tiket)
+    public function approveGudang($tiket, Request $request)
     {
-        $permintaan = Permintaan::where('tiket', $tiket)->firstOrFail();
-        $permintaan->update([
-            'status_gudang' => 'approved',
-            'status' => 'diterima', // opsional — untuk konsistensi global
+        \Log::info("🔥 approve() dipanggil", $request->all());
+
+        $user = Auth::user();
+        \Log::info("👤 User saat approve:", [
+            'id' => $user?->id,
+            'name' => $user?->name,
+            'email' => $user?->email,
+            'role' => $user?->role,
+            'logged_in' => Auth::check(),
         ]);
 
-        return response()->json(['success' => true]);
+        // ✅ Validasi: User harus login
+        if (!$user) {
+            \Log::error("❌ Tidak ada user login");
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda harus login untuk melakukan aksi ini.'
+            ], 401);
+        }
+
+        // ✅ Validasi: Hanya Kepala Gudang (role 3)
+        if ((int) $user->role !== 3) {
+            \Log::warning("❌ Role tidak diizinkan", ['role' => $user->role]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses ditolak. Hanya Kepala Gudang yang dapat menyetujui pengiriman.'
+            ], 403);
+        }
+
+        try {
+            // ✅ Validasi input
+            $request->validate([
+                'tiket' => 'required|string|exists:permintaan,tiket',
+                'tanggal_pengiriman' => 'required|date',
+                'items' => 'required|array|min:1',
+                'items.*.kategori' => 'required|string',
+                'items.*.nama_item' => 'required|string',
+                'items.*.jumlah' => 'required|integer|min:1',
+            ]);
+
+            $tiket = $request->tiket;
+            $permintaan = Permintaan::where('tiket', $tiket)->firstOrFail();
+
+            // ✅ Validasi: Hanya proses jika status_gudang masih 'pending'
+            if ($permintaan->status_gudang !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Permintaan ini sudah diproses sebelumnya. Tidak dapat diproses ulang.'
+                ], 400);
+            }
+
+            // ✅ Buat tiket pengiriman unik
+            $tiketKirim = 'TKT-KRM-' . now()->format('YmdHis');
+
+            // ✅ Simpan data pengiriman
+            \Log::info("🔧 Tiket Kirim:", [
+                'tiket_kirim' => $tiketKirim,
+                'tiket_permintaan' => $tiket,
+                'user_id' => $user->id,
+                'tanggal_pengiriman' => $request->tanggal_pengiriman,
+            ]);
+            $pengiriman = Pengiriman::create([
+                'tiket_pengiriman' => $tiketKirim,
+                'user_id' => $user->id,
+                'tiket_permintaan' => $tiket,
+                'tanggal_transaksi' => $request->tanggal_pengiriman,
+                'status' => 'dikirim',
+                'tanggal_perubahan' => now(),
+            ]);
+
+            // ✅ Simpan detail pengiriman — ambil data dari form
+            foreach ($request->items as $item) {
+                PengirimanDetail::create([
+                    'tiket_pengiriman' => $tiketKirim,
+                    'nama' => $item['nama_item'],
+                    'kategori' => $item['kategori'], // ← langsung dari input form
+                    'merk' => $item['merk'] ?? null,
+                    'sn' => $item['sn'] ?? null,
+                    'tipe' => $item['tipe'] ?? null,
+                    'deskripsi' => $item['deskripsi'] ?? null,
+                    'jumlah' => $item['jumlah'],
+                    'keterangan' => $item['keterangan'] ?? null,
+                ]);
+            }
+
+            // ✅ Update status permintaan
+            $permintaan->update([
+                'status_gudang' => 'approved',
+                'status_admin' => 'pending',
+                'approved_by_admin' => 13,
+                'catatan_admin' => null,
+            ]);
+
+            \Log::info("✅ Status gudang dan admin berhasil diupdate");
+            \Log::info("📦 Data pengiriman disimpan dengan tiket: " . $tiketKirim);
+
+            // ✅ Response sukses — selalu sertakan message
+            return response()->json([
+                'success' => true,
+                'message' => 'Permintaan berhasil dikirim ke Admin untuk proses selanjutnya.',
+                'tiket_pengiriman' => $tiketKirim
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error("❌ Validasi gagal: " . json_encode($e->errors()));
+            return response()->json([
+                'success' => false,
+                'message' => 'Data yang dikirim tidak valid. Periksa kembali form Anda.'
+            ], 422);
+
+        } catch (\Exception $e) {
+            \Log::error("💥 ERROR DI APPROVE(): " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan sistem. Silakan coba lagi atau hubungi administrator.'
+            ], 500);
+        }
     }
 
     public function rejectGudang($tiket)
@@ -149,94 +258,125 @@ class KepalaGudangController extends Controller
     }
 
     public function approve(Request $request)
-{
-    \Log::info("🔥 approve() dipanggil", $request->all());
+    {
+        \Log::info("🔥 approve() dipanggil", $request->all());
 
-    $user = Auth::user();
-    \Log::info("👤 User saat approve:", [
-        'id' => $user?->id,
-        'name' => $user?->name,
-        'email' => $user?->email,
-        'role' => $user?->role,
-        'logged_in' => Auth::check(),
-    ]);
-
-    if (!$user) {
-        \Log::error("❌ Tidak ada user login");
-        return response()->json(['success' => false, 'message' => 'Anda harus login.'], 401);
-    }
-
-    if ((int) $user->role !== 3) {
-        \Log::warning("❌ Role salah", ['role' => $user->role]);
-        return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
-    }
-
-    try {
-        $request->validate([
-            'tiket' => 'required|string|exists:permintaan,tiket',
-            'tanggal_pengiriman' => 'required|date',
-            'items' => 'required|array|min:1',
-            'items.*.kategori' => 'required|string',
-            'items.*.nama_item' => 'required|string',
-            'items.*.jumlah' => 'required|integer|min:1',
+        $user = Auth::user();
+        \Log::info("👤 User saat approve:", [
+            'id' => $user?->id,
+            'name' => $user?->name,
+            'email' => $user?->email,
+            'role' => $user?->role,
+            'logged_in' => Auth::check(),
         ]);
 
-        $tiket = $request->tiket;
-        $permintaan = Permintaan::where('tiket', $tiket)->firstOrFail();
-
-        if ($permintaan->status_gudang !== 'pending') {
+        // ✅ Validasi: User harus login
+        if (!$user) {
+            \Log::error("❌ Tidak ada user login");
             return response()->json([
                 'success' => false,
-                'message' => 'Permintaan sudah diproses.'
-            ], 400);
+                'message' => 'Anda harus login untuk melakukan aksi ini.'
+            ], 401);
         }
 
-        // === SIMPAN KE PENGIRIMAN & DETAIL ===
-        $tiketKirim = 'TKT-KRM-' . now()->format('YmdHis');
+        // ✅ Validasi: Hanya Kepala Gudang (role 3)
+        if ((int) $user->role !== 3) {
+            \Log::warning("❌ Role tidak diizinkan", ['role' => $user->role]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses ditolak. Hanya Kepala Gudang yang dapat menyetujui pengiriman.'
+            ], 403);
+        }
 
-        $pengiriman = Pengiriman::create([
-            'tiket_pengiriman' => $tiketKirim,
-            'user_id' => $user->id,
-            'tiket_permintaan' => $tiket,
-            'tanggal_transaksi' => $request->tanggal_pengiriman,
-            'status' => 'dikirim',
-            'tanggal_perubahan' => now(),
-        ]);
-
-        foreach ($request->items as $item) {
-            PengirimanDetail::create([
-                'tiket_pengiriman' => $tiketKirim,
-                'nama_item' => $item['nama_item'],
-                'deskripsi' => $item['deskripsi'] ?? null,
-                'jumlah' => $item['jumlah'],
-                'keterangan' => $item['keterangan'] ?? null,
+        try {
+            // ✅ Validasi input
+            $request->validate([
+                'tiket' => 'required|string|exists:permintaan,tiket',
+                'tanggal_pengiriman' => 'required|date',
+                'items' => 'required|array|min:1',
+                'items.*.kategori' => 'required|string',
+                'items.*.nama_item' => 'required|string',
+                'items.*.jumlah' => 'required|integer|min:1',
             ]);
+
+            $tiket = $request->tiket;
+            $permintaan = Permintaan::where('tiket', $tiket)->firstOrFail();
+
+            // ✅ Validasi: Hanya proses jika status_gudang masih 'pending'
+            if ($permintaan->status_gudang !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Permintaan ini sudah diproses sebelumnya. Tidak dapat diproses ulang.'
+                ], 400);
+            }
+
+            // ✅ Buat tiket pengiriman unik
+            $tiketKirim = 'TKT-KRM-' . now()->format('YmdHis');
+
+            // ✅ Simpan data pengiriman
+            \Log::info("🔧 Tiket Kirim:", [
+                'tiket_kirim' => $tiketKirim,
+                'tiket_permintaan' => $tiket,
+                'user_id' => $user->id,
+                'tanggal_pengiriman' => $request->tanggal_pengiriman,
+            ]);
+            $pengiriman = Pengiriman::create([
+                'tiket_pengiriman' => $tiketKirim,
+                'user_id' => $user->id,
+                'tiket_permintaan' => $tiket,
+                'tanggal_transaksi' => $request->tanggal_pengiriman,
+                'status' => 'dikirim',
+                'tanggal_perubahan' => now(),
+            ]);
+
+            // ✅ Simpan detail pengiriman — ambil data dari form
+            foreach ($request->items as $item) {
+                PengirimanDetail::create([
+                    'tiket_pengiriman' => $tiketKirim,
+                    'nama' => $item['nama_item'],
+                    'kategori' => $item['kategori'], // ← langsung dari input form
+                    'merk' => $item['merk'] ?? null,
+                    'sn' => $item['sn'] ?? null,
+                    'tipe' => $item['tipe'] ?? null,
+                    'deskripsi' => $item['deskripsi'] ?? null,
+                    'jumlah' => $item['jumlah'],
+                    'keterangan' => $item['keterangan'] ?? null,
+                ]);
+            }
+
+            // ✅ Update status permintaan
+            $permintaan->update([
+                'status_gudang' => 'approved',
+                'status_admin' => 'pending',
+                'approved_by_admin' => 13,
+                'catatan_admin' => null,
+            ]);
+
+            \Log::info("✅ Status gudang dan admin berhasil diupdate");
+            \Log::info("📦 Data pengiriman disimpan dengan tiket: " . $tiketKirim);
+
+            // ✅ Response sukses — selalu sertakan message
+            return response()->json([
+                'success' => true,
+                'message' => 'Permintaan berhasil dikirim ke Admin untuk proses selanjutnya.',
+                'tiket_pengiriman' => $tiketKirim
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error("❌ Validasi gagal: " . json_encode($e->errors()));
+            return response()->json([
+                'success' => false,
+                'message' => 'Data yang dikirim tidak valid. Periksa kembali form Anda.'
+            ], 422);
+
+        } catch (\Exception $e) {
+            \Log::error("💥 ERROR DI APPROVE(): " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan sistem. Silakan coba lagi atau hubungi administrator.'
+            ], 500);
         }
-
-        // === UPDATE STATUS ===
-        $permintaan->update([
-            'status_gudang' => 'approved',
-            'status_admin' => 'pending',
-            'approved_by_admin' => 13,
-            'catatan_admin' => null,
-        ]);
-
-        \Log::info("✅ Status gudang dan admin berhasil diupdate");
-        \Log::info("📦 Data pengiriman disimpan dengan tiket: " . $tiketKirim);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Permintaan berhasil dikirim ke Super Admin untuk approval.',
-            'tiket_pengiriman' => $tiketKirim
-        ]);
-    } catch (\Exception $e) {
-        \Log::error("💥 ERROR DI APPROVE(): " . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal proses approval. Cek log server.'
-        ], 500);
     }
-}
     /**
      * Tolak permintaan
      */
@@ -276,5 +416,47 @@ class KepalaGudangController extends Controller
             ], 500);
         }
     }
+
+   public function snInfo(Request $request)
+{
+    $sn = $request->query('sn');
+
+    if (empty($sn)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Parameter SN kosong.',
+            'item' => null,
+        ], 200);
+    }
+
+    // Cari detail_barang yang punya serial_number tersebut
+    $detail = DetailBarang::with(['listBarang', 'vendor']) // load relasi terkait
+        ->where('serial_number', $sn)
+        ->first();
+
+    if (! $detail || ! $detail->listBarang) {
+        return response()->json([
+            'success' => false,
+            'message' => 'SN tidak ditemukan.',
+            'item' => null,
+        ], 200);
+    }
+
+    $item = $detail->listBarang;
+
+    return response()->json([
+        'success' => true,
+        'item' => [
+            'id' => $item->id,
+            'tipe_id' => $detail->tipe_id  ?? null,
+            'vendor_id' => $detail->vendor_id  ?? null,
+            'keterangan' => $detail->keterangan ?? null,
+            'jenis_id' => $detail->jenis_id ?? null,
+            'serial_number' => $detail->serial_number ?? null,
+        ],
+    ], 200);
+}
+
+
 
 }
