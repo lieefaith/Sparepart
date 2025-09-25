@@ -9,6 +9,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\DetailBarang;
+use App\Models\Pengiriman;
 
 class SuperAdminController extends Controller
 {
@@ -73,27 +74,34 @@ class SuperAdminController extends Controller
     public function requestIndex()
     {
         $user = Auth::user();
+         $tiket = request()->input('tiket');
 
         if ($user->id === 15) {
             // Admin (Mbak Inong)
-            $requests = Permintaan::with(['user', 'details'])
+           $requests = Permintaan::with(['user', 'details', 'pengiriman.details'])
                 ->where('status_ro', 'approved')
                 ->where('status_gudang', 'approved')
                 ->where('status_admin', 'pending')
                 ->orderBy('tanggal_permintaan', 'desc')
                 ->paginate(10);
+            $pengiriman = Pengiriman::with('details')
+                 ->where('tiket_permintaan', $tiket)
+                ->first();
         } elseif ($user->id === 16) {
             // Super Admin (Mas Septian)
-            $requests = Permintaan::with(['user', 'details'])
+            $requests = Permintaan::with(['user', 'details', 'pengiriman.details'])
                 ->where('status_admin', 'approved')
                 ->where('status_super_admin', 'pending')
                 ->orderBy('tanggal_permintaan', 'desc')
                 ->paginate(10);
+            $pengiriman = Pengiriman::with( 'details')
+                ->where('tiket_permintaan', $tiket)
+                ->first();
         } else {
             $requests = new LengthAwarePaginator([], 0, 10);
         }
 
-        return view('superadmin.request', compact('requests'));
+        return view('superadmin.request', compact('requests','pengiriman'));
     }
 
 
@@ -103,7 +111,9 @@ class SuperAdminController extends Controller
         $query = Permintaan::with(['user', 'details', 'pengiriman'])
             ->where(function ($q) {
                 $q->where('status_super_admin', 'approved')
+                    ->orwhere('status_admin', 'approved')
                     ->orWhere('status_super_admin', 'rejected')
+                    ->orWhere('status_admin', 'rejected')
                     ->orWhere('status_barang', 'diproses')
                     ->orWhere('status_gudang', 'dikirim');
             })
@@ -272,21 +282,17 @@ class SuperAdminController extends Controller
     }
     public function historyDetailApi($tiket)
     {
-        $permintaan = Permintaan::with(['user', 'details', 'pengiriman.details'])
+        $permintaan = Permintaan::with(['user', 'details'])
             ->where('tiket', $tiket)
             ->firstOrFail();
 
+        $pengiriman = Pengiriman::with('details')
+            ->where('tiket_permintaan', $tiket)
+            ->first();
+
         return response()->json([
-            'permintaan' => [
-                'tiket' => $permintaan->tiket,
-                'user' => $permintaan->user,
-                'tanggal_permintaan' => $permintaan->tanggal_permintaan,
-                'details' => $permintaan->details,
-            ],
-            'pengiriman' => $permintaan->pengiriman ? [
-                'tanggal_transaksi' => $permintaan->pengiriman->tanggal_transaksi,
-                'details' => $permintaan->pengiriman->details
-            ] : null
+            'permintaan' => $permintaan,
+            'pengiriman' => $pengiriman,
         ]);
     }
 }
