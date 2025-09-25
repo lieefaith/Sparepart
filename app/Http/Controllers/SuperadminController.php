@@ -173,7 +173,7 @@ class SuperAdminController extends Controller
             ]);
         }
 
-        // User ID 16 -> Super Admin
+            // User ID 16 -> Super Admin    
         if ($user->id === 16) {
             $permintaan = Permintaan::where('tiket', $tiket)->firstOrFail();
 
