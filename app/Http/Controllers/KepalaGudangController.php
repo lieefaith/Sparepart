@@ -11,6 +11,13 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\DetailBarang;
 use App\Models\ListBarang;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Attachment;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class KepalaGudangController extends Controller
 {
@@ -125,124 +132,355 @@ class KepalaGudangController extends Controller
         ]);
     }
 
-    public function approveGudang($tiket, Request $request)
+
+    public function approve(Request $request)
     {
+        \Log::info("🔥 approve() dipanggil", $request->all());
 
         $user = Auth::user();
-
-        // ✅ Validasi: User harus login
         if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda harus login untuk melakukan aksi ini.'
-            ], 401);
+            \Log::error("❌ Tidak ada user login");
+            return response()->json(['success' => false, 'message' => 'Anda harus login untuk melakukan aksi ini.'], 401);
         }
-
-        // ✅ Validasi: Hanya Kepala Gudang (role 3)
         if ((int) $user->role !== 3) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Akses ditolak. Hanya Kepala Gudang yang dapat menyetujui pengiriman.'
-            ], 403);
+            \Log::warning("❌ Role tidak diizinkan", ['role' => $user->role]);
+            return response()->json(['success' => false, 'message' => 'Akses ditolak. Hanya Kepala Gudang yang dapat menyetujui pengiriman.'], 403);
         }
 
         try {
-            // ✅ Validasi input
+            // Basic validation for required top-level fields (items will be decoded from JSON)
             $request->validate([
                 'tiket' => 'required|string|exists:permintaan,tiket',
                 'tanggal_pengiriman' => 'required|date',
-                'items' => 'required|array|min:1',
-                'items.*.kategori' => 'required|string',
-                'items.*.nama_item' => 'required|string',
-                'items.*.jumlah' => 'required|integer|min:1',
+                'catatan' => 'nullable|string',
+                'ekspedisi' => 'nullable|in:ya,tidak',
+                // files validated below (because FormData may include files[])
             ]);
+
+            // items comes as JSON string from FormData — decode it safely
+            $itemsRaw = $request->input('items');
+            $items = [];
+            if (is_string($itemsRaw)) {
+                $items = json_decode($itemsRaw, true);
+            } elseif (is_array($itemsRaw)) {
+                $items = $itemsRaw;
+            }
+            if (!is_array($items) || count($items) === 0) {
+                return response()->json(['success' => false, 'message' => 'Items tidak valid atau kosong.'], 422);
+            }
+
+            // Basic item-level validation (ensure required properties exist)
+            foreach ($items as $i => $it) {
+                if (!isset($it['kategori']) || !isset($it['nama_item']) || !isset($it['jumlah'])) {
+                    return response()->json(['success' => false, 'message' => "Item ke-{$i} tidak valid."], 422);
+                }
+                if ((int)$it['jumlah'] <= 0) {
+                    return response()->json(['success' => false, 'message' => "Jumlah pada item ke-{$i} harus >= 1."], 422);
+                }
+                if ($it['kategori'] === 'aset' && empty($it['sn'])) {
+                    return response()->json(['success' => false, 'message' => "SN wajib untuk item aset (baris {$i})."], 422);
+                }
+            }
 
             $tiket = $request->tiket;
             $permintaan = Permintaan::where('tiket', $tiket)->firstOrFail();
+
+            // Pastikan belum diproses (sama seperti sebelumnya)
             if ($permintaan->status_gudang !== 'on progres') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Permintaan ini sudah diproses sebelumnya. Tidak dapat diproses ulang.',
+                    'message' => 'Permintaan ini sudah diproses sebelumnya. Tidak dapat diproses ulang.'
                 ], 400);
             }
 
-            // ✅ Validasi: Hanya proses jika status_gudang masih 'pending'
-
-            // ✅ Buat tiket pengiriman unik
+            // Buat tiket pengiriman unik
             $tiketKirim = 'TKT-KRM-' . now()->format('YmdHis');
 
-            // ✅ Simpan data pengiriman
+            // Simpan pengiriman (sertakan ekspedisi jika ada)
             $pengiriman = Pengiriman::create([
                 'tiket_pengiriman' => $tiketKirim,
                 'user_id' => $user->id,
                 'tiket_permintaan' => $tiket,
                 'tanggal_transaksi' => $request->tanggal_pengiriman,
                 'status' => 'dikirim',
+                'ekspedisi' => $request->ekspedisi ?? 'tidak',
                 'tanggal_perubahan' => now(),
             ]);
 
-            // ✅ Simpan detail pengiriman — ambil data dari form
-            foreach ($request->items as $item) {
+            // Simpan detail pengiriman
+            foreach ($items as $item) {
                 PengirimanDetail::create([
                     'tiket_pengiriman' => $tiketKirim,
-                    'nama' => $item['nama_item'],
-                    'kategori' => $item['kategori'], // ← langsung dari input form
+                    'nama' => $item['nama_item'] ?? null,
+                    'kategori' => $item['kategori'] ?? null,
                     'merk' => $item['merk'] ?? null,
                     'sn' => $item['sn'] ?? null,
                     'tipe' => $item['tipe'] ?? null,
                     'deskripsi' => $item['deskripsi'] ?? null,
-                    'jumlah' => $item['jumlah'],
+                    'jumlah' => $item['jumlah'] ?? 0,
                     'keterangan' => $item['keterangan'] ?? null,
                 ]);
             }
 
-            // ✅ Update status permintaan
+            // FILE HANDLING: dukung files[] (multi) dan file_upload (single/backward)
+            $storedPaths = [];
+            // validate file array sizes/types server-side
+            $uploadedFiles = $request->file('files') ?? ($request->hasFile('file_upload') ? [$request->file('file_upload')] : []);
+
+            // Optional validation for files.* (mimes/size) — if you want stronger validation use Validator::make
+            foreach ($uploadedFiles as $file) {
+                if (!$file || !$file->isValid()) continue;
+
+                // build unique filename
+                $original = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $ext = $file->getClientOriginalExtension();
+                $filename = time() . '_' . Str::slug($original) . '_' . Str::random(6) . '.' . $ext;
+                $folder = 'uploads/' . now()->format('Y/m');
+                // store in storage/app/public/{folder}
+                $path = $file->storeAs($folder, $filename, 'public');
+
+                // create attachment record
+                Attachment::create([
+                    'pengiriman_id' => $pengiriman->id,
+                    'tiket_pengiriman' => $tiketKirim,
+                    'type' => 'img_gudang', // atau sesuaikan jika ada tipe lain
+                    'filename' => $filename,
+                    'path' => $path,
+                    'mime' => $file->getClientMimeType(),
+                    'size' => $file->getSize(),
+                ]);
+
+                $storedPaths[] = $path;
+            }
+
+            // backward-compatibility: simpan first-file path ke kolom img_gudang di pengiriman
+            if (!empty($storedPaths)) {
+                $pengiriman->img_gudang = $storedPaths[0];
+                $pengiriman->save();
+            }
+
+            // Update status permintaan
             $permintaan->update([
                 'status_gudang' => 'approved',
-                'status_admin' => 'pending',
-                'approved_by_admin' => 13,
-                'catatan_admin' => null,
+                'status_admin' => 'on_progres',
+                'approved_by_admin' => $user->id,
+                'catatan_admin' => $request->catatan ?? null,
                 'status' => 'diterima',
             ]);
 
+            \Log::info("✅ Status gudang dan admin berhasil diupdate");
+            \Log::info("📦 Data pengiriman disimpan dengan tiket: " . $tiketKirim);
 
-            // ✅ Response sukses — selalu sertakan message
             return response()->json([
                 'success' => true,
                 'message' => 'Permintaan berhasil dikirim ke Admin untuk proses selanjutnya.',
-                'tiket_pengiriman' => $tiketKirim
+                'tiket_pengiriman' => $tiketKirim,
+                'files' => array_map(fn($p) => asset('storage/' . $p), $storedPaths),
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error("❌ Validasi gagal: " . json_encode($e->errors()));
+            return response()->json(['success' => false, 'message' => 'Data yang dikirim tidak valid. Periksa kembali form Anda.'], 422);
+        } catch (\Exception $e) {
+            \Log::error("💥 ERROR DI APPROVE(): " . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan sistem. Silakan coba lagi atau hubungi administrator.'], 500);
+        }
+    }
+
+
+    public function rejectGudang(Request $request, $tiket)
+    {
+        try {
+            $permintaan = Permintaan::where('tiket', $tiket)->firstOrFail();
+
+            // Ambil catatan dari request (opsional)
+            $catatan = $request->input('catatan', 'Ditolak oleh Kepala Gudang');
+
+            // Update semua status jadi rejected
+            $permintaan->update([
+                'status_gudang' => 'rejected',
+                'status_ro' => 'rejected',
+                'status_admin' => 'rejected',
+                'status_super_admin' => 'rejected',
+                'status_barang' => 'rejected', // ✅ 'closed', bukan 'rejected' (sesuai enum)
+                'status' => 'ditolak',
+                'catatan_gudang' => $catatan,
             ]);
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
+            // ✅ Kembalikan JSON sukses
             return response()->json([
-                'success' => false,
-                'message' => 'Data yang dikirim tidak valid. Periksa kembali form Anda.'
-            ], 422);
-
+                'success' => true,
+                'message' => 'Permintaan berhasil ditolak.'
+            ]);
         } catch (\Exception $e) {
+            // ✅ Tangani error & kembalikan JSON error
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan sistem. Silakan coba lagi atau hubungi administrator.'
+                'message' => 'Gagal menolak permintaan: ' . $e->getMessage()
             ], 500);
         }
     }
 
-    public function rejectGudang($tiket)
-    {
-        $permintaan = Permintaan::where('tiket', $tiket)->firstOrFail();
 
-        // ✅ Broadcast rejected ke semua level + status_barang
-        $permintaan->update([
-            'status_gudang' => 'rejected',
-            'status_ro' => 'rejected',
-            'status_admin' => 'rejected',
-            'status_super_admin' => 'rejected',
-            'status_barang' => 'rejected', // 🔥 Penting!
-            'status' => 'ditolak',
-            'catatan_gudang' => $catatan ?? 'Ditolak oleh Kepala Gudang',
-        ]);
+
+public function approveGudang($tiket, Request $request): JsonResponse
+{
+    $user = Auth::user();
+    if (!$user) {
+        Log::warning('approveGudang: unauthenticated attempt');
+        return response()->json(['success' => false, 'message' => 'Anda harus login.'], 401);
+    }
+    if ((int)$user->role !== 3) {
+        Log::warning('approveGudang: access denied', ['user_id' => $user->id, 'role' => $user->role]);
+        return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
     }
 
+    // jika items dikirim sebagai JSON string via FormData
+if ($request->has('items') && is_string($request->input('items'))) {
+    $decoded = json_decode($request->input('items'), true);
+    if (json_last_error() === JSON_ERROR_NONE) {
+        // overwrite request->items menjadi array untuk validasi
+        $request->merge(['items' => $decoded]);
+    } else {
+        return response()->json([
+            'success' => false,
+            'message' => 'Items JSON tidak valid.'
+        ], 422);
+    }
+}
+
+    // Validation
+    $rules = [
+        'tiket' => ['required','string', Rule::exists('permintaan','tiket')],
+        'tanggal_pengiriman' => ['required','date'],
+        'items' => ['required','array','min:1'],
+        'items.*.kategori' => ['required','string'],
+        'items.*.nama_item' => ['required','string'],
+        'items.*.jumlah' => ['required','integer','min:1'],
+        'ekspedisi' => ['nullable','in:ya,tidak'],
+        'file_upload' => ['nullable','file','mimes:jpg,jpeg,png,pdf,doc,docx','max:5120'],
+        'files.*' => ['nullable','file','mimes:jpg,jpeg,png,pdf,doc,docx','max:5120'],
+    ];
+
+    $validator = Validator::make($request->all(), $rules);
+
+    if ($validator->fails()) {
+        Log::info('approveGudang: validation failed', ['errors' => $validator->errors()->all()]);
+        return response()->json([
+            'success' => false,
+            'message' => 'Data tidak valid.',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    DB::beginTransaction();
+    try {
+        // ambil permintaan & cek status
+        $permintaan = Permintaan::where('tiket', $tiket)->firstOrFail();
+
+        // pastikan status sesuai (sesuaikan string sesuai DB Anda)
+        if ($permintaan->status_gudang !== 'on progres') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Permintaan ini sudah diproses sebelumnya. Tidak dapat diproses ulang.'
+            ], 400);
+        }
+
+        // buat tiket pengiriman
+        $tiketKirim = 'TKT-KRM-' . now()->format('YmdHis');
+
+        // simpan pengiriman
+        $pengiriman = Pengiriman::create([
+            'tiket_pengiriman' => $tiketKirim,
+            'user_id' => $user->id,
+            'tiket_permintaan' => $tiket,
+            'tanggal_transaksi' => $request->input('tanggal_pengiriman'),
+            'status' => 'dikirim',
+            'ekspedisi' => $request->input('ekspedisi', 'tidak'),
+            'tanggal_perubahan' => now(),
+        ]);
+
+        // simpan detail pengiriman
+        foreach ($request->input('items', []) as $item) {
+            PengirimanDetail::create([
+                'tiket_pengiriman' => $tiketKirim,
+                'nama' => $item['nama_item'] ?? null,
+                'kategori' => $item['kategori'] ?? null,
+                'merk' => $item['merk'] ?? null,
+                'sn' => $item['sn'] ?? null,
+                'tipe' => $item['tipe'] ?? null,
+                'deskripsi' => $item['deskripsi'] ?? null,
+                'jumlah' => $item['jumlah'] ?? 0,
+                'keterangan' => $item['keterangan'] ?? null,
+            ]);
+        }
+
+        // file handling: terima files[] (multi) atau file_upload (single)
+        $storedPaths = [];
+        $uploadedFiles = [];
+        if ($request->hasFile('files')) {
+            $uploadedFiles = $request->file('files');
+        } elseif ($request->hasFile('file_upload')) {
+            $uploadedFiles = [$request->file('file_upload')];
+        }
+
+        foreach ($uploadedFiles as $file) {
+            if (!$file->isValid()) continue;
+            $original = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $ext = $file->getClientOriginalExtension();
+            $filename = time() . '_' . Str::slug($original) . '_' . Str::random(6) . '.' . $ext;
+            $folder = 'uploads/' . now()->format('Y/m');
+            $path = $file->storeAs($folder, $filename, 'public');
+
+            // simpan attachment
+            Attachment::create([
+                'pengiriman_id' => $pengiriman->id,
+                'tiket_pengiriman' => $pengiriman->tiket_pengiriman,
+                'type' => 'img_gudang',
+                'filename' => $filename,
+                'path' => $path,
+                'mime' => $file->getClientMimeType(),
+                'size' => $file->getSize(),
+            ]);
+
+            $storedPaths[] = $path;
+        }
+
+        // backward compatibility: simpan first path ke img_gudang di table pengiriman
+        if (!empty($storedPaths)) {
+            $pengiriman->img_gudang = $storedPaths[0];
+            $pengiriman->save();
+        }
+
+        // update permintaan
+
+        $permintaan->update([
+        'status_gudang' => 'approved',
+        'status_admin' => 'on progres', // atau sesuai alur Anda
+        'approved_by_admin' => $user->id,
+        'catatan_admin' => $request->catatan ?? null,
+        'status' => 'diterima',
+    ]);
+
+        DB::commit();
+
+        Log::info('approveGudang: success', ['tiket' => $tiket, 'tiket_pengiriman' => $tiketKirim, 'user_id' => $user->id]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Permintaan berhasil dikirim ke Admin untuk proses selanjutnya.',
+            'tiket_pengiriman' => $tiketKirim,
+            'files' => array_map(fn($p) => asset('storage/' . $p), $storedPaths),
+        ], 200);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('approveGudang: exception ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+        return response()->json([
+            'success' => false,
+            'message' => 'Terjadi kesalahan sistem. ' . $e->getMessage()
+        ], 500);
+    }
+}
     /**
      * Tolak permintaan
      */
@@ -280,6 +518,7 @@ class KepalaGudangController extends Controller
                 'message' => 'Permintaan berhasil ditolak.'
             ]);
         } catch (\Exception $e) {
+            \Log::error("💥 ERROR DI REJECT(): " . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menolak permintaan.'
@@ -325,5 +564,51 @@ class KepalaGudangController extends Controller
                 'serial_number' => $detail->serial_number ?? null,
             ],
         ], 200);
+    }
+
+
+    public function closedFormIndex()
+    {
+        // Data dummy: REQ-CLG-09-2025-010 sampai 021
+        $permintaans = collect();
+        for ($i = 10; $i <= 21; $i++) {
+            $permintaans->push((object) [
+                'tiket' => "REQ-CLG-09-2025-" . str_pad($i, 3, '0', STR_PAD_LEFT),
+                'user' => (object) ['region' => 'CLG', 'id' => rand(1, 50)],
+                'tanggal_penerimaan' => now()->subDays(rand(1, 30)),
+                'foto_bukti_penerimaan' => 'validasi/bukti_' . $i . '.jpg',
+                'no_resi' => 'RESI-' . rand(100000, 999999),
+            ]);
+        }
+
+        return view('kepalagudang.closed-form', compact('permintaans'));
+    }
+
+    public function verifyClosedForm(Request $request, $tiket)
+    {
+        // Nanti isi logika verifikasi
+        return redirect()->back()->with('success', 'Berhasil diverifikasi!');
+    }
+
+    public function getValidasiDetail($tiket)
+    {
+        // Untuk dummy, kita kembalikan data simulasi
+        return response()->json([
+            'tiket' => $tiket,
+            'name' => 'User CLG ' . rand(1, 50),
+            'tanggal_permintaan' => now()->subDays(10)->toISOString(),
+            'no_resi' => 'RESI-' . rand(100000, 999999),
+            'nama_ekspedisi' => 'JNE',
+            'foto_bukti_penerimaan' => 'validasi/bukti_' . rand(10, 21) . '.jpg',
+            'details' => [
+                ['nama' => 'Laptop Dell', 'deskripsi' => 'Core i5, 8GB RAM', 'jumlah' => 2, 'keterangan' => 'Baru'],
+            ],
+            'pengiriman' => [
+                'tanggal_transaksi' => now()->subDays(5)->toISOString(),
+                'details' => [
+                    ['nama' => 'Laptop Dell', 'merk' => 'Dell', 'sn' => 'SN123456', 'tipe' => 'Latitude', 'jumlah' => 2, 'keterangan' => 'Dikirim sesuai'],
+                ],
+            ],
+        ]);
     }
 }

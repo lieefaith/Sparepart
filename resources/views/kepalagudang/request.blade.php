@@ -159,15 +159,16 @@
 
                     <!-- Form Pengiriman -->
                     <h6 class="fw-bold text-success mb-3"><i class="bi bi-truck"></i> Form Pengiriman</h6>
-                    <form id="formPengiriman">
+                    <!-- enctype ditambahkan karena bisa submit file (walau kita pakai FormData di JS) -->
+                    <form id="formPengiriman" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="tiket" value="" id="tiketInput">
 
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Tanggal Pengiriman</label>
-                                <input type="date" class="form-control" name="tanggal_pengiriman" id="tanggal_pengiriman"
-                                    required>
+                                <input type="date" class="form-control" name="tanggal_pengiriman"
+                                    id="tanggal_pengiriman" required>
                             </div>
                         </div>
                         <div class="mt-3 table-responsive">
@@ -210,16 +211,17 @@
                                                 <option value="">Pilih Merk</option>
                                             </select>
                                         </td>
-                                        <td class="sn-col"><input type="text" class="form-control"
-                                                placeholder="Nomor Serial"></td>
-                                        <td class="jumlah-col"><input type="number" class="form-control" value="1" min="1"
-                                                required></td>
+                                        <td class="sn-col"><input type="text" class="form-control sn-input"
+                                                placeholder="Nomor Serial" disabled></td>
+                                        <td class="jumlah-col"><input type="number" class="form-control" value="1"
+                                                min="1" required></td>
                                         <td class="keterangan-col">
                                             <input type="text" class="form-control" name="keterangan"
                                                 placeholder="Keterangan">
                                         </td>
                                         <td class="aksi-col">
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="hapusBaris(this)">
+                                            <button type="button" class="btn btn-danger btn-sm"
+                                                onclick="hapusBaris(this)">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
@@ -237,8 +239,7 @@
                                 <h6 class="card-title mb-0"><i class="bi bi-chat-text"></i> Catatan</h6>
                             </div>
                             <div class="card-body">
-                                <textarea class="form-control" name="catatan" rows="3"
-                                    placeholder="Tambahkan catatan jika ada..."></textarea>
+                                <textarea class="form-control" name="catatan" rows="3" placeholder="Tambahkan catatan jika ada..."></textarea>
                             </div>
                         </div>
 
@@ -283,9 +284,10 @@
                                     <div class="card-body">
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Upload File Pendukung</label>
-                                            <input type="file" class="form-control" name="file_upload" id="fileUpload">
+                                            <input type="file" class="form-control" name="files[]" id="fileUpload"
+                                                multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
                                             <div class="form-text mt-2">
-                                                <small>Format: PDF, JPG, PNG, DOC, DOCX<br>Maksimal: 5MB</small>
+                                                <small>Format: PDF, JPG, PNG, DOC, DOCX<br>Maksimal per file: 5MB</small>
                                             </div>
                                         </div>
                                     </div>
@@ -312,32 +314,11 @@
             </div>
         </div>
     </div>
-
-    <!-- Script untuk toggle form ekspedisi -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const ekspedisiYa = document.getElementById('ekspedisiYa');
-            const ekspedisiTidak = document.getElementById('ekspedisiTidak');
-            const formEkspedisi = document.getElementById('formEkspedisi');
-
-            ekspedisiYa.addEventListener('change', function () {
-                if (this.checked) {
-                    formEkspedisi.style.display = 'block';
-                }
-            });
-
-            ekspedisiTidak.addEventListener('change', function () {
-                if (this.checked) {
-                    formEkspedisi.style.display = 'none';
-                }
-            });
-        });
-    </script>
 @endsection
 
 @push('scripts')
     <script>
-        (function () {
+        (function() {
             // -----------------------
             // Utility / Setup
             // -----------------------
@@ -351,7 +332,7 @@
                 return (opt && opt.dataset && opt.dataset.id) ? opt.dataset.id : null;
             }
 
-            // Helper: pastikan option ada (value = label, dataset.id = id) lalu kembalikan option
+            // ensureOption helper
             function ensureOption(selectEl, id, label) {
                 if (!selectEl) return null;
                 const idStr = (id === undefined || id === null) ? null : String(id);
@@ -368,8 +349,9 @@
                 }
                 return opt;
             }
+
             // -----------------------
-            // API loaders (value = label, dataset.id = id)
+            // API loaders
             // -----------------------
             async function loadItemsByKategori(selectKategori, targetSelect) {
                 const kategori = selectKategori?.value;
@@ -468,42 +450,42 @@
             function buildRow(idx, item = {}) {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-    <td class="no-col">${idx + 1}</td>
-    <td class="kategori-col">
-      <select class="form-control kategori-select" name="items[${idx}][kategori]">
-        <option value="">Kategori</option>
-        <option value="aset">Aset</option>
-        <option value="non-aset">Non-Aset</option>
-      </select>
-    </td>
-    <td class="nama-col">
-      <select class="form-control nama-item-select" name="items[${idx}][nama_item]">
-        <option value="">Pilih Nama</option>
-      </select>
-      <input type="hidden" class="jenis-id" name="items[${idx}][jenis_id]" value="">
-    </td>
-    <td class="tipe-col">
-      <select class="form-control tipe-select" name="items[${idx}][tipe]">
-        <option value="">Pilih Tipe</option>
-      </select>
-      <input type="hidden" class="tipe-id" name="items[${idx}][tipe_id]" value="">
-    </td>
-    <td class="merk-col">
-      <select class="form-control merk-select" name="items[${idx}][merk]">
-        <option value="">Pilih Merk</option>
-      </select>
-      <input type="hidden" class="vendor-id" name="items[${idx}][vendor_id]" value="">
-    </td>
-    <td class="sn-col"><input type="text" class="form-control sn-input" name="items[${idx}][sn]" placeholder="Nomor Serial" disabled></td>
-    <td class="jumlah-col"><input type="number" class="form-control" name="items[${idx}][jumlah]" value="${item.jumlah || 1}" min="1" required></td>
-    <td class="keterangan-col">
-      <input type="text" class="form-control" name="items[${idx}][keterangan]" value="${item.keterangan || ''}" placeholder="Keterangan">
-    </td>
-    <td class="aksi-col">
-      <button type="button" class="btn btn-danger btn-sm" onclick="hapusBaris(this)">
-        <i class="bi bi-trash"></i>
-      </button>
-    </td>
+      <td class="no-col">${idx + 1}</td>
+      <td class="kategori-col">
+        <select class="form-control kategori-select" name="items[${idx}][kategori]">
+          <option value="">Kategori</option>
+          <option value="aset">Aset</option>
+          <option value="non-aset">Non-Aset</option>
+        </select>
+      </td>
+      <td class="nama-col">
+        <select class="form-control nama-item-select" name="items[${idx}][nama_item]">
+          <option value="">Pilih Nama</option>
+        </select>
+        <input type="hidden" class="jenis-id" name="items[${idx}][jenis_id]" value="">
+      </td>
+      <td class="tipe-col">
+        <select class="form-control tipe-select" name="items[${idx}][tipe]">
+          <option value="">Pilih Tipe</option>
+        </select>
+        <input type="hidden" class="tipe-id" name="items[${idx}][tipe_id]" value="">
+      </td>
+      <td class="merk-col">
+        <select class="form-control merk-select" name="items[${idx}][merk]">
+          <option value="">Pilih Merk</option>
+        </select>
+        <input type="hidden" class="vendor-id" name="items[${idx}][vendor_id]" value="">
+      </td>
+      <td class="sn-col"><input type="text" class="form-control sn-input" name="items[${idx}][sn]" placeholder="Nomor Serial" disabled></td>
+      <td class="jumlah-col"><input type="number" class="form-control" name="items[${idx}][jumlah]" value="${item.jumlah || 1}" min="1" required></td>
+      <td class="keterangan-col">
+        <input type="text" class="form-control" name="items[${idx}][keterangan]" value="${item.keterangan || ''}" placeholder="Keterangan">
+      </td>
+      <td class="aksi-col">
+        <button type="button" class="btn btn-danger btn-sm" onclick="hapusBaris(this)">
+          <i class="bi bi-trash"></i>
+        </button>
+      </td>
     `;
                 return tr;
             }
@@ -536,8 +518,8 @@
                         const jenisLabel = item.nama_item ?? item.nama_item_label ?? null;
 
                         if (jenisId) {
-                            // cari option berdasarkan data-id; jika tidak ada, buat option dengan value=label dan data-id=id
-                            let opt = Array.from(namaSelect.options).find(o => o.dataset && String(o.dataset.id) === String(jenisId));
+                            let opt = Array.from(namaSelect.options).find(o => o.dataset && String(o.dataset.id) ===
+                                String(jenisId));
                             if (!opt) {
                                 opt = document.createElement('option');
                                 opt.value = jenisLabel ?? String(jenisId);
@@ -545,11 +527,9 @@
                                 opt.textContent = jenisLabel ?? String(jenisId);
                                 namaSelect.appendChild(opt);
                             }
-                            // set select ke option.value (label) — jangan set ke id langsung
                             namaSelect.value = opt.value;
                             namaSelect.dispatchEvent(new Event('change'));
                         } else if (jenisLabel) {
-                            // fallback by label
                             let opt = Array.from(namaSelect.options).find(o => o.value === jenisLabel);
                             if (!opt) {
                                 opt = document.createElement('option');
@@ -569,7 +549,8 @@
                         const tipeId = item.tipe_id ?? null;
                         const tipeLabel = item.tipe ?? item.tipe_label ?? null;
                         if (tipeId) {
-                            let tipeOpt = Array.from(tipeSelect.options).find(o => o.dataset && String(o.dataset.id) === String(tipeId));
+                            let tipeOpt = Array.from(tipeSelect.options).find(o => o.dataset && String(o.dataset
+                                .id) === String(tipeId));
                             if (!tipeOpt) {
                                 tipeOpt = document.createElement('option');
                                 tipeOpt.value = tipeLabel ?? String(tipeId);
@@ -601,7 +582,8 @@
                         const vendorId = item.vendor_id ?? item.merk_id ?? null;
                         const vendorLabel = item.merk ?? item.merk_label ?? null;
                         if (vendorId) {
-                            let findOpt = Array.from(merkSelect.options).find(o => o.dataset && String(o.dataset.id) === String(vendorId));
+                            let findOpt = Array.from(merkSelect.options).find(o => o.dataset && String(o.dataset
+                                .id) === String(vendorId));
                             if (!findOpt) {
                                 const newOpt = document.createElement('option');
                                 newOpt.value = vendorLabel ?? String(vendorId);
@@ -647,12 +629,11 @@
 
                     // 7) keterangan
                     if (keteranganInput) {
-                        keteranganInput.value = (snInfo && (snInfo.keterangan ?? snInfo.note ?? null))
-                            ? (snInfo.keterangan ?? snInfo.note)
-                            : '';
+                        keteranganInput.value = (snInfo && (snInfo.keterangan ?? snInfo.note ?? null)) ? (snInfo
+                            .keterangan ?? snInfo.note) : '';
                     }
 
-                    // 8) jika SN punya data, apply (gunakan ensureOption sehingga option dibuat dengan value=label dan data-id)
+                    // 8) kalau SN punya data, apply (ensureOption)
                     if (snInfo && kategoriSelect.value) {
                         if (snInfo.nama_id || snInfo.id) {
                             const nid = snInfo.nama_id ?? snInfo.id;
@@ -682,7 +663,7 @@
                         }
                     }
 
-                    // 9) update hidden id inputs (jenis_id, tipe_id, vendor_id)
+                    // 9) update hidden id inputs
                     const jenisIdInput = tr.querySelector('.jenis-id');
                     const tipeIdInput = tr.querySelector('.tipe-id');
                     const vendorIdInput = tr.querySelector('.vendor-id');
@@ -699,7 +680,7 @@
             // -----------------------
             // Buttons / Modal handling
             // -----------------------
-            window.hapusBaris = function (button) {
+            window.hapusBaris = function(button) {
                 const tr = button.closest('tr');
                 const tbody = tr.parentElement;
                 if (tbody.children.length > 1) {
@@ -710,7 +691,7 @@
                         row.querySelectorAll('[name]').forEach(el => {
                             const name = el.getAttribute('name');
                             if (!name) return;
-                            const newName = name.replace(/items$$\d+$$/, `items[${i}]`);
+                            const newName = name.replace(/items$$\d+$$/g, `items[${i}]`);
                             el.setAttribute('name', newName);
                         });
                     });
@@ -719,7 +700,7 @@
                 }
             };
 
-            window.tambahBaris = function () {
+            window.tambahBaris = function() {
                 const tbody = document.querySelector('#tabelBarang tbody');
                 const nomorBaru = tbody.children.length + 1;
                 const tr = buildRow(nomorBaru - 1, {});
@@ -749,7 +730,7 @@
             const allRequests = @json($requests);
 
             document.querySelectorAll('.btn-terima').forEach(button => {
-                button.addEventListener('click', function () {
+                button.addEventListener('click', function() {
                     const tiket = this.dataset.tiket;
                     const requester = this.dataset.requester;
                     const tanggal = this.dataset.tanggal;
@@ -769,12 +750,12 @@
                         req.details.forEach((item, index) => {
                             const tr = document.createElement('tr');
                             tr.innerHTML = `
-    <td>${index + 1}</td>
-    <td>${item.nama_item ?? item.nama ?? '-'}</td>
-    <td>${item.deskripsi ?? '-'}</td>
-    <td>${item.jumlah ?? '-'}</td>
-    <td>${item.keterangan ?? '-'}</td>
-    `;
+            <td>${index + 1}</td>
+            <td>${item.nama_item ?? item.nama ?? '-'}</td>
+            <td>${item.deskripsi ?? '-'}</td>
+            <td>${item.jumlah ?? '-'}</td>
+            <td>${item.keterangan ?? '-'}</td>
+          `;
                             detailBody.appendChild(tr);
                         });
                     } else {
@@ -799,7 +780,7 @@
                     async function onShown() {
                         const rows = Array.from(document.querySelectorAll('#tabelBarang tbody tr'));
                         const snList = (req.details || []).map(d => d.sn || d.serial_number ||
-                            null);
+                        null);
                         const fetchPromises = snList.map(sn => sn ? fetchItemBySN(sn) : Promise
                             .resolve(null));
                         const snInfos = await Promise.all(fetchPromises);
@@ -820,106 +801,112 @@
             // -----------------------
             // Approve / Reject
             // -----------------------
-            async function approveRequest() {
-                const tiket = document.getElementById('tiketInput').value;
-                if (!tiket) return;
+async function approveRequest() {
+  const tiket = document.getElementById('tiketInput').value;
+  if (!tiket) { alert('Tiket tidak ditemukan.'); return; }
 
-                const csrfToken = getCsrfToken();
-                if (!csrfToken) {
-                    alert('CSRF token tidak ditemukan.');
-                    return;
-                }
+  const csrfToken = getCsrfToken();
+  if (!csrfToken) { alert('CSRF token tidak ditemukan.'); return; }
 
-                const tanggalInput = document.getElementById('tanggal_pengiriman');
-                if (!tanggalInput || !tanggalInput.value) {
-                    alert('Tanggal Pengiriman wajib diisi.');
-                    return;
-                }
-                const tanggalPengiriman = tanggalInput.value;
-                const catatan = document.querySelector('[name="catatan"]')?.value || '';
+  // tanggal
+  const tanggalInput = document.getElementById('tanggal_pengiriman');
+  if (!tanggalInput || !tanggalInput.value) { alert('Tanggal Pengiriman wajib diisi.'); return; }
+  const tanggalPengiriman = tanggalInput.value;
+  const catatan = document.querySelector('[name="catatan"]')?.value || '';
 
-                const rows = document.querySelectorAll('#tabelBarang tbody tr');
-                const items = [];
-                let valid = true;
+  // ambil data items
+  const rows = document.querySelectorAll('#tabelBarang tbody tr');
+  const items = [];
+  let valid = true;
+  for (const row of rows) {
+    const kategori = row.querySelector('.kategori-select')?.value || '';
+    const namaLabel = row.querySelector('.nama-item-select')?.value?.trim() || '';
+    const sn = row.querySelector('.sn-col input')?.value.trim() || null;
+    const jumlahVal = row.querySelector('.jumlah-col input')?.value.trim();
+    const jumlah = jumlahVal ? parseInt(jumlahVal, 10) : 0;
+    const keterangan = row.querySelector('.keterangan-col input')?.value.trim() || null;
 
-                for (const row of rows) {
-                    const cells = row.cells;
-                    const kategori = cells[1].querySelector('select')?.value;
+    if (!kategori || !namaLabel || !jumlah || jumlah <= 0) { valid = false; continue; }
+    if (kategori === 'aset' && (!sn || sn === '')) { alert(`Serial Number wajib diisi untuk barang Aset di baris ${row.rowIndex}.`); return; }
 
-                    const namaSelect = cells[2].querySelector('select.nama-item-select');
-                    const tipeSelect = cells[3].querySelector('select.tipe-select');
-                    const merkSelect = cells[4].querySelector('select.merk-select');
+    items.push({
+      kategori,
+      nama_item: namaLabel,
+      tipe: row.querySelector('.tipe-select')?.value || null,
+      merk: row.querySelector('.merk-select')?.value || null,
+      jenis_id: row.querySelector('.jenis-id')?.value || null,
+      tipe_id: row.querySelector('.tipe-id')?.value || null,
+      vendor_id: row.querySelector('.vendor-id')?.value || null,
+      sn: sn || null,
+      jumlah,
+      keterangan: keterangan || null
+    });
+  }
 
-                    const namaLabel = namaSelect ? namaSelect.value.trim() : '';
-                    const tipeLabel = tipeSelect ? tipeSelect.value.trim() : '';
-                    const merkLabel = merkSelect ? merkSelect.value.trim() : '';
+  if (!valid || items.length === 0) { alert('Isi minimal satu barang dengan lengkap.'); return; }
 
-                    const jenisId = cells[2].querySelector('.jenis-id')?.value || getSelectedId(namaSelect) || null;
-                    const tipeId = cells[3].querySelector('.tipe-id')?.value || getSelectedId(tipeSelect) || null;
-                    const vendorId = cells[4].querySelector('.vendor-id')?.value || getSelectedId(merkSelect) ||
-                        null;
+  // ekspedisi (hanya ya/tidak)
+  const ekspedisi = document.querySelector('input[name="ekspedisi"]:checked')?.value || 'tidak';
 
-                    const sn = cells[5].querySelector('input')?.value.trim();
-                    const jumlah = cells[6].querySelector('input')?.value.trim();
-                    const keterangan = cells[7].querySelector('input')?.value.trim();
+  // Build FormData - IMPORTANT: append _token as well for safety
+  const fd = new FormData();
+  fd.append('_token', csrfToken);                 // helpful for serverside CSRF
+  fd.append('tiket', tiket);
+  fd.append('tanggal_pengiriman', tanggalPengiriman);
+  fd.append('catatan', catatan);
+  fd.append('ekspedisi', ekspedisi);
+  fd.append('items', JSON.stringify(items));
 
-                    if (!kategori || !namaLabel || !jumlah) {
-                        valid = false;
-                        continue;
-                    }
-                    if (kategori === 'aset' && !sn) {
-                        alert(`Serial Number wajib diisi untuk barang Aset di baris ${row.rowIndex}.`);
-                        return;
-                    }
+  // files[] append (multiple) + backward compatibility file_upload
+  const fileEl = document.getElementById('fileUpload');
+  if (fileEl && fileEl.files && fileEl.files.length) {
+    for (let i = 0; i < fileEl.files.length; i++) fd.append('files[]', fileEl.files[i]);
+    fd.append('file_upload', fileEl.files[0]);
+  }
 
-                    items.push({
-                        kategori,
-                        nama_item: namaLabel,
-                        tipe: tipeLabel,
-                        merk: merkLabel,
-                        jenis_id: jenisId,
-                        tipe_id: tipeId,
-                        vendor_id: vendorId,
-                        sn: sn || null,
-                        jumlah: parseInt(jumlah),
-                        keterangan: keterangan || null
-                    });
-                }
+  // DEBUG: inspect FormData (for dev only)
+  // This will print keys and values (files shown as File objects)
+  for (const pair of fd.entries()) {
+    console.log('FD', pair[0], pair[1]);
+  }
 
-                if (!valid || items.length === 0) {
-                    alert('Isi minimal satu barang dengan lengkap.');
-                    return;
-                }
+  try {
+    const response = await fetch(`/kepalagudang/request/${encodeURIComponent(tiket)}/approve`, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': csrfToken    // do not set Content-Type
+      },
+      body: fd
+    });
 
-                try {
-                    const response = await fetch(`/kepalagudang/request/${tiket}/approve`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            tiket,
-                            tanggal_pengiriman: tanggalPengiriman,
-                            catatan,
-                            items
-                        })
-                    });
-                    if (!response.ok) throw new Error('Server error ' + response.status);
-                    const data = await response.json();
-                    const msg = data.message || 'Terjadi kesalahan. Cek log server.';
-                    if (data.success) {
-                        alert(msg);
-                        location.reload();
-                    } else {
-                        alert('Gagal: ' + msg);
-                    }
-                } catch (err) {
-                    console.error('Fetch error:', err);
-                    alert('Terjadi kesalahan teknis. Cek koneksi atau refresh halaman.');
-                }
-            }
-            window.approveRequest = approveRequest;
+    if (!response.ok) {
+      const txt = await response.text();
+      console.error('Server response not OK:', response.status, txt);
+      // show server validation JSON if present
+      try {
+        const json = JSON.parse(txt);
+        console.error('Server JSON error:', json);
+        alert('Gagal: ' + (json.message || txt));
+      } catch (e) {
+        alert('Server error ' + response.status);
+      }
+      return;
+    }
+
+    const data = await response.json();
+    if (data.success) {
+      alert(data.message || 'Berhasil.');
+      location.reload();
+    } else {
+      alert('Gagal: ' + (data.message || 'Terjadi kesalahan.'));
+    }
+
+  } catch (err) {
+    console.error('Approve request error:', err);
+    alert('Terjadi kesalahan teknis. Silakan coba lagi atau refresh halaman.');
+  }
+}
+window.approveRequest = approveRequest;
 
             function rejectRequest() {
                 const tiket = document.getElementById('tiketInput').value;
@@ -933,16 +920,16 @@
                 }
 
                 fetch(`/kepalagudang/request/${tiket}/reject`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        tiket,
-                        catatan
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            tiket,
+                            catatan
+                        })
                     })
-                })
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
@@ -964,7 +951,7 @@
             // -----------------------
             // Event delegation: selects, SN inputs
             // -----------------------
-            document.addEventListener('change', function (e) {
+            document.addEventListener('change', function(e) {
                 const el = e.target;
 
                 if (el.matches('.kategori-select')) {
@@ -1022,7 +1009,7 @@
             });
 
             // SN input handlers (focusout & Enter)
-            document.addEventListener('focusout', function (e) {
+            document.addEventListener('focusout', function(e) {
                 const el = e.target;
                 if (el.matches('#tabelBarang .sn-col input')) {
                     if (el.disabled) return;
@@ -1030,7 +1017,7 @@
                 }
             }, true);
 
-            document.addEventListener('keydown', function (e) {
+            document.addEventListener('keydown', function(e) {
                 const el = e.target;
                 if (e.key === 'Enter' && el.matches('#tabelBarang .sn-col input')) {
                     e.preventDefault();
@@ -1084,7 +1071,7 @@
                 const tipeId = snInfo.tipe_id ?? null;
                 if (tipeId) {
                     const optT = ensureOption(tipeSelect, tipeId, snInfo.tipe_nama ?? snInfo.tipe ?? String(
-                        tipeId));
+                    tipeId));
                     if (optT) {
                         tipeSelect.value = optT.value;
                         tipeSelect.dispatchEvent(new Event('change'));
@@ -1122,7 +1109,7 @@
             }
 
             // Initial state for static rows (on page load)
-            document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function() {
                 document.querySelectorAll('#tabelBarang tbody tr').forEach((tr, idx) => {
                     const kategori = tr.querySelector('.kategori-select')?.value;
                     const snInput = tr.querySelector('.sn-col input');
@@ -1146,7 +1133,7 @@
                     tr.querySelectorAll('[name]').forEach(el => {
                         const name = el.getAttribute('name');
                         if (!name) return;
-                        const newName = name.replace(/items$$\d+$$/, `items[${idx}]`);
+                        const newName = name.replace(/items$$\d+$$/g, `items[${idx}]`);
                         el.setAttribute('name', newName);
                     });
                 });
