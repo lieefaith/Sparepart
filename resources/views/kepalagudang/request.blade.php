@@ -121,7 +121,6 @@
 
 
     <!-- Modal Terima & Kirim Barang -->
-    <!-- Modal Terima & Kirim Barang -->
     <div class="modal fade" id="modalTerima" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -167,8 +166,8 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Tanggal Pengiriman</label>
-                                <input type="date" class="form-control" name="tanggal_pengiriman"
-                                    id="tanggal_pengiriman" required>
+                                <input type="date" class="form-control" name="tanggal_pengiriman" id="tanggal_pengiriman"
+                                    required>
                             </div>
                         </div>
                         <div class="mt-3 table-responsive">
@@ -213,15 +212,14 @@
                                         </td>
                                         <td class="sn-col"><input type="text" class="form-control"
                                                 placeholder="Nomor Serial"></td>
-                                        <td class="jumlah-col"><input type="number" class="form-control" value="1"
-                                                min="1" required></td>
+                                        <td class="jumlah-col"><input type="number" class="form-control" value="1" min="1"
+                                                required></td>
                                         <td class="keterangan-col">
                                             <input type="text" class="form-control" name="keterangan"
                                                 placeholder="Keterangan">
                                         </td>
                                         <td class="aksi-col">
-                                            <button type="button" class="btn btn-danger btn-sm"
-                                                onclick="hapusBaris(this)">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="hapusBaris(this)">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
@@ -239,7 +237,8 @@
                                 <h6 class="card-title mb-0"><i class="bi bi-chat-text"></i> Catatan</h6>
                             </div>
                             <div class="card-body">
-                                <textarea class="form-control" name="catatan" rows="3" placeholder="Tambahkan catatan jika ada..."></textarea>
+                                <textarea class="form-control" name="catatan" rows="3"
+                                    placeholder="Tambahkan catatan jika ada..."></textarea>
                             </div>
                         </div>
 
@@ -271,22 +270,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <!-- Form tambahan jika memilih Ya -->
-                                        <div id="formEkspedisi" class="mt-3" style="display: none;">
-                                            <div class="row g-2">
-                                                <div class="col-12">
-                                                    <label class="form-label">Nama Ekspedisi</label>
-                                                    <input type="text" class="form-control" name="nama_ekspedisi"
-                                                        placeholder="JNE, TIKI, POS Indonesia">
-                                                </div>
-                                                <div class="col-12">
-                                                    <label class="form-label">Nomor Resi</label>
-                                                    <input type="text" class="form-control" name="no_resi"
-                                                        placeholder="Nomor tracking pengiriman">
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -300,8 +283,7 @@
                                     <div class="card-body">
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Upload File Pendukung</label>
-                                            <input type="file" class="form-control" name="file_upload"
-                                                id="fileUpload">
+                                            <input type="file" class="form-control" name="file_upload" id="fileUpload">
                                             <div class="form-text mt-2">
                                                 <small>Format: PDF, JPG, PNG, DOC, DOCX<br>Maksimal: 5MB</small>
                                             </div>
@@ -333,18 +315,18 @@
 
     <!-- Script untuk toggle form ekspedisi -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const ekspedisiYa = document.getElementById('ekspedisiYa');
             const ekspedisiTidak = document.getElementById('ekspedisiTidak');
             const formEkspedisi = document.getElementById('formEkspedisi');
 
-            ekspedisiYa.addEventListener('change', function() {
+            ekspedisiYa.addEventListener('change', function () {
                 if (this.checked) {
                     formEkspedisi.style.display = 'block';
                 }
             });
 
-            ekspedisiTidak.addEventListener('change', function() {
+            ekspedisiTidak.addEventListener('change', function () {
                 if (this.checked) {
                     formEkspedisi.style.display = 'none';
                 }
@@ -355,7 +337,7 @@
 
 @push('scripts')
     <script>
-        (function() {
+        (function () {
             // -----------------------
             // Utility / Setup
             // -----------------------
@@ -486,238 +468,238 @@
             function buildRow(idx, item = {}) {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-<td class="no-col">${idx + 1}</td>
-<td class="kategori-col">
-  <select class="form-control kategori-select" name="items[${idx}][kategori]">
-    <option value="">Kategori</option>
-    <option value="aset">Aset</option>
-    <option value="non-aset">Non-Aset</option>
-  </select>
-</td>
-<td class="nama-col">
-  <select class="form-control nama-item-select" name="items[${idx}][nama_item]">
-    <option value="">Pilih Nama</option>
-  </select>
-  <input type="hidden" class="jenis-id" name="items[${idx}][jenis_id]" value="">
-</td>
-<td class="tipe-col">
-  <select class="form-control tipe-select" name="items[${idx}][tipe]">
-    <option value="">Pilih Tipe</option>
-  </select>
-  <input type="hidden" class="tipe-id" name="items[${idx}][tipe_id]" value="">
-</td>
-<td class="merk-col">
-  <select class="form-control merk-select" name="items[${idx}][merk]">
-    <option value="">Pilih Merk</option>
-  </select>
-  <input type="hidden" class="vendor-id" name="items[${idx}][vendor_id]" value="">
-</td>
-<td class="sn-col"><input type="text" class="form-control sn-input" name="items[${idx}][sn]" placeholder="Nomor Serial" disabled></td>
-<td class="jumlah-col"><input type="number" class="form-control" name="items[${idx}][jumlah]" value="${item.jumlah || 1}" min="1" required></td>
-<td class="keterangan-col">
-  <input type="text" class="form-control" name="items[${idx}][keterangan]" value="${item.keterangan || ''}" placeholder="Keterangan">
-</td>
-<td class="aksi-col">
-  <button type="button" class="btn btn-danger btn-sm" onclick="hapusBaris(this)">
-    <i class="bi bi-trash"></i>
-  </button>
-</td>
-`;
+    <td class="no-col">${idx + 1}</td>
+    <td class="kategori-col">
+      <select class="form-control kategori-select" name="items[${idx}][kategori]">
+        <option value="">Kategori</option>
+        <option value="aset">Aset</option>
+        <option value="non-aset">Non-Aset</option>
+      </select>
+    </td>
+    <td class="nama-col">
+      <select class="form-control nama-item-select" name="items[${idx}][nama_item]">
+        <option value="">Pilih Nama</option>
+      </select>
+      <input type="hidden" class="jenis-id" name="items[${idx}][jenis_id]" value="">
+    </td>
+    <td class="tipe-col">
+      <select class="form-control tipe-select" name="items[${idx}][tipe]">
+        <option value="">Pilih Tipe</option>
+      </select>
+      <input type="hidden" class="tipe-id" name="items[${idx}][tipe_id]" value="">
+    </td>
+    <td class="merk-col">
+      <select class="form-control merk-select" name="items[${idx}][merk]">
+        <option value="">Pilih Merk</option>
+      </select>
+      <input type="hidden" class="vendor-id" name="items[${idx}][vendor_id]" value="">
+    </td>
+    <td class="sn-col"><input type="text" class="form-control sn-input" name="items[${idx}][sn]" placeholder="Nomor Serial" disabled></td>
+    <td class="jumlah-col"><input type="number" class="form-control" name="items[${idx}][jumlah]" value="${item.jumlah || 1}" min="1" required></td>
+    <td class="keterangan-col">
+      <input type="text" class="form-control" name="items[${idx}][keterangan]" value="${item.keterangan || ''}" placeholder="Keterangan">
+    </td>
+    <td class="aksi-col">
+      <button type="button" class="btn btn-danger btn-sm" onclick="hapusBaris(this)">
+        <i class="bi bi-trash"></i>
+      </button>
+    </td>
+    `;
                 return tr;
             }
 
-async function populateRowWithItem(tr, item = {}, snInfo = null) {
-  try {
-    const kategoriSelect = tr.querySelector('.kategori-select');
-    const namaSelect = tr.querySelector('.nama-item-select');
-    const tipeSelect = tr.querySelector('.tipe-select');
-    const merkSelect = tr.querySelector('.merk-select');
-    const snInput = tr.querySelector('.sn-input');
-    const jumlahInput = tr.querySelector('input[name*="[jumlah]"]');
-    const keteranganInput = tr.querySelector('input[name*="[keterangan]"]');
+            async function populateRowWithItem(tr, item = {}, snInfo = null) {
+                try {
+                    const kategoriSelect = tr.querySelector('.kategori-select');
+                    const namaSelect = tr.querySelector('.nama-item-select');
+                    const tipeSelect = tr.querySelector('.tipe-select');
+                    const merkSelect = tr.querySelector('.merk-select');
+                    const snInput = tr.querySelector('.sn-input');
+                    const jumlahInput = tr.querySelector('input[name*="[jumlah]"]');
+                    const keteranganInput = tr.querySelector('input[name*="[keterangan]"]');
 
-    // 1) set kategori
-    if (item.kategori) {
-      kategoriSelect.value = item.kategori;
-      kategoriSelect.dispatchEvent(new Event('change'));
-    } else {
-      if (namaSelect) namaSelect.innerHTML = '<option value="">Pilih Nama</option>';
-      if (tipeSelect) tipeSelect.innerHTML = '<option value="">Pilih Tipe</option>';
-      if (merkSelect) merkSelect.innerHTML = '<option value="">Pilih Merk</option>';
-    }
+                    // 1) set kategori
+                    if (item.kategori) {
+                        kategoriSelect.value = item.kategori;
+                        kategoriSelect.dispatchEvent(new Event('change'));
+                    } else {
+                        if (namaSelect) namaSelect.innerHTML = '<option value="">Pilih Nama</option>';
+                        if (tipeSelect) tipeSelect.innerHTML = '<option value="">Pilih Tipe</option>';
+                        if (merkSelect) merkSelect.innerHTML = '<option value="">Pilih Merk</option>';
+                    }
 
-    // 2) load nama (jenis) jika kategori tersedia
-    if (kategoriSelect.value) {
-      await loadItemsByKategori(kategoriSelect, namaSelect);
+                    // 2) load nama (jenis) jika kategori tersedia
+                    if (kategoriSelect.value) {
+                        await loadItemsByKategori(kategoriSelect, namaSelect);
 
-      const jenisId = item.jenis_id ?? item.nama_item_id ?? null;
-      const jenisLabel = item.nama_item ?? item.nama_item_label ?? null;
+                        const jenisId = item.jenis_id ?? item.nama_item_id ?? null;
+                        const jenisLabel = item.nama_item ?? item.nama_item_label ?? null;
 
-      if (jenisId) {
-        // cari option berdasarkan data-id; jika tidak ada, buat option dengan value=label dan data-id=id
-        let opt = Array.from(namaSelect.options).find(o => o.dataset && String(o.dataset.id) === String(jenisId));
-        if (!opt) {
-          opt = document.createElement('option');
-          opt.value = jenisLabel ?? String(jenisId);
-          opt.dataset.id = String(jenisId);
-          opt.textContent = jenisLabel ?? String(jenisId);
-          namaSelect.appendChild(opt);
-        }
-        // set select ke option.value (label) — jangan set ke id langsung
-        namaSelect.value = opt.value;
-        namaSelect.dispatchEvent(new Event('change'));
-      } else if (jenisLabel) {
-        // fallback by label
-        let opt = Array.from(namaSelect.options).find(o => o.value === jenisLabel);
-        if (!opt) {
-          opt = document.createElement('option');
-          opt.value = jenisLabel;
-          opt.textContent = jenisLabel;
-          namaSelect.appendChild(opt);
-        }
-        namaSelect.value = opt.value;
-        namaSelect.dispatchEvent(new Event('change'));
-      }
-    }
+                        if (jenisId) {
+                            // cari option berdasarkan data-id; jika tidak ada, buat option dengan value=label dan data-id=id
+                            let opt = Array.from(namaSelect.options).find(o => o.dataset && String(o.dataset.id) === String(jenisId));
+                            if (!opt) {
+                                opt = document.createElement('option');
+                                opt.value = jenisLabel ?? String(jenisId);
+                                opt.dataset.id = String(jenisId);
+                                opt.textContent = jenisLabel ?? String(jenisId);
+                                namaSelect.appendChild(opt);
+                            }
+                            // set select ke option.value (label) — jangan set ke id langsung
+                            namaSelect.value = opt.value;
+                            namaSelect.dispatchEvent(new Event('change'));
+                        } else if (jenisLabel) {
+                            // fallback by label
+                            let opt = Array.from(namaSelect.options).find(o => o.value === jenisLabel);
+                            if (!opt) {
+                                opt = document.createElement('option');
+                                opt.value = jenisLabel;
+                                opt.textContent = jenisLabel;
+                                namaSelect.appendChild(opt);
+                            }
+                            namaSelect.value = opt.value;
+                            namaSelect.dispatchEvent(new Event('change'));
+                        }
+                    }
 
-    // 3) load tipe jika nama terpilih
-    if (namaSelect.value) {
-      await loadTipeByKategoriAndJenis(kategoriSelect, namaSelect, tipeSelect);
+                    // 3) load tipe jika nama terpilih
+                    if (namaSelect.value) {
+                        await loadTipeByKategoriAndJenis(kategoriSelect, namaSelect, tipeSelect);
 
-      const tipeId = item.tipe_id ?? null;
-      const tipeLabel = item.tipe ?? item.tipe_label ?? null;
-      if (tipeId) {
-        let tipeOpt = Array.from(tipeSelect.options).find(o => o.dataset && String(o.dataset.id) === String(tipeId));
-        if (!tipeOpt) {
-          tipeOpt = document.createElement('option');
-          tipeOpt.value = tipeLabel ?? String(tipeId);
-          tipeOpt.dataset.id = String(tipeId);
-          tipeOpt.textContent = tipeLabel ?? String(tipeId);
-          tipeSelect.appendChild(tipeOpt);
-        }
-        tipeSelect.value = tipeOpt.value;
-        tipeSelect.dispatchEvent(new Event('change'));
-      } else if (tipeLabel) {
-        let tipeOpt = Array.from(tipeSelect.options).find(o => o.value === tipeLabel);
-        if (!tipeOpt) {
-          tipeOpt = document.createElement('option');
-          tipeOpt.value = tipeLabel;
-          tipeOpt.textContent = tipeLabel;
-          tipeSelect.appendChild(tipeOpt);
-        }
-        tipeSelect.value = tipeOpt.value;
-        tipeSelect.dispatchEvent(new Event('change'));
-      }
-    } else {
-      if (tipeSelect) tipeSelect.innerHTML = '<option value="">Pilih Tipe</option>';
-    }
+                        const tipeId = item.tipe_id ?? null;
+                        const tipeLabel = item.tipe ?? item.tipe_label ?? null;
+                        if (tipeId) {
+                            let tipeOpt = Array.from(tipeSelect.options).find(o => o.dataset && String(o.dataset.id) === String(tipeId));
+                            if (!tipeOpt) {
+                                tipeOpt = document.createElement('option');
+                                tipeOpt.value = tipeLabel ?? String(tipeId);
+                                tipeOpt.dataset.id = String(tipeId);
+                                tipeOpt.textContent = tipeLabel ?? String(tipeId);
+                                tipeSelect.appendChild(tipeOpt);
+                            }
+                            tipeSelect.value = tipeOpt.value;
+                            tipeSelect.dispatchEvent(new Event('change'));
+                        } else if (tipeLabel) {
+                            let tipeOpt = Array.from(tipeSelect.options).find(o => o.value === tipeLabel);
+                            if (!tipeOpt) {
+                                tipeOpt = document.createElement('option');
+                                tipeOpt.value = tipeLabel;
+                                tipeOpt.textContent = tipeLabel;
+                                tipeSelect.appendChild(tipeOpt);
+                            }
+                            tipeSelect.value = tipeOpt.value;
+                            tipeSelect.dispatchEvent(new Event('change'));
+                        }
+                    } else {
+                        if (tipeSelect) tipeSelect.innerHTML = '<option value="">Pilih Tipe</option>';
+                    }
 
-    // 4) load merk/vendor jika nama & tipe terpilih
-    if (namaSelect.value && tipeSelect.value) {
-      await loadVendors(namaSelect, tipeSelect, merkSelect);
+                    // 4) load merk/vendor jika nama & tipe terpilih
+                    if (namaSelect.value && tipeSelect.value) {
+                        await loadVendors(namaSelect, tipeSelect, merkSelect);
 
-      const vendorId = item.vendor_id ?? item.merk_id ?? null;
-      const vendorLabel = item.merk ?? item.merk_label ?? null;
-      if (vendorId) {
-        let findOpt = Array.from(merkSelect.options).find(o => o.dataset && String(o.dataset.id) === String(vendorId));
-        if (!findOpt) {
-          const newOpt = document.createElement('option');
-          newOpt.value = vendorLabel ?? String(vendorId);
-          newOpt.dataset.id = String(vendorId);
-          newOpt.textContent = vendorLabel ?? String(vendorId);
-          merkSelect.appendChild(newOpt);
-          findOpt = newOpt;
-        }
-        merkSelect.value = findOpt.value;
-      } else if (vendorLabel) {
-        let findOpt = Array.from(merkSelect.options).find(o => o.value === vendorLabel);
-        if (!findOpt) {
-          const newOpt = document.createElement('option');
-          newOpt.value = vendorLabel;
-          newOpt.textContent = vendorLabel;
-          merkSelect.appendChild(newOpt);
-          findOpt = newOpt;
-        }
-        merkSelect.value = findOpt.value;
-      }
-    } else {
-      if (merkSelect) merkSelect.innerHTML = '<option value="">Pilih Merk</option>';
-    }
+                        const vendorId = item.vendor_id ?? item.merk_id ?? null;
+                        const vendorLabel = item.merk ?? item.merk_label ?? null;
+                        if (vendorId) {
+                            let findOpt = Array.from(merkSelect.options).find(o => o.dataset && String(o.dataset.id) === String(vendorId));
+                            if (!findOpt) {
+                                const newOpt = document.createElement('option');
+                                newOpt.value = vendorLabel ?? String(vendorId);
+                                newOpt.dataset.id = String(vendorId);
+                                newOpt.textContent = vendorLabel ?? String(vendorId);
+                                merkSelect.appendChild(newOpt);
+                                findOpt = newOpt;
+                            }
+                            merkSelect.value = findOpt.value;
+                        } else if (vendorLabel) {
+                            let findOpt = Array.from(merkSelect.options).find(o => o.value === vendorLabel);
+                            if (!findOpt) {
+                                const newOpt = document.createElement('option');
+                                newOpt.value = vendorLabel;
+                                newOpt.textContent = vendorLabel;
+                                merkSelect.appendChild(newOpt);
+                                findOpt = newOpt;
+                            }
+                            merkSelect.value = findOpt.value;
+                        }
+                    } else {
+                        if (merkSelect) merkSelect.innerHTML = '<option value="">Pilih Merk</option>';
+                    }
 
-    // 5) jumlah
-    if (jumlahInput) jumlahInput.value = item.jumlah || 1;
+                    // 5) jumlah
+                    if (jumlahInput) jumlahInput.value = item.jumlah || 1;
 
-    // 6) SN handling
-    const snFromRequest = item.sn || item.serial_number || null;
-    if (!snInfo && snFromRequest) snInfo = await fetchItemBySN(snFromRequest);
+                    // 6) SN handling
+                    const snFromRequest = item.sn || item.serial_number || null;
+                    if (!snInfo && snFromRequest) snInfo = await fetchItemBySN(snFromRequest);
 
-    if (snInput) {
-      if (kategoriSelect && kategoriSelect.value === 'aset') {
-        snInput.disabled = false;
-        snInput.required = true;
-      } else {
-        snInput.disabled = true;
-        snInput.required = false;
-        snInput.value = '';
-      }
-      if (snFromRequest) snInput.value = snFromRequest;
-    }
+                    if (snInput) {
+                        if (kategoriSelect && kategoriSelect.value === 'aset') {
+                            snInput.disabled = false;
+                            snInput.required = true;
+                        } else {
+                            snInput.disabled = true;
+                            snInput.required = false;
+                            snInput.value = '';
+                        }
+                        if (snFromRequest) snInput.value = snFromRequest;
+                    }
 
-    // 7) keterangan
-    if (keteranganInput) {
-      keteranganInput.value = (snInfo && (snInfo.keterangan ?? snInfo.note ?? null))
-        ? (snInfo.keterangan ?? snInfo.note)
-        : (item.keterangan ?? '');
-    }
+                    // 7) keterangan
+                    if (keteranganInput) {
+                        keteranganInput.value = (snInfo && (snInfo.keterangan ?? snInfo.note ?? null))
+                            ? (snInfo.keterangan ?? snInfo.note)
+                            : '';
+                    }
 
-    // 8) jika SN punya data, apply (gunakan ensureOption sehingga option dibuat dengan value=label dan data-id)
-    if (snInfo && kategoriSelect.value) {
-      if (snInfo.nama_id || snInfo.id) {
-        const nid = snInfo.nama_id ?? snInfo.id;
-        const label = snInfo.nama ?? snInfo.name ?? String(nid);
-        const opt = ensureOption(namaSelect, nid, label);
-        if (opt) {
-          namaSelect.value = opt.value;
-          namaSelect.dispatchEvent(new Event('change'));
-          await loadTipeByKategoriAndJenis(kategoriSelect, namaSelect, tipeSelect);
-          await loadVendors(namaSelect, tipeSelect, merkSelect);
-        }
-      }
-      if (snInfo.tipe_id) {
-        const tid = snInfo.tipe_id;
-        const label = snInfo.tipe_nama ?? snInfo.tipe ?? String(tid);
-        const optT = ensureOption(tipeSelect, tid, label);
-        if (optT) {
-          tipeSelect.value = optT.value;
-          tipeSelect.dispatchEvent(new Event('change'));
-        }
-      }
-      if (snInfo.vendor_id) {
-        const vid = snInfo.vendor_id;
-        const label = snInfo.vendor_nama ?? snInfo.vendor ?? String(vid);
-        const optV = ensureOption(merkSelect, vid, label);
-        if (optV) merkSelect.value = optV.value;
-      }
-    }
+                    // 8) jika SN punya data, apply (gunakan ensureOption sehingga option dibuat dengan value=label dan data-id)
+                    if (snInfo && kategoriSelect.value) {
+                        if (snInfo.nama_id || snInfo.id) {
+                            const nid = snInfo.nama_id ?? snInfo.id;
+                            const label = snInfo.nama ?? snInfo.name ?? String(nid);
+                            const opt = ensureOption(namaSelect, nid, label);
+                            if (opt) {
+                                namaSelect.value = opt.value;
+                                namaSelect.dispatchEvent(new Event('change'));
+                                await loadTipeByKategoriAndJenis(kategoriSelect, namaSelect, tipeSelect);
+                                await loadVendors(namaSelect, tipeSelect, merkSelect);
+                            }
+                        }
+                        if (snInfo.tipe_id) {
+                            const tid = snInfo.tipe_id;
+                            const label = snInfo.tipe_nama ?? snInfo.tipe ?? String(tid);
+                            const optT = ensureOption(tipeSelect, tid, label);
+                            if (optT) {
+                                tipeSelect.value = optT.value;
+                                tipeSelect.dispatchEvent(new Event('change'));
+                            }
+                        }
+                        if (snInfo.vendor_id) {
+                            const vid = snInfo.vendor_id;
+                            const label = snInfo.vendor_nama ?? snInfo.vendor ?? String(vid);
+                            const optV = ensureOption(merkSelect, vid, label);
+                            if (optV) merkSelect.value = optV.value;
+                        }
+                    }
 
-    // 9) update hidden id inputs (jenis_id, tipe_id, vendor_id)
-    const jenisIdInput = tr.querySelector('.jenis-id');
-    const tipeIdInput = tr.querySelector('.tipe-id');
-    const vendorIdInput = tr.querySelector('.vendor-id');
+                    // 9) update hidden id inputs (jenis_id, tipe_id, vendor_id)
+                    const jenisIdInput = tr.querySelector('.jenis-id');
+                    const tipeIdInput = tr.querySelector('.tipe-id');
+                    const vendorIdInput = tr.querySelector('.vendor-id');
 
-    if (jenisIdInput && namaSelect) jenisIdInput.value = getSelectedId(namaSelect) || '';
-    if (tipeIdInput && tipeSelect) tipeIdInput.value = getSelectedId(tipeSelect) || '';
-    if (vendorIdInput && merkSelect) vendorIdInput.value = getSelectedId(merkSelect) || '';
+                    if (jenisIdInput && namaSelect) jenisIdInput.value = getSelectedId(namaSelect) || '';
+                    if (tipeIdInput && tipeSelect) tipeIdInput.value = getSelectedId(tipeSelect) || '';
+                    if (vendorIdInput && merkSelect) vendorIdInput.value = getSelectedId(merkSelect) || '';
 
-  } catch (err) {
-    console.error('populateRowWithItem error:', err);
-  }
-}
+                } catch (err) {
+                    console.error('populateRowWithItem error:', err);
+                }
+            }
 
             // -----------------------
             // Buttons / Modal handling
             // -----------------------
-            window.hapusBaris = function(button) {
+            window.hapusBaris = function (button) {
                 const tr = button.closest('tr');
                 const tbody = tr.parentElement;
                 if (tbody.children.length > 1) {
@@ -737,7 +719,7 @@ async function populateRowWithItem(tr, item = {}, snInfo = null) {
                 }
             };
 
-            window.tambahBaris = function() {
+            window.tambahBaris = function () {
                 const tbody = document.querySelector('#tabelBarang tbody');
                 const nomorBaru = tbody.children.length + 1;
                 const tr = buildRow(nomorBaru - 1, {});
@@ -767,7 +749,7 @@ async function populateRowWithItem(tr, item = {}, snInfo = null) {
             const allRequests = @json($requests);
 
             document.querySelectorAll('.btn-terima').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const tiket = this.dataset.tiket;
                     const requester = this.dataset.requester;
                     const tanggal = this.dataset.tanggal;
@@ -787,12 +769,12 @@ async function populateRowWithItem(tr, item = {}, snInfo = null) {
                         req.details.forEach((item, index) => {
                             const tr = document.createElement('tr');
                             tr.innerHTML = `
-<td>${index + 1}</td>
-<td>${item.nama_item ?? item.nama ?? '-'}</td>
-<td>${item.deskripsi ?? '-'}</td>
-<td>${item.jumlah ?? '-'}</td>
-<td>${item.keterangan ?? '-'}</td>
-`;
+    <td>${index + 1}</td>
+    <td>${item.nama_item ?? item.nama ?? '-'}</td>
+    <td>${item.deskripsi ?? '-'}</td>
+    <td>${item.jumlah ?? '-'}</td>
+    <td>${item.keterangan ?? '-'}</td>
+    `;
                             detailBody.appendChild(tr);
                         });
                     } else {
@@ -817,7 +799,7 @@ async function populateRowWithItem(tr, item = {}, snInfo = null) {
                     async function onShown() {
                         const rows = Array.from(document.querySelectorAll('#tabelBarang tbody tr'));
                         const snList = (req.details || []).map(d => d.sn || d.serial_number ||
-                        null);
+                            null);
                         const fetchPromises = snList.map(sn => sn ? fetchItemBySN(sn) : Promise
                             .resolve(null));
                         const snInfos = await Promise.all(fetchPromises);
@@ -951,16 +933,16 @@ async function populateRowWithItem(tr, item = {}, snInfo = null) {
                 }
 
                 fetch(`/kepalagudang/request/${tiket}/reject`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            tiket,
-                            catatan
-                        })
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tiket,
+                        catatan
                     })
+                })
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
@@ -982,7 +964,7 @@ async function populateRowWithItem(tr, item = {}, snInfo = null) {
             // -----------------------
             // Event delegation: selects, SN inputs
             // -----------------------
-            document.addEventListener('change', function(e) {
+            document.addEventListener('change', function (e) {
                 const el = e.target;
 
                 if (el.matches('.kategori-select')) {
@@ -1040,7 +1022,7 @@ async function populateRowWithItem(tr, item = {}, snInfo = null) {
             });
 
             // SN input handlers (focusout & Enter)
-            document.addEventListener('focusout', function(e) {
+            document.addEventListener('focusout', function (e) {
                 const el = e.target;
                 if (el.matches('#tabelBarang .sn-col input')) {
                     if (el.disabled) return;
@@ -1048,7 +1030,7 @@ async function populateRowWithItem(tr, item = {}, snInfo = null) {
                 }
             }, true);
 
-            document.addEventListener('keydown', function(e) {
+            document.addEventListener('keydown', function (e) {
                 const el = e.target;
                 if (e.key === 'Enter' && el.matches('#tabelBarang .sn-col input')) {
                     e.preventDefault();
@@ -1102,7 +1084,7 @@ async function populateRowWithItem(tr, item = {}, snInfo = null) {
                 const tipeId = snInfo.tipe_id ?? null;
                 if (tipeId) {
                     const optT = ensureOption(tipeSelect, tipeId, snInfo.tipe_nama ?? snInfo.tipe ?? String(
-                    tipeId));
+                        tipeId));
                     if (optT) {
                         tipeSelect.value = optT.value;
                         tipeSelect.dispatchEvent(new Event('change'));
@@ -1140,7 +1122,7 @@ async function populateRowWithItem(tr, item = {}, snInfo = null) {
             }
 
             // Initial state for static rows (on page load)
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 document.querySelectorAll('#tabelBarang tbody tr').forEach((tr, idx) => {
                     const kategori = tr.querySelector('.kategori-select')?.value;
                     const snInput = tr.querySelector('.sn-col input');

@@ -13,6 +13,7 @@ use App\Http\Controllers\KepalaROController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\PengirimanController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ApprovalStatusController;
 use Illuminate\Http\Request;
 use App\Models\Vendor;
 
@@ -116,7 +117,7 @@ Route::middleware(['auth', 'role:3'])
         Route::get('/sparepart', [SparepartController::class, 'index'])->name('sparepart.index');
         Route::get('/sparepart/{tiket_sparepart}/detail', [SparepartController::class, 'showDetail'])->name('sparepart.detail');
 
-         Route::get('/datauser', [UserController::class, 'index'])->name('user.index');
+        Route::get('/datauser', [UserController::class, 'index'])->name('user.index');
         Route::post('/datauser/store', [UserController::class, 'store'])->name('user.store');
         Route::get('/datauser/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
         Route::put('/datauser/{id}', [UserController::class, 'update'])->name('user.update');
@@ -127,9 +128,9 @@ Route::middleware(['auth', 'role:3'])
         Route::get('/history/{tiket}/api', [KepalaGudangController::class, 'historyDetailApi'])
             ->name('kepalagudang.history.api');
         Route::post('/request/{tiket}/approve', [KepalaGudangController::class, 'approveGudang'])
-            ->name('kepalagudang.request.approve');
+            ->name('request.approve');
         Route::post('/request/{tiket}/reject', [KepalaGudangController::class, 'rejectGudang'])
-            ->name('kepalagudang.request.reject');
+            ->name('request.reject');
 
         Route::get('/profile', fn() => view('kepalagudang.profile'))->name('profile');
 
@@ -162,7 +163,7 @@ Route::middleware(['auth', 'role:3'])
         Route::post('/data/region', [DataController::class, 'storeRegion'])->name('region.store');
         Route::put('/data/region/{id}', [DataController::class, 'updateRegion'])->name('region.update');
         Route::delete('/data/region/{id}', [DataController::class, 'destroyRegion'])->name('region.destroy');
-        
+
         // 🔥 Baru: Simpan data pengiriman
         Route::post('/pengiriman', [PengirimanController::class, 'store'])->name('pengiriman.store');
 
@@ -181,6 +182,16 @@ Route::middleware(['auth', 'role:4'])
         Route::get('/sparepart', [HomeController::class, 'jenisBarang'])->name('jenis.barang');
         Route::get('/jenis-barang', [PermintaanController::class, 'getJenis']);
         Route::get('/tipe-barang', [PermintaanController::class, 'getTipe']);
+
+        Route::get('/validasi', [UserController::class, 'validasiIndex'])->name('validasi.index');
+        Route::post('/validasi/{tiket}/terima', [UserController::class, 'terimaBarang'])->name('validasi.terima');
+        Route::get('/validasi/{tiket}/detail', [UserController::class, 'historyDetail'])->name('history.detail');
+        Route::get('/validasi/{tiket}/api', [KepalaGudangController::class, 'historyDetailApi'])
+            ->name('history.api');
+
+        Route::get('/history', [UserController::class, 'historyIndex'])->name('history.index');
+
+
     });
 
 
@@ -198,23 +209,8 @@ Route::prefix('requestbarang')
         Route::get('/{tiket}', 'getDetail')->name('detail');
         Route::post('/', 'store')->name('store');
 
-        // 🔥 API: Detail Status Approval Berjenjang
-        Route::get('/api/permintaan/{tiket}/status', function ($tiket) {
-            $permintaan = \App\Models\Permintaan::where('tiket', $tiket)->firstOrFail();
-
-            return response()->json([
-                'ro' => $permintaan->status_ro,
-                'gudang' => $permintaan->status_gudang,
-                'admin' => $permintaan->status_admin,
-                'super_admin' => $permintaan->status_super_admin,
-                'catatan' => collect([
-                    $permintaan->catatan_ro,
-                    $permintaan->catatan_gudang,
-                    $permintaan->catatan_admin,
-                    $permintaan->catatan_super_admin,
-                ])->filter()->first(),
-            ]);
-        })->name('api.permintaan.status');
+        // ✅ Cukup satu ini saja
+        Route::get('/api/permintaan/{tiket}/status', [ApprovalStatusController::class, 'getStatus'])->name('api.permintaan.status');
 
         // ✅ API: Ambil jenis barang berdasarkan kategori
         Route::get('/api/jenis-barang', function (\Illuminate\Http\Request $request) {
@@ -255,23 +251,22 @@ Route::prefix('requestbarang')
         })->name('api.tipe.barang');
 
         Route::get('/api/vendor', function (Request $request) {
-    $jenisId = $request->query('jenis_id');
-    $tipeId = $request->query('tipe_id');
+            $jenisId = $request->query('jenis_id');
+            $tipeId = $request->query('tipe_id');
 
-    if (!$jenisId || !$tipeId) {
-        return response()->json([
-            'message' => 'Parameter jenis_id dan tipe_id wajib diisi.'
-        ], 400);
-    }
+            if (!$jenisId || !$tipeId) {
+                return response()->json([
+                    'message' => 'Parameter jenis_id dan tipe_id wajib diisi.'
+                ], 400);
+            }
 
-    $vendors = Vendor::whereHas('details', function ($query) use ($jenisId, $tipeId) {
-        $query->where('jenis_id', $jenisId)
-              ->where('tipe_id', $tipeId);
-    })
-    ->orderBy('nama')
-    ->get(['id', 'nama']);
+            $vendors = Vendor::whereHas('details', function ($query) use ($jenisId, $tipeId) {
+                $query->where('jenis_id', $jenisId)
+                    ->where('tipe_id', $tipeId);
+            })
+                ->orderBy('nama')
+                ->get(['id', 'nama']);
 
-    return response()->json($vendors);
-})->name('api.vendor');
-
+            return response()->json($vendors);
+        })->name('api.vendor');
     });

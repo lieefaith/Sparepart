@@ -2,11 +2,27 @@
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Kepala gudang')</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+   <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>@yield('title', 'Aplikasi Spare Part')</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     {{-- CSS Sidebar & Dashboard --}}
     <style>
@@ -32,6 +48,59 @@
             background-color: #f5f7fb;
             color: #333;
             overflow-x: hidden;
+        }
+
+        .page-title {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: var(--danger);
+        }
+
+        .simple-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .edit-mode {
+            display: none;
+        }
+
+        .badge-aset {
+            background-color: var(--success);
+        }
+
+        .badge-non-aset {
+            background-color: var(--info);
+        }
+
+        .form-container {
+            background: white;
+            border-radius: var(--card-border-radius);
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
         }
 
         /* Sidebar Styling */
@@ -327,6 +396,7 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
+
         /* Responsive Adjustments */
         @media (max-width: 992px) {
             .sidebar {
@@ -474,33 +544,38 @@
             <h4 class="text-white"><i class="bi bi-gear-fill"></i> <span>Kepala gudang</span></h4>
         </div>
 
-    <div class="list-group list-group-flush">
-        <a href="{{ route('kepalagudang.dashboard') }}" class="list-group-item list-group-item-action py-3 ">
-            <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
-        </a>
-        <a href="{{ route('kepalagudang.request.index') }}" class="list-group-item list-group-item-action py-3">
-            <i class="bi bi-send"></i> <span>Request / Send</span>
-        </a>
-        <a href="{{ route('kepalagudang.sparepart.index') }}" class="list-group-item list-group-item-action py-3">
-            <i class="bi bi-tools"></i> <span>Daftar Sparepart</span>
-        </a>
-        <a href="{{ route('kepalagudang.data') }}" class="list-group-item list-group-item-action py-3">
-            <i class="bi bi-folder2-open"></i> <span>Data</span>
-        </a>
-        <a href="{{ route('kepalagudang.history.index') }}" class="list-group-item list-group-item-action py-3">
-            <i class="bi bi-clock-history"></i> <span>Histori Barang</span>
-        </a>
-    </div>
-     
+        <div class="list-group list-group-flush">
+            <a href="{{ route('kepalagudang.dashboard') }}"
+                class="list-group-item list-group-item-action py-3 {{ request()->routeIs('kepalagudang.dashboard') ? 'active' : '' }}">
+                <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
+            </a>
+            <a href="{{ route('kepalagudang.request.index') }}"
+                class="list-group-item list-group-item-action py-3 {{ request()->routeIs('kepalagudang.request.*') ? 'active' : '' }}">
+                <i class="bi bi-send"></i> <span>Request / Send</span>
+            </a>
+            <a href="{{ route('kepalagudang.sparepart.index') }}"
+                class="list-group-item list-group-item-action py-3 {{ request()->routeIs('kepalagudang.sparepart.*') ? 'active' : '' }}">
+                <i class="bi bi-tools"></i> <span>Daftar Sparepart</span>
+            </a>
+            <a href="{{ route('kepalagudang.data') }}"
+                class="list-group-item list-group-item-action py-3 {{ request()->routeIs('kepalagudang.data') ? 'active' : '' }}">
+                <i class="bi bi-folder2-open"></i> <span>Data</span>
+            </a>
+            <a href="{{ route('kepalagudang.history.index') }}"
+                class="list-group-item list-group-item-action py-3 {{ request()->routeIs('kepalagudang.history.*') ? 'active' : '' }}">
+                <i class="bi bi-clock-history"></i> <span>Histori Transaksi</span>
+            </a>
+        </div>
+
 
         <div class="sidebar-footer">
-            <a href="{{ route('profile.edit') }}" class="d-flex align-items-center text-decoration-none text-white">
+            <a href="{{ route('profile.show') }}" class="d-flex align-items-center text-decoration-none text-white">
                 <div class="user-avatar">
                     <i class="bi bi-person-fill"></i>
                 </div>
                 <div class="user-details">
                     <p class="user-name mb-0">{{ Auth::user()->name }}</p>
-                    <small class="user-role">Administrator</small>
+                    <small class="user-role">Kepala Gudang</small>
                 </div>
             </a>
 
@@ -511,6 +586,7 @@
                 </button>
             </form>
         </div>
+
     </div>
 
 
@@ -521,6 +597,24 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Fungsi untuk menandai menu aktif berdasarkan URL
+        document.addEventListener('DOMContentLoaded', function () {
+            const currentUrl = window.location.href;
+            const menuItems = document.querySelectorAll('.sidebar .list-group-item');
+
+            menuItems.forEach(item => {
+                const itemUrl = item.getAttribute('href');
+
+                // Jika URL saat ini mengandung URL menu item, tandai sebagai aktif
+                if (currentUrl.includes(itemUrl) && itemUrl !== '#') {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+
     @stack('scripts')
 </body>
 
