@@ -65,10 +65,9 @@ Route::middleware(['auth', 'role:1'])
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/request', 'requestIndex')->name('request.index');
         Route::post('/pengiriman', [PengirimanController::class, 'store'])->name('pengiriman.store');
-
         // ✅ Tambahkan ini!
         Route::post('/request/{tiket}/approve', 'approveRequest')->name('request.approve');
-        Route::post('/request/{tiket}/reject', 'rejectRequest')->name('request.reject');
+        Route::post('/request/{tiket}/reject', 'reject')->name('request.reject');
 
         Route::get('/sparepart', [SparepartController::class, 'indexAdmin'])->name('sparepart.index');
         Route::get('/sparepart/{tiket_sparepart}/detail', [SparepartController::class, 'showDetail'])->name('sparepart.detail');
@@ -168,6 +167,10 @@ Route::middleware(['auth', 'role:3'])
         Route::post('/pengiriman', [PengirimanController::class, 'store'])->name('pengiriman.store');
 
         Route::get('/sn-info', 'snInfo')->name('sn.info');
+
+        Route::get('/closed-form', 'closedFormIndex')->name('closed.form.index');
+        Route::post('/closed-form/{tiket}/verify', 'verifyClosedForm')->name('closed.form.verify');
+        Route::get('/closed-form/{tiket}/detail', 'getValidasiDetail')->name('closed.form.detail');
     });
 
 
@@ -186,7 +189,7 @@ Route::middleware(['auth', 'role:4'])
         Route::get('/validasi', [UserController::class, 'validasiIndex'])->name('validasi.index');
         Route::post('/validasi/{tiket}/terima', [UserController::class, 'terimaBarang'])->name('validasi.terima');
         Route::get('/validasi/{tiket}/detail', [UserController::class, 'historyDetail'])->name('history.detail');
-        Route::get('/validasi/{tiket}/api', [KepalaGudangController::class, 'historyDetailApi'])
+        Route::get('/validasi/{tiket}/api', [KepalaGudangController::class, 'getValidasiDetail'])
             ->name('history.api');
 
         Route::get('/history', [UserController::class, 'historyIndex'])->name('history.index');
@@ -213,7 +216,7 @@ Route::prefix('requestbarang')
         Route::get('/api/permintaan/{tiket}/status', [ApprovalStatusController::class, 'getStatus'])->name('api.permintaan.status');
 
         // ✅ API: Ambil jenis barang berdasarkan kategori
-        Route::get('/api/jenis-barang', function (\Illuminate\Http\Request $request) {
+        Route::get('/api/jenis-barang', function (Request $request) {
             $kategori = $request->query('kategori');
             $query = \App\Models\JenisBarang::query();
 
@@ -227,7 +230,7 @@ Route::prefix('requestbarang')
         })->name('api.jenis.barang');
 
         // API: Ambil tipe barang berdasarkan kategori
-        Route::get('/api/tipe-barang', function (\Illuminate\Http\Request $request) {
+        Route::get('/api/tipe-barang', function (Request $request) {
             $kategori = $request->query('kategori');
             $jenisId = $request->query('jenis_id');
 
