@@ -1,18 +1,34 @@
 <?php
 
-namespace App\Models;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Attachment extends Model
+return new class extends Migration
 {
-    protected $fillable = [
-        'pengiriman_id', 'tiket_pengiriman', 'type',
-        'filename', 'path', 'mime', 'size',
-    ];
-
-    public function pengiriman()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
-        return $this->belongsTo(Pengiriman::class, 'pengiriman_id');
+        Schema::create('attachments', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('pengiriman_id')->nullable()->constrained('pengiriman')->onDelete('cascade');
+            $table->string('tiket_pengiriman')->nullable()->index();
+            $table->string('type')->nullable(); // 'img_gudang', 'img_user', 'dokumen', dll
+            $table->string('filename');
+            $table->string('path');
+            $table->string('mime')->nullable();
+            $table->integer('size')->nullable();
+            $table->timestamps();
+        });
     }
-}
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        //
+    }
+};

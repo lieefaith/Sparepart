@@ -31,7 +31,7 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td><span class="text-primary fw-bold">{{ $p->tiket }}</span></td>
-                                <td>User {{ $p->user->region ?? 'Umum' }} {{ $p->user->id }}</td>
+                                <td>{{$p ->user->name ?? '-'}}</td>
                                 <td>{{ \Carbon\Carbon::parse($p->tanggal_penerimaan)->translatedFormat('j F Y') }}</td>
                                 <td>
                                     <!-- 🔘 Tombol "Closed" di kolom Aksi -->
@@ -117,7 +117,7 @@
                     <hr>
 
                     <!-- 🔸 Bagian Bukti Penerimaan - Layout Kiri Kanan -->
-                    <h6 class="fw-bold text-info mb-3"><i class="bi bi-image"></i> Bukti Penerimaan</h6>
+                    <h6 class="fw-bold text-info mb-3"><i class="bi bi-image"></i>Lampiran</h6>
                     <div class="row">
                         <!-- Card Bukti Pengiriman (Kiri) -->
                         <div class="col-md-6 mb-3">
@@ -308,7 +308,7 @@ document.getElementById('btnClosedFinal').addEventListener('click', function () 
 
     const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-    fetch(`/kepalagudang/closed-form/${encodeURIComponent(tiket)}/detail`, {
+    fetch(`/kepalagudang/closed-form/${encodeURIComponent(tiket)}/verify`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': token,

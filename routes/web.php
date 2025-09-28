@@ -187,8 +187,8 @@ Route::middleware(['auth', 'role:4'])
         Route::get('/tipe-barang', [PermintaanController::class, 'getTipe']);
 
         Route::get('/validasi', [UserController::class, 'validasiIndex'])->name('validasi.index');
-        Route::post('/validasi/{tiket}/terima', [UserController::class, 'terimaBarang'])->name('validasi.terima');
-        Route::get('/validasi/{tiket}/detail', [UserController::class, 'historyDetail'])->name('history.detail');
+        Route::post('/validasi/{tiket}/terima', [PengirimanController::class, 'terimaBarang'])->name('validasi.terima');
+        Route::get('/validasi/{tiket}/detail', [PengirimanController::class, 'historyDetail'])->name('history.detail');
         Route::get('/validasi/{tiket}/api', [KepalaGudangController::class, 'getValidasiDetail'])
             ->name('history.api');
 
